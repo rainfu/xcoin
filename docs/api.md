@@ -16,4 +16,4 @@ XCoin provides a unified API for client programs, and provides the following inf
   - updateSymbolFuture:Update futures related settings, such as leverage
 - market:provides relevant operations of the exchange corresponding to the current trading bot, such as obtaining products, quotations, etc.
 - backtest:provides backtest related data
-- panacea:provides [panacea](https://www.ciiat.com/) client-side related content
+- panacea:provides [Panacea](https://github.com/markmind/panacea) client-side related content

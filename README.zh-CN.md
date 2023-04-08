@@ -20,7 +20,7 @@
 
 - 支持同时交易多个交易对，只要服务器有足够算力，理论上你可以同时交易所有交易对.
 
-- 支持 [ccxt](https://github.com/ccxt/ccxthttps://github.com/ccxt/ccxt) 支持的所有交易所，[Binance](https://www.binance.com),[BinanceUsdm](https://www.binance.com),[Mexc](https://www.mexc.com/)已完整测试.
+- 支持 [ccxt](https://github.com/ccxt/ccxt) 支持的所有交易所，[Binance](https://www.binance.com),[BinanceUsdm](https://www.binance.com),[Mexc](https://www.mexc.com/)已完整测试.
 
 - 支持 [technicalindicators](https://github.com/anandanand84/technicalindicators) 支持的所有交易策略，轻松通过JSON文件扩展新的策略.
 
@@ -72,8 +72,8 @@ yarn trade binance --watch-symbols binance.BTC-USDT,binance.ETH-USDT --conf ./da
 
 ## 贡献者
 
-感谢所有参与XCoin项目的贡献者[[贡献者](https://github.com/xcoin/xcoin/graphs/contributors)].
+感谢所有参与XCoin项目的贡献者[[贡献者](https://github.com/rainfu/xcoin/graphs/contributors)].
 
 ## License
 
-[**MIT**](LICENSE).
+[**MIT**](https://opensource.org/licenses/MIT).

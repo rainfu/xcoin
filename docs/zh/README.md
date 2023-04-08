@@ -11,4 +11,5 @@
 
 - [FAQ](faq.md)
 - [PM2管理机器人](pm2.md)
-- [开发者](develop.md)
+- [开发者](developer.md)
+- [API](api.md)
