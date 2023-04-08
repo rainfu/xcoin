@@ -14,7 +14,13 @@
 
 ## 屏幕截图
 
+### 桌面
+
 ![Screenshot](docs/public/images/screenshot_zh.jpg)
+
+### 移动设备
+
+![Screenshot](docs/public/images/screenshot_mobile_zh.jpg)
 
 ## 功能特征
 

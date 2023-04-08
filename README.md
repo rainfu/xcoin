@@ -12,7 +12,13 @@
 
 ## Screenshots
 
+### Desktop
+
 ![Screenshot](docs/public/images/screenshot.jpg)
+
+### Mobile
+
+![Screenshot](docs/public/images/screenshot_mobile.jpg)
 
 ## Features
 
