@@ -16,7 +16,7 @@
 
 ### 桌面
 
-![Screenshot](docs/public/images/screenshot_zh.jpg)
+![Screenshot](docs/public/images/screenshot_cn.jpg)
 
 ### 移动设备
 
