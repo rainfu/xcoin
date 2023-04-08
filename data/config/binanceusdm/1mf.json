@@ -1,0 +1,345 @@
+{
+  "modified": {
+    "strategy": {
+      "id": "RSI",
+      "name": "RSI",
+      "des": "RSI",
+      "editable": false,
+      "group": "custom",
+      "strategies": [
+        {
+          "name": "RSI",
+          "des": "RSI",
+          "editable": false,
+          "group": "oscillators",
+          "input": [
+            {
+              "name": "period",
+              "type": "number",
+              "step": [
+                2,
+                100,
+                1
+              ],
+              "value": 8
+            },
+            {
+              "name": "overBoughtThreshold",
+              "type": "number",
+              "step": [
+                0,
+                100,
+                1
+              ],
+              "value": 75,
+              "show": true,
+              "pos": "sub",
+              "priceline": true
+            },
+            {
+              "name": "overSoldThreshold",
+              "type": "number",
+              "step": [
+                0,
+                100,
+                1
+              ],
+              "value": 25,
+              "show": true,
+              "pos": "sub",
+              "priceline": true
+            },
+            {
+              "name": "valType",
+              "type": "array",
+              "list": [
+                "open",
+                "high",
+                "low",
+                "close",
+                "volume"
+              ],
+              "value": [
+                "close"
+              ]
+            }
+          ],
+          "output": [
+            {
+              "name": "RSI",
+              "report": true,
+              "show": true,
+              "pos": "sub",
+              "type": "line",
+              "mark": true
+            },
+            {
+              "name": "signals",
+              "report": false,
+              "show": true,
+              "pos": "sub",
+              "type": "marker"
+            }
+          ],
+          "buyPoint": {
+            "connect": "base",
+            "source": "RSI",
+            "op": "crossUp",
+            "target": "overSoldThreshold"
+          },
+          "sellPoint": {
+            "connect": "base",
+            "source": "RSI",
+            "op": "crossDown",
+            "target": "overBoughtThreshold"
+          }
+        }
+      ]
+    }
+  },
+  "conf": "./data/config/binanceusdm/1mf.json",
+  "name": "demo",
+  "with_server": true,
+  "debug": true,
+  "period": "1m",
+  "poll_scan_time": 3000,
+  "min_periods": 32,
+  "paper": true,
+  "strategy": {
+    "id": "RSI",
+    "name": "RSI",
+    "des": "RSI",
+    "editable": false,
+    "group": "custom",
+    "strategies": [
+      {
+        "name": "RSI",
+        "des": "RSI",
+        "editable": false,
+        "group": "oscillators",
+        "input": [
+          {
+            "name": "period",
+            "type": "number",
+            "step": [
+              2,
+              100,
+              1
+            ],
+            "value": 8
+          },
+          {
+            "name": "overBoughtThreshold",
+            "type": "number",
+            "step": [
+              0,
+              100,
+              1
+            ],
+            "value": 75,
+            "show": true,
+            "pos": "sub",
+            "priceline": true
+          },
+          {
+            "name": "overSoldThreshold",
+            "type": "number",
+            "step": [
+              0,
+              100,
+              1
+            ],
+            "value": 25,
+            "show": true,
+            "pos": "sub",
+            "priceline": true
+          },
+          {
+            "name": "valType",
+            "type": "array",
+            "list": [
+              "open",
+              "high",
+              "low",
+              "close",
+              "volume"
+            ],
+            "value": [
+              "close"
+            ]
+          }
+        ],
+        "output": [
+          {
+            "name": "RSI",
+            "report": true,
+            "show": true,
+            "pos": "sub",
+            "type": "line",
+            "mark": true
+          },
+          {
+            "name": "signals",
+            "report": false,
+            "show": true,
+            "pos": "sub",
+            "type": "marker"
+          }
+        ],
+        "buyPoint": {
+          "connect": "base",
+          "source": "RSI",
+          "op": "crossUp",
+          "target": "overSoldThreshold"
+        },
+        "sellPoint": {
+          "connect": "base",
+          "source": "RSI",
+          "op": "crossDown",
+          "target": "overBoughtThreshold"
+        },
+        "inputParams": {
+          "period": 8,
+          "overBoughtThreshold": 75,
+          "overSoldThreshold": 25,
+          "valType": [
+            "close"
+          ]
+        }
+      }
+    ]
+  },
+  "watch_symbols": "binanceusdm.BTC-USDT,binanceusdm.DOGE-USDT,binanceusdm.CFX-USDT,binanceusdm.LQTY-USDT,binanceusdm.KAVA-USDT,binanceusdm.AGIX-USDT",
+  "output": {
+    "websocket": {
+      "on": true,
+      "ip": "0.0.0.0",
+      "port": 17836
+    }
+  },
+  "server": {
+    "ip": "127.0.0.1",
+    "port": 17831,
+    "save_pairs": "binanceusdm.BTC-USDT,binanceusdm.DOGE-USDT,binanceusdm.CFX-USDT,binanceusdm.LQTY-USDT,binanceusdm.KAVA-USDT,binanceusdm.AGIX-USDT"
+  },
+  "user": "demo",
+  "exchange": "binanceusdm",
+  "future": true,
+  "trade_type": "auto",
+  "market": "both",
+  "sell_stop_pct": 0.7,
+  "buy_stop_pct": 0,
+  "max_slippage_pct": 0.2,
+  "buy_pct": 10,
+  "max_buy_size": 1000,
+  "sell_pct": 100,
+  "order_adjust_time": 5000,
+  "max_sell_loss_pct": 0,
+  "max_buy_loss_pct": 0,
+  "order_poll_time": 5000,
+  "wait_for_settlement": 5000,
+  "markdown_buy_pct": 0,
+  "markup_sell_pct": 0,
+  "order_type": "maker",
+  "post_only": false,
+  "use_fee_asset": false,
+  "days": 2,
+  "keep_lookback_periods": 500,
+  "currency_capital": 1000,
+  "asset_capital": 0,
+  "avg_slippage_pct": 0.045,
+  "cancel_after": "day",
+  "save_bot_time": 60000,
+  "min_buy_size": 10,
+  "max_watch_size": 10,
+  "price_format": "0.00000000",
+  "quarentine_time": 0,
+  "run_for": 0,
+  "profit_not_lost": true,
+  "profit_win_enable": true,
+  "profit_win_first_rate": 5,
+  "profit_win_first_percent": 50,
+  "profit_win_second_rate": 10,
+  "profit_win_second_percent": 50,
+  "profit_win_third_rate": 20,
+  "profit_win_third_percent": 50,
+  "profit_win_max_rate": 50,
+  "profit_win_max_percent": 100,
+  "profit_stop_enable": true,
+  "profit_stop_pct": 20,
+  "profit_stop_first_rate": 10,
+  "profit_stop_first_percent": 30,
+  "profit_stop_second_rate": 20,
+  "profit_stop_second_percent": 40,
+  "profit_stop_third_rate": 30,
+  "profit_stop_third_percent": 50,
+  "profit_stop_max_rate": 50,
+  "profit_stop_max_percent": 70,
+  "profit_stop_percent": 50,
+  "watch_include_bought": true,
+  "watch_with_black_list": true,
+  "black_list": "",
+  "poll_broadcast_time": 5000,
+  "poll_init_klines": 1500,
+  "buy_profit_pct": 0,
+  "max_check_order_num": 10,
+  "product_active": true,
+  "product_currency": "USDT",
+  "product_min_volume": 50000,
+  "product_without_margin": true,
+  "restart": true,
+  "mode": "paper",
+  "leverage": 10,
+  "isolated": false,
+  "symbols": [
+    {
+      "exchange_id": "binanceusdm",
+      "product_id": "BTC-USDT",
+      "asset": "BTC",
+      "currency": "USDT",
+      "normalized": "binanceusdm.BTC-USDT"
+    },
+    {
+      "exchange_id": "binanceusdm",
+      "product_id": "DOGE-USDT",
+      "asset": "DOGE",
+      "currency": "USDT",
+      "normalized": "binanceusdm.DOGE-USDT"
+    },
+    {
+      "exchange_id": "binanceusdm",
+      "product_id": "CFX-USDT",
+      "asset": "CFX",
+      "currency": "USDT",
+      "normalized": "binanceusdm.CFX-USDT"
+    },
+    {
+      "exchange_id": "binanceusdm",
+      "product_id": "LQTY-USDT",
+      "asset": "LQTY",
+      "currency": "USDT",
+      "normalized": "binanceusdm.LQTY-USDT"
+    },
+    {
+      "exchange_id": "binanceusdm",
+      "product_id": "KAVA-USDT",
+      "asset": "KAVA",
+      "currency": "USDT",
+      "normalized": "binanceusdm.KAVA-USDT"
+    },
+    {
+      "exchange_id": "binanceusdm",
+      "product_id": "AGIX-USDT",
+      "asset": "AGIX",
+      "currency": "USDT",
+      "normalized": "binanceusdm.AGIX-USDT"
+    }
+  ],
+  "takerFee": 0.02,
+  "makerFee": 0.04,
+  "poll_watch_wait": 1000,
+  "same_period_multi_buy": false,
+  "buy_position_side_when_sell": true,
+  "poll_position_side_time": 3000,
+  "short_buy_pct": 20
+}

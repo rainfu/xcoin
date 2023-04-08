@@ -1,0 +1,573 @@
+{
+  "modified": {
+    "strategy": {
+      "id": "CUSTOM",
+      "name": "CUSTOM",
+      "des": "CUSTOM",
+      "editable": false,
+      "group": "custom",
+      "strategies": [
+        {
+          "name": "RSI",
+          "des": "RSI",
+          "editable": false,
+          "group": "oscillators",
+          "input": [
+            {
+              "name": "period",
+              "type": "number",
+              "step": [
+                2,
+                100,
+                1
+              ],
+              "value": 8
+            },
+            {
+              "name": "overBoughtThreshold",
+              "type": "number",
+              "step": [
+                0,
+                100,
+                1
+              ],
+              "value": 65,
+              "show": true,
+              "pos": "sub",
+              "priceline": true
+            },
+            {
+              "name": "overSoldThreshold",
+              "type": "number",
+              "step": [
+                0,
+                100,
+                1
+              ],
+              "value": 35,
+              "show": true,
+              "pos": "sub",
+              "priceline": true
+            },
+            {
+              "name": "valType",
+              "type": "array",
+              "list": [
+                "open",
+                "high",
+                "low",
+                "close",
+                "volume"
+              ],
+              "value": [
+                "close"
+              ]
+            }
+          ],
+          "output": [
+            {
+              "name": "RSI",
+              "report": true,
+              "show": true,
+              "pos": "sub",
+              "type": "line",
+              "mark": true
+            },
+            {
+              "name": "signals",
+              "report": false,
+              "show": true,
+              "pos": "sub",
+              "type": "marker"
+            }
+          ],
+          "buyPoint": {
+            "connect": "base",
+            "source": "RSI",
+            "op": "lt",
+            "target": "overSoldThreshold"
+          },
+          "sellPoint": {
+            "connect": "base",
+            "source": "RSI",
+            "op": "gt",
+            "target": "overBoughtThreshold"
+          },
+          "inputParams": {
+            "period": 8,
+            "overBoughtThreshold": 75,
+            "overSoldThreshold": 25,
+            "valType": [
+              "close"
+            ]
+          }
+        },
+        {
+          "name": "PSAR",
+          "group": "momentum",
+          "input": [
+            {
+              "name": "step",
+              "type": "number",
+              "step": [
+                0.01,
+                1,
+                0.005
+              ],
+              "value": 0.02
+            },
+            {
+              "name": "max",
+              "type": "number",
+              "step": [
+                0.05,
+                1,
+                0.05
+              ],
+              "value": 0.2
+            },
+            {
+              "name": "valType",
+              "type": "array",
+              "list": [
+                "open",
+                "high",
+                "low",
+                "close",
+                "volume"
+              ],
+              "value": [
+                "high",
+                "low"
+              ]
+            }
+          ],
+          "output": [
+            {
+              "name": "PSAR",
+              "report": true,
+              "mark": true,
+              "show": true,
+              "pos": "main",
+              "type": "line",
+              "dot": true
+            },
+            {
+              "name": "signals",
+              "report": false,
+              "show": true,
+              "pos": "main",
+              "type": "marker"
+            }
+          ],
+          "buyPoint": {
+            "connect": "and",
+            "source": "PSAR",
+            "op": "crossDown",
+            "target": "close"
+          },
+          "sellPoint": {
+            "connect": "and",
+            "source": "PSAR",
+            "op": "crossUp",
+            "target": "close"
+          },
+          "inputParams": {
+            "step": 0.02,
+            "max": 0.2,
+            "valType": [
+              "high",
+              "low"
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "name": "rain",
+  "conf": "./data/config/binanceusdm/30mf.json",
+  "with_server": true,
+  "period": "30m",
+  "poll_scan_time": 3000,
+  "min_periods": 32,
+  "paper": false,
+  "strategy": {
+    "id": "CUSTOM",
+    "name": "CUSTOM",
+    "des": "CUSTOM",
+    "editable": false,
+    "group": "custom",
+    "strategies": [
+      {
+        "name": "RSI",
+        "des": "RSI",
+        "editable": false,
+        "group": "oscillators",
+        "input": [
+          {
+            "name": "period",
+            "type": "number",
+            "step": [
+              2,
+              100,
+              1
+            ],
+            "value": 8
+          },
+          {
+            "name": "overBoughtThreshold",
+            "type": "number",
+            "step": [
+              0,
+              100,
+              1
+            ],
+            "value": 65,
+            "show": true,
+            "pos": "sub",
+            "priceline": true
+          },
+          {
+            "name": "overSoldThreshold",
+            "type": "number",
+            "step": [
+              0,
+              100,
+              1
+            ],
+            "value": 35,
+            "show": true,
+            "pos": "sub",
+            "priceline": true
+          },
+          {
+            "name": "valType",
+            "type": "array",
+            "list": [
+              "open",
+              "high",
+              "low",
+              "close",
+              "volume"
+            ],
+            "value": [
+              "close"
+            ]
+          }
+        ],
+        "output": [
+          {
+            "name": "RSI",
+            "report": true,
+            "show": true,
+            "pos": "sub",
+            "type": "line",
+            "mark": true
+          },
+          {
+            "name": "signals",
+            "report": false,
+            "show": true,
+            "pos": "sub",
+            "type": "marker"
+          }
+        ],
+        "buyPoint": {
+          "connect": "base",
+          "source": "RSI",
+          "op": "lt",
+          "target": "overSoldThreshold"
+        },
+        "sellPoint": {
+          "connect": "base",
+          "source": "RSI",
+          "op": "gt",
+          "target": "overBoughtThreshold"
+        },
+        "inputParams": {
+          "period": 8,
+          "overBoughtThreshold": 75,
+          "overSoldThreshold": 25,
+          "valType": [
+            "close"
+          ]
+        }
+      },
+      {
+        "name": "PSAR",
+        "group": "momentum",
+        "input": [
+          {
+            "name": "step",
+            "type": "number",
+            "step": [
+              0.01,
+              1,
+              0.005
+            ],
+            "value": 0.02
+          },
+          {
+            "name": "max",
+            "type": "number",
+            "step": [
+              0.05,
+              1,
+              0.05
+            ],
+            "value": 0.2
+          },
+          {
+            "name": "valType",
+            "type": "array",
+            "list": [
+              "open",
+              "high",
+              "low",
+              "close",
+              "volume"
+            ],
+            "value": [
+              "high",
+              "low"
+            ]
+          }
+        ],
+        "output": [
+          {
+            "name": "PSAR",
+            "report": true,
+            "mark": true,
+            "show": true,
+            "pos": "main",
+            "type": "line",
+            "dot": true
+          },
+          {
+            "name": "signals",
+            "report": false,
+            "show": true,
+            "pos": "main",
+            "type": "marker"
+          }
+        ],
+        "buyPoint": {
+          "connect": "and",
+          "source": "PSAR",
+          "op": "crossDown",
+          "target": "close"
+        },
+        "sellPoint": {
+          "connect": "and",
+          "source": "PSAR",
+          "op": "crossUp",
+          "target": "close"
+        },
+        "inputParams": {
+          "step": 0.02,
+          "max": 0.2,
+          "valType": [
+            "high",
+            "low"
+          ]
+        }
+      }
+    ]
+  },
+  "watch_symbols": "binanceusdm.CFX-USDT,binanceusdm.MASK-USDT,binanceusdm.STX-USDT,binanceusdm.LINA-USDT,binanceusdm.LQTY-USDT,binanceusdm.REN-USDT,binanceusdm.FOOTBALL-USDT,binanceusdm.TRX-USDT,binanceusdm.BNB-USDT,binanceusdm.XMR-USDT,binanceusdm.BTCDOM-USDT,binanceusdm.CKB-USDT,binanceusdm.RLC-USDT,binanceusdm.SOL-USDT,binanceusdm.GALA-USDT",
+  "output": {
+    "websocket": {
+      "on": true,
+      "ip": "0.0.0.0",
+      "port": 17830
+    }
+  },
+  "server": {
+    "ip": "127.0.0.1",
+    "port": 17831,
+    "save_pairs": "binanceusdm.BTC-USDT,binanceusdm.DOGE-USDT,binanceusdm.CFX-USDT,binanceusdm.LQTY-USDT,binanceusdm.KAVA-USDT,binanceusdm.AGIX-USDT"
+  },
+  "exchange": "binanceusdm",
+  "future": true,
+  "trade_type": "auto",
+  "market": "both",
+  "debug": true,
+  "sell_stop_pct": 1,
+  "buy_stop_pct": 0,
+  "max_slippage_pct": 0.2,
+  "buy_pct": 10,
+  "max_buy_size": 1000,
+  "sell_pct": 100,
+  "order_adjust_time": 5000,
+  "max_sell_loss_pct": 0,
+  "max_buy_loss_pct": 0,
+  "order_poll_time": 5000,
+  "wait_for_settlement": 5000,
+  "markdown_buy_pct": 0,
+  "markup_sell_pct": 0,
+  "order_type": "maker",
+  "post_only": false,
+  "use_fee_asset": false,
+  "days": 2,
+  "keep_lookback_periods": 500,
+  "currency_capital": 1000,
+  "asset_capital": 0,
+  "rsi_periods": 14,
+  "avg_slippage_pct": 0.045,
+  "cancel_after": "day",
+  "save_bot_time": 60000,
+  "min_buy_size": 10,
+  "max_watch_size": 10,
+  "price_format": "0.00000000",
+  "quarentine_time": 0,
+  "run_for": 0,
+  "profit_not_lost": true,
+  "profit_win_enable": true,
+  "profit_win_first_rate": 10,
+  "profit_win_first_percent": 50,
+  "profit_win_second_rate": 20,
+  "profit_win_second_percent": 50,
+  "profit_win_third_rate": 50,
+  "profit_win_third_percent": 50,
+  "profit_win_max_rate": 100,
+  "profit_win_max_percent": 50,
+  "profit_stop_enable": true,
+  "profit_stop_pct": 20,
+  "profit_stop_first_rate": 10,
+  "profit_stop_first_percent": 30,
+  "profit_stop_second_rate": 20,
+  "profit_stop_second_percent": 40,
+  "profit_stop_third_rate": 30,
+  "profit_stop_third_percent": 50,
+  "profit_stop_max_rate": 50,
+  "profit_stop_max_percent": 70,
+  "profit_stop_percent": 50,
+  "watch_include_bought": true,
+  "watch_with_black_list": true,
+  "black_list": "",
+  "poll_broadcast_time": 5000,
+  "poll_init_klines": 1500,
+  "buy_profit_pct": 0,
+  "max_check_order_num": 10,
+  "product_active": true,
+  "product_currency": "USDT",
+  "product_min_volume": 50000,
+  "product_without_margin": true,
+  "restart": true,
+  "mode": "live",
+  "leverage": 10,
+  "isolated": false,
+  "symbols": [
+    {
+      "exchange_id": "binanceusdm",
+      "product_id": "CFX-USDT",
+      "asset": "CFX",
+      "currency": "USDT",
+      "normalized": "binanceusdm.CFX-USDT"
+    },
+    {
+      "exchange_id": "binanceusdm",
+      "product_id": "MASK-USDT",
+      "asset": "MASK",
+      "currency": "USDT",
+      "normalized": "binanceusdm.MASK-USDT"
+    },
+    {
+      "exchange_id": "binanceusdm",
+      "product_id": "STX-USDT",
+      "asset": "STX",
+      "currency": "USDT",
+      "normalized": "binanceusdm.STX-USDT"
+    },
+    {
+      "exchange_id": "binanceusdm",
+      "product_id": "LINA-USDT",
+      "asset": "LINA",
+      "currency": "USDT",
+      "normalized": "binanceusdm.LINA-USDT"
+    },
+    {
+      "exchange_id": "binanceusdm",
+      "product_id": "LQTY-USDT",
+      "asset": "LQTY",
+      "currency": "USDT",
+      "normalized": "binanceusdm.LQTY-USDT"
+    },
+    {
+      "exchange_id": "binanceusdm",
+      "product_id": "REN-USDT",
+      "asset": "REN",
+      "currency": "USDT",
+      "normalized": "binanceusdm.REN-USDT"
+    },
+    {
+      "exchange_id": "binanceusdm",
+      "product_id": "FOOTBALL-USDT",
+      "asset": "FOOTBALL",
+      "currency": "USDT",
+      "normalized": "binanceusdm.FOOTBALL-USDT"
+    },
+    {
+      "exchange_id": "binanceusdm",
+      "product_id": "TRX-USDT",
+      "asset": "TRX",
+      "currency": "USDT",
+      "normalized": "binanceusdm.TRX-USDT"
+    },
+    {
+      "exchange_id": "binanceusdm",
+      "product_id": "BNB-USDT",
+      "asset": "BNB",
+      "currency": "USDT",
+      "normalized": "binanceusdm.BNB-USDT"
+    },
+    {
+      "exchange_id": "binanceusdm",
+      "product_id": "XMR-USDT",
+      "asset": "XMR",
+      "currency": "USDT",
+      "normalized": "binanceusdm.XMR-USDT"
+    },
+    {
+      "exchange_id": "binanceusdm",
+      "product_id": "BTCDOM-USDT",
+      "asset": "BTCDOM",
+      "currency": "USDT",
+      "normalized": "binanceusdm.BTCDOM-USDT"
+    },
+    {
+      "exchange_id": "binanceusdm",
+      "product_id": "CKB-USDT",
+      "asset": "CKB",
+      "currency": "USDT",
+      "normalized": "binanceusdm.CKB-USDT"
+    },
+    {
+      "exchange_id": "binanceusdm",
+      "product_id": "RLC-USDT",
+      "asset": "RLC",
+      "currency": "USDT",
+      "normalized": "binanceusdm.RLC-USDT"
+    },
+    {
+      "exchange_id": "binanceusdm",
+      "product_id": "SOL-USDT",
+      "asset": "SOL",
+      "currency": "USDT",
+      "normalized": "binanceusdm.SOL-USDT"
+    },
+    {
+      "exchange_id": "binanceusdm",
+      "product_id": "GALA-USDT",
+      "asset": "GALA",
+      "currency": "USDT",
+      "normalized": "binanceusdm.GALA-USDT"
+    }
+  ],
+  "takerFee": 0.02,
+  "makerFee": 0.04,
+  "poll_watch_wait": 1000,
+  "same_period_multi_buy": false,
+  "buy_position_side_when_sell": true,
+  "short_buy_pct": 10
+}

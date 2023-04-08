@@ -1,0 +1,209 @@
+{
+    "id": "CandleStick",
+    "name": "CandleStick",
+    "des": "CandleStick",
+    "editable": false,
+    "group": "custom",
+    "order": 50,
+    "strategies": [
+        {
+            "name": "CandleStick",
+            "group": "candlestick",
+            "input": [
+                {
+                    "name": "buyPatterns",
+                    "type": "array",
+                    "list": [
+                        "BullishEngulfingPattern",
+                        "DownsideTasukiGap",
+                        "BullishHarami",
+                        "BullishHaramiCross",
+                        "MorningDojiStar",
+                        "MorningStar",
+                        "BullishMarubozu",
+                        "PiercingLine",
+                        "ThreeWhiteSoldiers",
+                        "BullishHammerStick",
+                        "BullishInvertedHammerStick",
+                        "HammerPattern",
+                        "HammerPatternUnconfirmed",
+                        "TweezerBottom"
+                    ],
+                    "value": [
+                        "ThreeWhiteSoldiers",
+                        "HammerPattern",
+                        "TweezerBottom"
+                    ]
+                },
+                {
+                    "name": "sellPatterns",
+                    "type": "array",
+                    "list": [
+                        "BearishEngulfingPattern",
+                        "BearishHarami",
+                        "BearishHaramiCross",
+                        "EveningDojiStar",
+                        "EveningStar",
+                        "BearishMarubozu",
+                        "ThreeBlackCrows",
+                        "BearishHammerStick",
+                        "BearishInvertedHammerStick",
+                        "HangingMan",
+                        "HangingManUnconfirmed",
+                        "ShootingStar",
+                        "ShootingStarUnconfirmed",
+                        "TweezerTop"
+                    ],
+                    "value": [
+                        "ThreeBlackCrows",
+                        "HangingMan",
+                        "ShootingStar",
+                        "TweezerTop"
+                    ]
+                },
+                {
+                    "name": "valType",
+                    "type": "array",
+                    "list": [
+                        "open",
+                        "high",
+                        "low",
+                        "close",
+                        "volume"
+                    ],
+                    "value": [
+                        "close",
+                        "high",
+                        "low",
+                        "open"
+                    ]
+                }
+            ],
+            "output": [
+                {
+                    "name": "pattern",
+                    "mark": true,
+                    "report": true,
+                    "show": true,
+                    "pos": "sub",
+                    "type": "line"
+                },
+                {
+                    "name": "patternname",
+                    "report": true,
+                    "show": false,
+                    "pos": "sub",
+                    "type": "none"
+                },
+                {
+                    "name": "signals",
+                    "report": false,
+                    "show": true,
+                    "pos": "sub",
+                    "type": "marker"
+                }
+            ],
+            "buyPoint": {
+                "connect": "base",
+                "source": "pattern",
+                "op": "equal",
+                "target": -1
+            },
+            "sellPoint": {
+                "connect": "base",
+                "source": "pattern",
+                "op": "equal",
+                "target": 1
+            }
+        },
+        {
+            "name": "RSI",
+            "des": "RSI",
+            "editable": false,
+            "group": "oscillators",
+            "input": [
+                {
+                    "name": "period",
+                    "type": "number",
+                    "step": [
+                        2,
+                        100,
+                        1
+                    ],
+                    "value": 8
+                },
+                {
+                    "name": "overBoughtThreshold",
+                    "type": "number",
+                    "step": [
+                        0,
+                        100,
+                        1
+                    ],
+                    "value": 75,
+                    "show": true,
+                    "pos": "bottom",
+                    "owner": "RSI",
+                    "priceline": true
+                },
+                {
+                    "name": "overSoldThreshold",
+                    "type": "number",
+                    "step": [
+                        0,
+                        100,
+                        1
+                    ],
+                    "value": 25,
+                    "show": true,
+                    "pos": "bottom",
+                    "owner": "RSI",
+                    "priceline": true
+                },
+                {
+                    "name": "valType",
+                    "type": "array",
+                    "list": [
+                        "open",
+                        "high",
+                        "low",
+                        "close",
+                        "volume"
+                    ],
+                    "value": [
+                        "close"
+                    ]
+                }
+            ],
+            "output": [
+                {
+                    "name": "RSI",
+                    "report": true,
+                    "show": true,
+                    "pos": "bottom",
+                    "type": "line",
+                    "mark": true
+                },
+                {
+                    "name": "signals",
+                    "report": false,
+                    "show": true,
+                    "pos": "bottom",
+                    "type": "marker"
+                }
+            ],
+            "buyPoint": {
+                "connect": "none",
+                "source": "RSI",
+                "op": "crossUp",
+                "target": "overSoldThreshold"
+            },
+            "sellPoint": {
+                "connect": "none",
+                "source": "RSI",
+                "op": "crossDown",
+                "target": "overBoughtThreshold"
+            }
+        }
+    ]
+}
