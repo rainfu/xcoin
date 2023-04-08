@@ -118,9 +118,10 @@ function sidebarGuide_cn() {
       text: '高级',
       collapsed: false,
       items: [
-        { text: 'FAQ', link: '/zh/faq' },
+        { text: '常见问题', link: '/zh/faq' },
         { text: 'PM2管理机器人', link: '/zh/pm2' },
-        { text: '开发者', link: '/zh/developer' }
+        { text: '开发者', link: '/zh/developer' },
+        { text: 'API', link: '/zh/api' }
       ]
     }
   ]
@@ -144,7 +145,8 @@ function sidebarGuide() {
       items: [
         { text: 'FAQ', link: '/faq' },
         { text: 'PM2', link: '/pm2' },
-        { text: 'Developer', link: '/developer' }
+        { text: 'Developer', link: '/developer' },
+        { text: 'API', link: '/api' }
       ]
     }
   ]
