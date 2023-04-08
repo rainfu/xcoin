@@ -1,13 +1,13 @@
-# 用户文档
+# User Document
 
-**基础:**
+**Base:**
 
 - [Quick start](start.md)
 - [Bot Config](config.md)
 - [Bot Strategy](strategy.md)
 - [Exchange](exchange.md)
 
-**高级:**
+**Advance:**
 
 - [FAQ](faq.md)
 - [PM2](pm2.md)
