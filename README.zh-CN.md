@@ -74,7 +74,7 @@ yarn trade binance --watch-symbols binance.BTC-USDT,binance.ETH-USDT --conf ./da
 
 如果您有使用上的问题与Bug，欢迎通过 Github 提交，我们会尽量及时回答您的问题。当然，如果您能够直接提交PR，我们将不胜感谢。
 
-您可以点击这儿查看 [English](README.md) 文档
+您可以点击这儿查看 [English](README.md) 文档.
 
 ## 贡献者
 
