@@ -10,8 +10,6 @@
 >
 > 可选客户端: Android,Ios, Linux, macOS and Windows.
 
-</a>
-
 ## 屏幕截图
 
 ### 桌面
