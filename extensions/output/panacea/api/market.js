@@ -43,10 +43,10 @@ const getTickers = (message, cb, s) => {
  * @param {} message 
  * @param {*} cb 
  */
-const getPickerNormal = (message, cb) => {
+const getPickerNormal = (message, cb, s) => {
     let data = {
         action: message.action,
-        data: require(`../../data/exchanges/${s.options.exchange}_hot_products.json`)
+        data: require(`../../../../data/exchanges/${s.options.exchange}_hot_products.json`)
     }
     if (cb) cb(data)
 }
