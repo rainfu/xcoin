@@ -1,0 +1,1 @@
+import{_ as s,c as n,o as a,N as l}from"./chunks/framework.9a843496.js";const q=JSON.parse('{"title":"策略","description":"","frontmatter":{},"headers":[],"relativePath":"zh/strategy.md","lastUpdated":1681097206000}'),o={name:"zh/strategy.md"},p=l("",18),t=[p];function e(F,c,r,D,y,i){return a(),n("div",null,t)}const C=s(o,[["render",e]]);export{q as __pageData,C as default};
