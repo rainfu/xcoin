@@ -1,4 +1,4 @@
-const collectionService = require('../../../lib/mongo-service')
+const collectionService = require('../../../../lib/mongo-service')
     , spawn = require('child_process').spawn
     , path = require('path')
 

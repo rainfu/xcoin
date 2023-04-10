@@ -1,4 +1,4 @@
-var coreFactory = require('../../../lib/core')
+var coreFactory = require('../../../../lib/core')
 /**
  * get exchagne all products
  * @param {*} message 

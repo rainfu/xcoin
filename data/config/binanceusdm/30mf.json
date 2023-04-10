@@ -376,7 +376,7 @@
   },
   "watch_symbols": "binanceusdm.CFX-USDT,binanceusdm.MASK-USDT,binanceusdm.STX-USDT,binanceusdm.LINA-USDT,binanceusdm.LQTY-USDT,binanceusdm.REN-USDT,binanceusdm.FOOTBALL-USDT,binanceusdm.TRX-USDT,binanceusdm.BNB-USDT,binanceusdm.XMR-USDT,binanceusdm.BTCDOM-USDT,binanceusdm.CKB-USDT,binanceusdm.RLC-USDT,binanceusdm.SOL-USDT,binanceusdm.GALA-USDT",
   "output": {
-    "websocket": {
+    "panacea": {
       "on": true,
       "ip": "0.0.0.0",
       "port": 17830

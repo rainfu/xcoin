@@ -1,10 +1,10 @@
 
-var coreFactory = require('../../../lib/core')
+var coreFactory = require('../../../../lib/core')
     , { getInitData } = require('./status')
     , moment = require('moment')
     , _ = require('lodash')
-    , debug = require('../../../lib/debug')
-    , helpers = require('../../../lib/helpers')
+    , debug = require('../../../../lib/debug')
+    , helpers = require('../../../../lib/helpers')
 /**dynamic update watch list group */
 const addSymbol = (message, cb, s, conf, engine) => {
     let shouldAddSymbols = message.symbols.filter(m => s.options.symbols.every(p => p.normalized !== m))

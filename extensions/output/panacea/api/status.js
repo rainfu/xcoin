@@ -1,4 +1,4 @@
-var config = require("../../../config/config-structure.json")
+var config = require("../../../../config/config-structure.json")
 /**
  * get real-time symbols data 
  * @param {*} s 

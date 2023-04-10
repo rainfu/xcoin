@@ -6,7 +6,8 @@ const db = {
     }
 }
 const output = {
-    websocket: {
+    // cross platform client panacea api
+    panacea: {
         on: true,
         ip: '0.0.0.0',
         port: 17800

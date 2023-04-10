@@ -16,4 +16,4 @@ XCoin为客户端程序提供一套统一的API，通过API提供以下几个方
   - updateSymbolFuture 更新期货相关设置，如杠杆
 - market 提供当前交易机器人对应的交易所的相关操作，如获得产品，报价等
 - backtest 提供回测相关数据
-- panacea 提供 [灵丹](https://github.com/markmind/panacea) 客户端相关内容
+- panacea 提供 [灵丹](https://github.com/markmind/panacea-api) 客户端相关内容

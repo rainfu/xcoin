@@ -212,7 +212,7 @@
   "paper": true,
   "watch_symbols": "binance.BTC-USDT,binance.DOGE-USDT,binance.CFX-USDT,binance.LQTY-USDT,binance.KAVA-USDT,binance.AGIX-USDT",
   "output": {
-    "websocket": {
+    "panacea": {
       "on": true,
       "ip": "0.0.0.0",
       "port": 17840

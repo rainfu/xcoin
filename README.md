@@ -38,7 +38,7 @@
 
 - Support real transactions, virtual transactions and backtest transactions
 
-- Support all mobile devices and desktop devices through [Panacea](https://github.com/markmind/panacea), control all the states and operations of the bot in real time
+- Support all mobile devices and desktop devices through [Panacea](https://github.com/markmind/panacea-api), control all the states and operations of the bot in real time
 
 - Based on [Zenbot](https://github.com/DeviaVir/zenbot), Supports most of the functions of zenbot.
 
@@ -60,7 +60,7 @@ yarn trade binance --watch-symbols binance.BTC-USDT,binance.ETH-USDT --conf ./da
 
 Learn how to configure and start your XCoin program with the [Beginner's Guide](docs/start.md)
 
-Learn how to manage your bot's real-time status with the [Panacea](https://github.com/markmind/panacea) guide
+Learn how to manage your bot's real-time status with the [Panacea](https://github.com/markmind/panacea-api) guide
 
 ## Documentation
 

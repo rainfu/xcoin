@@ -211,7 +211,7 @@
   },
   "watch_symbols": "binanceusdm.BTC-USDT,binanceusdm.DOGE-USDT,binanceusdm.CFX-USDT,binanceusdm.LQTY-USDT,binanceusdm.KAVA-USDT,binanceusdm.AGIX-USDT",
   "output": {
-    "websocket": {
+    "panacea": {
       "on": true,
       "ip": "0.0.0.0",
       "port": 17836

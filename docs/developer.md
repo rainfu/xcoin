@@ -4,7 +4,7 @@ XCoin provides some basic extensions to enhance functions, and developers can al
 
 ## API extensions /extensions/output
 
-The relevant codes for connecting XCoin to the client are provided. At present, XCoin only supports APIs matching [Panacea](https://github.com/markmind/panacea). Panacea is a full-platform (ANDROID, IOS, WINDOWS, MAC, LINUX) trading bot real-time status management application, which is highly compatible with XCoin Integration, can provide interfaces for all configurations, strategies, and real-time trading.
+The relevant codes for connecting XCoin to the client are provided. At present, XCoin only supports APIs matching [Panacea](https://github.com/markmind/panacea-api). Panacea is a full-platform (ANDROID, IOS, WINDOWS, MAC, LINUX) trading bot real-time status management application, which is highly compatible with XCoin Integration, can provide interfaces for all configurations, strategies, and real-time trading.
 
 You can get more help at [API](api.md)
 

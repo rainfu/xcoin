@@ -1,5 +1,5 @@
 const checkVersion = (message, cb) => {
-    let versionObj = require('../../../data/panacea/version.json')
+    let versionObj = require('../../../../data/panacea/version.json')
     function versionCompare(oldVer, newVer) {
         let v1s = oldVer.split('.')
         let v2s = newVer.split('.')

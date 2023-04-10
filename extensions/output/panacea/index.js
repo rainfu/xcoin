@@ -1,20 +1,20 @@
 const webSocket = require('ws')
   , random_port = require('random-port')
-  , helpers = require('../../lib/helpers')
-  , debug = require('../../lib/debug')
+  , helpers = require('../../../lib/helpers')
+  , debug = require('../../../lib/debug')
   , apiFactory = require('./api/api')
-module.exports = function wsApi(s, conf, engine, keyboard) {
+module.exports = function panacea(s, conf, engine, keyboard) {
   let aliveCount = 0
   let api = apiFactory()
   var wsServer = {
     wss: null,
     run: function () {
-      if (!s.options.output.websocket.port || s.options.output.websocket.port === 0) {
+      if (!s.options.output.panacea.port || s.options.output.panacea.port === 0) {
         random_port({ from: 17000, range: 1000 }, function (port) {
-          this.startServer(s.options.output.websocket.ip, port)
+          this.startServer(s.options.output.panacea.ip, port)
         })
       } else {
-        this.startServer(s.options.output.websocket.ip, s.options.output.websocket.port)
+        this.startServer(s.options.output.panacea.ip, s.options.output.panacea.port)
       }
     },
     reply: function (ws, data) {
