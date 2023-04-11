@@ -22,7 +22,7 @@
 
 ## Features
 
-- Support trading multiple trading pairs at the same time, as long as the server has enough computing power, theoretically you can trade all trading pairs at the same time.
+- Support watching pool to trading multiple pairs at the same time, if you want,you can trade all pairs within a exchange.
 
 - Support all exchanges supported by [ccxt](https://github.com/ccxt/ccxt), [Binance](https://www.binance.com),[BinanceUsdm](https://www.binance.com), [Mexc](https://www.mexc.com/) have been fully tested.
 
