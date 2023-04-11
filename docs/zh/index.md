@@ -6,7 +6,7 @@ hero:
   text: 下一代交易机器人
   tagline: 基于Nodejs，简单而强大的数字资产交易机器人。
   image:
-    src: /images/screenshot.jpg
+    src: /images/screenshot_zh.jpg
     alt: XCoin        
 
   actions:
