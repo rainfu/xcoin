@@ -37,6 +37,10 @@ module.exports = function (program, conf) {
         options: JSON.parse(JSON.stringify(minimist(process.argv))),
         symbols: {},
         status: {
+          hasConfig: true,
+          hasStrategy: true,
+          hasMarket: true,
+          hasBacktest: false,
           tradeListLen: 0,
           startCapital: 0,
           currentCapital: 0,
