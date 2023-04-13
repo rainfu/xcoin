@@ -26,6 +26,8 @@
     "binance": "pm2 start ./config/binance.config.js",
     "jenny": "pm2 start ./config/jenny.config.js",
     "mexc": "pm2 start ./config/mexc.config.js",
+    "xcoin": "pm2 start ./data/pm2/xcoin.config.js",
+    "ciiat": "pm2 start ./data/pm2/ciiat.config.js",
     "dev": "yarn trade mexc --conf ./data/config/mexc/30m.json --paper"
   },
   "lint-staged": {

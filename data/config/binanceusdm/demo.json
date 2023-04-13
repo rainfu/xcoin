@@ -1,6 +1,7 @@
 {
-  "name": "rain",
-  "conf": "./data/config/binanceusdm/30mf.json",
+  "name": "demo",
+  "user": "demo",
+  "conf": "./data/config/binanceusdm/demo.json",
   "with_server": true,
   "period": "30m",
   "poll_scan_time": 3000,
@@ -12,12 +13,12 @@
     "panacea": {
       "on": true,
       "ip": "0.0.0.0",
-      "port": 17830
+      "port": 17818
     }
   },
   "server": {
     "ip": "127.0.0.1",
-    "port": 17831,
+    "port": 17849,
     "save_pairs": "binanceusdm.BTC-USDT,binanceusdm.DOGE-USDT,binanceusdm.CFX-USDT,binanceusdm.LQTY-USDT,binanceusdm.KAVA-USDT,binanceusdm.AGIX-USDT"
   },
   "exchange": "binanceusdm",

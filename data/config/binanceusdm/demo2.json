@@ -1,36 +1,36 @@
 {
-  "conf": "./data/config/binance/30m.json",
-  "name": "liu",
+  "conf": "./data/config/binanceusdm/demo2.json",
+  "name": "demo2",
   "with_server": true,
-  "strategy": "RSI",
-  "period": "3m",
+  "debug": true,
+  "period": "1m",
   "poll_scan_time": 3000,
   "min_periods": 32,
   "paper": true,
-  "watch_symbols": "binance.BTC-USDT,binance.DOGE-USDT,binance.CFX-USDT,binance.LQTY-USDT,binance.KAVA-USDT,binance.AGIX-USDT",
+  "strategy": "RSI",
+  "watch_symbols": "binanceusdm.BTC-USDT,binanceusdm.DOGE-USDT,binanceusdm.CFX-USDT,binanceusdm.LQTY-USDT,binanceusdm.KAVA-USDT,binanceusdm.AGIX-USDT",
   "output": {
     "panacea": {
       "on": true,
       "ip": "0.0.0.0",
-      "port": 17840
+      "port": 17832
     }
   },
   "server": {
     "ip": "127.0.0.1",
-    "port": 17841,
-    "save_pairs": "binance.BTC-USDT,binance.DOGE-USDT,binance.CFX-USDT,binance.LQTY-USDT,binance.KAVA-USDT,binance.AGIX-USDT"
+    "port": 17849,
+    "save_pairs": "binanceusdm.BTC-USDT,binanceusdm.DOGE-USDT,binanceusdm.CFX-USDT,binanceusdm.LQTY-USDT,binanceusdm.KAVA-USDT,binanceusdm.AGIX-USDT"
   },
-  "user": "rain",
-  "exchange": "binance",
-  "future": false,
+  "user": "demo2",
+  "exchange": "binanceusdm",
+  "future": true,
   "trade_type": "auto",
-  "market": "only_long",
-  "debug": true,
-  "sell_stop_pct": 5,
+  "market": "both",
+  "sell_stop_pct": 0.7,
   "buy_stop_pct": 0,
-  "max_slippage_pct": 0.5,
-  "buy_pct": 20,
-  "max_buy_size": 0,
+  "max_slippage_pct": 0.2,
+  "buy_pct": 10,
+  "max_buy_size": 1000,
   "sell_pct": 100,
   "order_adjust_time": 5000,
   "max_sell_loss_pct": 0,
@@ -43,10 +43,9 @@
   "post_only": false,
   "use_fee_asset": false,
   "days": 2,
-  "keep_lookback_periods": 50000,
+  "keep_lookback_periods": 500,
   "currency_capital": 1000,
   "asset_capital": 0,
-  "rsi_periods": 14,
   "avg_slippage_pct": 0.045,
   "cancel_after": "day",
   "save_bot_time": 60000,
@@ -57,14 +56,14 @@
   "run_for": 0,
   "profit_not_lost": true,
   "profit_win_enable": true,
-  "profit_win_first_rate": 10,
-  "profit_win_first_percent": 25,
-  "profit_win_second_rate": 20,
-  "profit_win_second_percent": 36,
-  "profit_win_third_rate": 50,
+  "profit_win_first_rate": 5,
+  "profit_win_first_percent": 50,
+  "profit_win_second_rate": 10,
+  "profit_win_second_percent": 50,
+  "profit_win_third_rate": 20,
   "profit_win_third_percent": 50,
-  "profit_win_max_rate": 100,
-  "profit_win_max_percent": 50,
+  "profit_win_max_rate": 50,
+  "profit_win_max_percent": 100,
   "profit_stop_enable": true,
   "profit_stop_pct": 20,
   "profit_stop_first_rate": 10,
@@ -89,54 +88,56 @@
   "product_without_margin": true,
   "restart": true,
   "mode": "paper",
-  "poll_watch_wait": 5000,
-  "takerFee": 0.1,
-  "makerFee": 0.1,
-  "same_period_multi_buy": false,
+  "leverage": 10,
+  "isolated": false,
   "symbols": [
     {
-      "exchange_id": "binance",
+      "exchange_id": "binanceusdm",
       "product_id": "BTC-USDT",
       "asset": "BTC",
       "currency": "USDT",
-      "normalized": "binance.BTC-USDT"
+      "normalized": "binanceusdm.BTC-USDT"
     },
     {
-      "exchange_id": "binance",
+      "exchange_id": "binanceusdm",
       "product_id": "DOGE-USDT",
       "asset": "DOGE",
       "currency": "USDT",
-      "normalized": "binance.DOGE-USDT"
+      "normalized": "binanceusdm.DOGE-USDT"
     },
     {
-      "exchange_id": "binance",
+      "exchange_id": "binanceusdm",
       "product_id": "CFX-USDT",
       "asset": "CFX",
       "currency": "USDT",
-      "normalized": "binance.CFX-USDT"
+      "normalized": "binanceusdm.CFX-USDT"
     },
     {
-      "exchange_id": "binance",
+      "exchange_id": "binanceusdm",
       "product_id": "LQTY-USDT",
       "asset": "LQTY",
       "currency": "USDT",
-      "normalized": "binance.LQTY-USDT"
+      "normalized": "binanceusdm.LQTY-USDT"
     },
     {
-      "exchange_id": "binance",
+      "exchange_id": "binanceusdm",
       "product_id": "KAVA-USDT",
       "asset": "KAVA",
       "currency": "USDT",
-      "normalized": "binance.KAVA-USDT"
+      "normalized": "binanceusdm.KAVA-USDT"
     },
     {
-      "exchange_id": "binance",
+      "exchange_id": "binanceusdm",
       "product_id": "AGIX-USDT",
       "asset": "AGIX",
       "currency": "USDT",
-      "normalized": "binance.AGIX-USDT"
+      "normalized": "binanceusdm.AGIX-USDT"
     }
   ],
+  "takerFee": 0.02,
+  "makerFee": 0.04,
+  "poll_watch_wait": 1000,
+  "same_period_multi_buy": false,
   "buy_position_side_when_sell": true,
   "poll_position_side_time": 3000,
   "short_buy_pct": 20

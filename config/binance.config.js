@@ -5,14 +5,14 @@ module.exports = {
       script: './xcoin.js',
       cron_restart: "50 */6 * * *",
       restart_delay: 100,
-      args: 'server binance --conf ./data/config/binance/30m.json'
+      args: 'server binance --conf ./data/config/binance/demo.json'
     }
     ,
     {
-      name: 'binance_trade',
+      name: 'binance_demo',
       script: './xcoin.js',
-      watch: ['./data/pm2/restart_binance_liu.json'],
-      args: 'trade binance --conf ./data/config/binance/30m.json --with_server'
+      watch: ['./data/pm2/restart_binance_demo.json'],
+      args: 'trade binance --conf ./data/config/binance/demo.json --with_server'
     }
   ]
 };

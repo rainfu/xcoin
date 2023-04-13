@@ -1,24 +1,24 @@
 module.exports = {
   apps: [
     {
-      name: 'server',
+      name: 'binanceusdm_server',
       script: './xcoin.js',
       cron_restart: "50 */6 * * *",
       restart_delay: 100,
-      args: 'server binanceusdm --conf ./data/config/binanceusdm/1mf.json'
+      args: 'server binanceusdm --conf ./data/config/binanceusdm/demo.json'
     }
     ,
     {
-      name: 'trade',
-      script: './xcoin.js',
-      watch: ['./data/pm2/restart_binanceusdm_rain.json'],
-      args: 'trade binanceusdm --conf ./data/config/binanceusdm/30mf.json --with_server'
-    },
-    {
-      name: 'trade1m',
+      name: 'binanceusdm_demo',
       script: './xcoin.js',
       watch: ['./data/pm2/restart_binanceusdm_demo.json'],
-      args: 'trade binanceusdm --conf ./data/config/binanceusdm/1mf.json --with_server'
+      args: 'trade binanceusdm --conf ./data/config/binanceusdm/demo.json --with_server'
+    },
+    {
+      name: 'binanceusdm_demo2',
+      script: './xcoin.js',
+      watch: ['./data/pm2/restart_binanceusdm_demo2.json'],
+      args: 'trade binanceusdm --conf ./data/config/binanceusdm/demo2.json --with_server'
     }
   ]
 };
