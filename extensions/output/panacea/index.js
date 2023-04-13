@@ -67,6 +67,11 @@ module.exports = function panacea(s, conf, engine, keyboard) {
               case "refresh":
                 self.refresh()
                 break;
+              case 'stop':
+                ws.isAlive = false;
+                aliveCount--
+                ws.terminate();
+                break;
               default:
                 api[message.action](message, (data) => {
                   self.reply(ws, data)
