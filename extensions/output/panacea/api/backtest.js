@@ -1,5 +1,6 @@
 const collectionService = require('../../../../lib/mongo-service')
     , spawn = require('child_process').spawn
+    , colors = require('colors')
     , path = require('path')
 
 const getBacktestList = (message, cb, s, conf) => {
