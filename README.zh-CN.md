@@ -12,13 +12,13 @@
 
 ## 屏幕截图
 
-### 桌面
+### 服务器端
+
+![Screenshot](docs/public/images/server.jpg)
+
+### 客户端
 
 ![Screenshot](docs/public/images/screenshot_cn.jpg)
-
-### 移动设备
-
-![Screenshot](docs/public/images/screenshot_mobile_zh.jpg)
 
 ## 功能特征
 

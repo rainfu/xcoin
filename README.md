@@ -12,13 +12,13 @@
 
 ## Screenshots
 
-### Desktop
+### Server
+
+![Screenshot](docs/public/images/server.jpg)
+
+### Client
 
 ![Screenshot](docs/public/images/screenshot.jpg)
-
-### Mobile
-
-![Screenshot](docs/public/images/screenshot_mobile.jpg)
 
 ## Features
 
