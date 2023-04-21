@@ -4,7 +4,6 @@ const webSocket = require('ws')
   , debug = require('../../../lib/debug')
   , apiFactory = require('./api/api')
 module.exports = function panacea(s, conf, engine, keyboard) {
-  let aliveCount = 0
   let api = apiFactory()
   var wsServer = {
     wss: null,
@@ -25,10 +24,10 @@ module.exports = function panacea(s, conf, engine, keyboard) {
       var self = this
       this.wss = new webSocket.Server({ host: ip, port: port })
       const interval = setInterval(() => {
-        this.wss.clients.forEach(function each(ws) {
+        this.wss.clients.forEach((ws) => {
           if (ws.isAlive === false) {
-            aliveCount--
-            return ws.terminate();
+            ws.terminate();
+            return
           }
           ws.isAlive = false;
           ws.ping();
@@ -39,9 +38,8 @@ module.exports = function panacea(s, conf, engine, keyboard) {
       });
       console.log('WebSocket running on ws://%s:%s'.green, ip, port)
       this.wss.on('connection', (ws) => {
-        aliveCount++
         ws.isAlive = true;
-        debug.msg('Websocket new client join '.cyan + aliveCount.toString().cyan)
+        debug.msg('Websocket new client join '.cyan + this.wss.clients.size.toString().cyan)
         this.init(ws)
         ws.on('pong', () => {
           ws.isAlive = true
@@ -69,7 +67,6 @@ module.exports = function panacea(s, conf, engine, keyboard) {
                 break;
               case 'stop':
                 ws.isAlive = false;
-                aliveCount--
                 ws.terminate();
                 break;
               default:
@@ -117,6 +114,10 @@ module.exports = function panacea(s, conf, engine, keyboard) {
     refresh: function () {
       if (!this.wss) return
       if (s.status.status !== 'work') return
+      if (!this.wss.clients.size) {
+        console.log("\nWebsocket no client".red)
+        return
+      }
       this.wss.clients.forEach(client => {
         if (client.readyState === 1) {
           let data = {
