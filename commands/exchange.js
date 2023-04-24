@@ -21,7 +21,8 @@ module.exports = function (program, conf) {
         .option('--ticker <ticker>', 'refresh ticker')
         .option('--quote <quote>', 'refresh quote')
         .option('--refresh', 'refresh products')
-        .option('--getorder', 'get order')
+        .option('--getorder <orderid>', 'get order', String, null)
+        .option('--getorders <symbol>', 'get orders', String, null)
         .option('--kline', 'refresh klines')
         .option('--leverage', 'update leverage')
         .option('--lnum <length>', 'update leverage level', Number, 10)
@@ -48,6 +49,7 @@ module.exports = function (program, conf) {
             conf.refresh = cmd.refresh
             conf.onlysell = cmd.onlysell
             conf.getorder = cmd.getorder
+            conf.getorders = cmd.getorders
             conf.tickers = cmd.tickers
             conf.lnum = cmd.lnum || 10
             conf.sell_pct = cmd.sell_pct
@@ -86,12 +88,27 @@ module.exports = function (program, conf) {
             // console.log('so', so, exchange)
             if (so.getorder) {
                 console.log('start get order')
+                let parms = so.getorder.split(',')
                 var opts = {
-                    order_id: '0xe9975702518c79caf81d5da65dea689dcac701fcdd063f848d4f03c85392fd00'
+                    order_id: parms[0],
+                    product_id: parms[1]
                 }
                 exchange.getOrder(opts, function (err, res) {
                     if (err) console.log('error', err)
                     console.log('getOrder ok..', res)
+                    process.exit(0)
+                })
+                return
+            }
+            if (so.getorders) {
+                console.log('start get orders')
+                var opts = {
+                    product_id: so.getorders,
+                    limit: 5
+                }
+                exchange.getOrders(opts, function (err, res) {
+                    if (err) console.log('error', err)
+                    console.log('getOrders ok..', res)
                     process.exit(0)
                 })
                 return
@@ -216,7 +233,7 @@ module.exports = function (program, conf) {
             }
             //implement balane
             if (so.balance) {
-                console.log(exchangename.green + ' start get balance'.green)
+                console.log(exchangename.cyan + ' start get balance'.green)
                 exchange.getBalance({
                     position_side: so.position_side || "LONG",
                     currency: so.symbols[0].currency,
@@ -225,20 +242,23 @@ module.exports = function (program, conf) {
                     if (err) return
                     if (!balance.assets) return
                     delete balance.assets['NFT']
+                    // console.log('balance', balance)
                     let symbols = Object.keys(balance.assets).map(key => {
                         return Object.assign(balance.assets[key], {
                             product_id: key + '-' + so.symbols[0].currency,
                             normalized: exchangename + "." + key + '-' + so.symbols[0].currency
                         })
                     })
-                    // console.log('symbols2', symbols)
+                    //console.log('symbols2', symbols)
                     exchange.getTickers({ symbols }, function (err, realTickers) {
                         // console.log('realTickers', realTickers)
                         // console.log('forward scan', realTickers.length, realTickers[realTickers.length - 1])
                         let sum = 0
                         if (realTickers) {
                             Object.keys(realTickers).forEach(t => {
-                                let symbol = symbols.find((s) => s.normalized === realTickers[t].normalized)
+
+                                let symbol = symbols.find((s) => (s.normalized === realTickers[t].normalized || s.normalized + ':USDT' === realTickers[t].normalized))
+                                //  console.log('t', t, realTickers[t], symbol)
                                 if (symbol) {
                                     symbol.capital = n(symbol.asset).multiply(realTickers[t].close).value()
                                     console.log('balance', symbol.normalized, symbol.capital)
@@ -246,7 +266,9 @@ module.exports = function (program, conf) {
                                 }
                             })
                         }
-                        console.log('balance usdt ', balance.currency)
+                        console.log('balance USDT ', balance.currency)
+                        console.log('balance USDT hold', balance.currency_hold)
+
                         console.log(exchangename.green + '  get balance total'.green + ": " + (balance.currency + sum))
                         process.exit()
                     })

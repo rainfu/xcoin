@@ -230,44 +230,49 @@ module.exports = function container(conf, so, inOptions) {
       var func_args = [].slice.call(arguments)
       var client = authedClient()
       client.fetchBalance().then(result => {
+        //console.log('getBalanece..', opts, result)
         var balance = { asset: 0, currency: 0 }
-        Object.keys(result).forEach(function (key) {
-          if (key === opts.currency) {
-            balance.currency = result[key].free + result[key].used
-            balance.currency_hold = result[key].used
-          }
-          else {
-            if (so.future) {
-              // console.log('getBalanece..', opts)
-              result.info.positions.forEach(function (market) {
-                // console.log('market', market)
-                if (opts.position_side && market.positionSide === opts.position_side) {
-                  if (market.symbol === (opts.asset + opts.currency) && market.positionSide === opts.position_side) {
-                    balance.asset = Math.abs(market.positionAmt)
-                    balance.unrealizedProfit = market.unrealizedProfit
-                    balance.leverage = market.leverage
-                    balance.isolated = market.isolated
-                    balance.positionSide = market.positionSide
-                    balance.entryPrice = market.entryPrice
-                    balance.asset_hold = 0
-                  }
-                  if (!balance.assets) balance.assets = {}
-                  if (market.positionAmt != 0) {
-                    // console.log('market...', market)
-                    balance.assets[market.symbol.replace(opts.currency, '')] = {
-                      asset: Math.abs(market.positionAmt),
-                      unrealizedProfit: market.unrealizedProfit,
-                      leverage: market.leverage,
-                      isolated: market.isolated,
-                      positionSide: market.positionSide,
-                      entryPrice: market.entryPrice,
-                      asset_hold: 0
-                    }
-                  }
-                }
-              })
+        if (so.future) {
+          Object.keys(result).forEach(function (key) {
+            if (key === opts.currency) {
+              balance.currency = result[key].free + result[key].used
+              balance.currency_hold = result[key].used
             }
-            else {
+          })
+          result.info.positions.forEach(function (market) {
+            // console.log('market', market)
+            if (opts.position_side && market.positionSide === opts.position_side) {
+              if (market.symbol === (opts.asset + opts.currency) && market.positionSide === opts.position_side) {
+                balance.asset = Math.abs(market.positionAmt)
+                balance.unrealizedProfit = market.unrealizedProfit
+                balance.leverage = market.leverage
+                balance.isolated = market.isolated
+                balance.positionSide = market.positionSide
+                balance.entryPrice = market.entryPrice
+                balance.asset_hold = 0
+
+              }
+              if (!balance.assets) balance.assets = {}
+              if (market.positionAmt != 0) {
+                // console.log('market...', market)
+                balance.assets[market.symbol.replace(opts.currency, '')] = {
+                  asset: Math.abs(market.positionAmt),
+                  unrealizedProfit: market.unrealizedProfit,
+                  leverage: market.leverage,
+                  isolated: market.isolated,
+                  positionSide: market.positionSide,
+                  entryPrice: market.entryPrice,
+                  asset_hold: 0
+                }
+              }
+            }
+          })
+        } else {
+          Object.keys(result).forEach(function (key) {
+            if (key === opts.currency) {
+              balance.currency = result[key].free + result[key].used
+              balance.currency_hold = result[key].used
+            } else {
               const num = result[key].free + result[key].used
               if (num > 0) {
                 if (!balance.assets) balance.assets = {}
@@ -281,16 +286,14 @@ module.exports = function container(conf, so, inOptions) {
                 balance.asset_hold = result[key].used
               }
             }
-          }
-
-        })
+          })
+        }
         // console.log('getBalance result', opts, balance)
         cb(null, balance)
+      }).catch(function (error) {
+        console.error('An error occurred', error)
+        return retry('getBalance', func_args)
       })
-        .catch(function (error) {
-          console.error('An error occurred', error)
-          return retry('getBalance', func_args)
-        })
     },
     getQuote: function (opts, cb) {
       var func_args = [].slice.call(arguments)
@@ -390,8 +393,8 @@ module.exports = function container(conf, so, inOptions) {
       var client = authedClient()
       client.cancelOrder(opts.order_id, joinProduct(opts.product_id)).then(function (body) {
         // console.log('cancelOrder result', opts, body)
-        if (body && (body.message === 'Order already done' || body.message === 'order not found')) return cb()
-        cb(null)
+        if (body && (body.message === 'Order already done' || body.message === 'order not found')) return cb(body)
+        cb(body)
       }, function (err) {
         // match error against string:
 
@@ -565,19 +568,37 @@ module.exports = function container(conf, so, inOptions) {
       // console.log('getOrder', opts, opts.order_id, joinProduct(opts.product_id))
       client.fetchOrder(opts.order_id, joinProduct(opts.product_id)).then(function (body) {
         // console.log('getOrder', body)
-        if (body.status !== 'open' && body.status !== 'canceled') {
-          order.status = 'done'
-          order.done_at = new Date().getTime()
-          order.price = body.type === 'market' ? parseFloat(body.average) : parseFloat(body.price)
-          order.filled_size = parseFloat(body.amount) - parseFloat(body.remaining)
-          return cb(null, order)
+        if (order) {
+          if (body.status !== 'open' && body.status !== 'canceled') {
+            order.status = 'done'
+            order.done_at = new Date().getTime()
+            order.price = body.type === 'market' ? parseFloat(body.average) : parseFloat(body.price)
+            order.filled_size = parseFloat(body.amount) - parseFloat(body.remaining)
+            return cb(null, order)
+          }
+          cb(null, order)
+        } else {
+          cb(null, body)
         }
-        cb(null, order)
       }, function (err) {
         if (err.name && err.name.match(new RegExp(/InvalidOrder|BadRequest/))) {
           return cb(err)
         }
         return retry('getOrder', func_args, err)
+      })
+    },
+    getOrders: function (opts, cb) {
+      var func_args = [].slice.call(arguments)
+      var client = authedClient()
+      // console.log('getOrder', opts, opts.order_id, joinProduct(opts.product_id))
+      client.fetchOrders(joinProduct(opts.product_id), opts.since, opts.limit).then(function (body) {
+        // console.log('getOrders', body)
+        cb(null, body)
+      }, function (err) {
+        if (err.name && err.name.match(new RegExp(/InvalidOrder|BadRequest/))) {
+          return cb(err)
+        }
+        return retry('getOrders', func_args, err)
       })
     },
     getCursor: function (trade) {

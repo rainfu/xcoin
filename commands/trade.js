@@ -11,7 +11,7 @@ var minimist = require('minimist')
   , webSocket = require('ws')
   , crypto = require('crypto')
   , colors = require('colors')
-
+  , logger = require('../lib/logger')
 module.exports = function (program, conf) {
   program
     .command('trade [exchange]')
@@ -350,6 +350,7 @@ module.exports = function (program, conf) {
       function writeHead() {
         var head = '\n\n------------------------------------------ INITIALIZE  OUTPUT ------------------------------------------'
         console.log(head)
+        logger.info('------------------------------------------ BOT  START ------------------------------------------')
         var minuses = Math.floor((head.length - so.mode.length - 19) / 2)
         console.log('-'.repeat(minuses) + ' STARTING ' + so.mode.toUpperCase() + ' TRADING ' + '-'.repeat(minuses + (minuses % 2 == 0 ? 0 : 1)))
         if (so.mode === 'paper') {

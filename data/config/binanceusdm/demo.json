@@ -200,7 +200,7 @@
   ],
   "takerFee": 0.02,
   "makerFee": 0.04,
-  "poll_watch_wait": 1000,
+  "poll_watch_wait": 1500,
   "same_period_multi_buy": false,
   "buy_position_side_when_sell": true,
   "short_buy_pct": 10
