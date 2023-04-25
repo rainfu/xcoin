@@ -11,7 +11,6 @@ var minimist = require('minimist')
   , webSocket = require('ws')
   , crypto = require('crypto')
   , colors = require('colors')
-  , logger = require('../lib/logger')
 module.exports = function (program, conf) {
   program
     .command('trade [exchange]')
@@ -52,9 +51,10 @@ module.exports = function (program, conf) {
         }
       }
       var so = s.options
+      var logger = conf.logger
       // init bot options don't send this params to client
       Object.keys(conf).forEach(function (k) {
-        if (k !== 'eventBus' && k !== 'secret' && k !== 'db') {
+        if (k !== 'eventBus' && k !== 'logger' && k !== 'secret' && k !== 'db') {
           so[k] = conf[k]
         }
       })

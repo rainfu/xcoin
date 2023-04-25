@@ -46,11 +46,6 @@
             "value": "live"
         },
         {
-            "name": "debug",
-            "type": "bool",
-            "value": false
-        },
-        {
             "name": "other",
             "type": "group"
         },

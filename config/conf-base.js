@@ -30,7 +30,6 @@ const options = {
     future: false,
     trade_type: 'auto',
     market: 'only_long',
-    debug: false,
     sell_stop_pct: 5,// sell if price drops below this % of bought price (0 to disable)
     buy_stop_pct: 0,// buy if price surges above this % of sold price (0 to disable)
     max_slippage_pct: 0.5,// avoid trading at a slippage above this pct

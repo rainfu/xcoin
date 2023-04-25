@@ -62,11 +62,6 @@ The basic configuration file is located in the /confg directory, and the file na
        value: 'live'
      },
      {
-       name: 'debug', //whether the debug mode is enabled
-       type: "bool",
-       value: false
-     },
-     {
        name: 'other', // other
        type: 'group', // group display
      },

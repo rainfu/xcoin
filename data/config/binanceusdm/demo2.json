@@ -2,7 +2,6 @@
   "conf": "./data/config/binanceusdm/demo2.json",
   "name": "demo2",
   "with_server": true,
-  "debug": true,
   "period": "1m",
   "poll_scan_time": 3000,
   "min_periods": 32,

@@ -41,7 +41,7 @@ module.exports = function (program, conf) {
       var so = s.options
       // init bot options don't send this params to client
       Object.keys(conf).forEach(function (k) {
-        if (k !== 'eventBus' && k !== 'secret' && k !== 'db') {
+        if (k !== 'eventBus' && k !== 'logger' && k !== 'secret' && k !== 'db') {
           so[k] = conf[k]
         }
       })

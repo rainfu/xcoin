@@ -65,11 +65,6 @@ XCoin通过配置文件初始化机器人，包括以下几类配置文件
       value: 'live'
     },
     {
-      name: 'debug',//调试模式是否开启
-      type: "bool",
-      value: false
-    },
-    {
       name: 'other',//其它
       type: 'group',//分组显示
     },

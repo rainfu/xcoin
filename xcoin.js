@@ -3,7 +3,7 @@ var path = require('path')
   , _ = require('lodash')
   , minimist = require('minimist')
   , version = require('./package.json').version
-  , logger = require("./lib/logger")
+  , loggerInstance = require("./lib/logger")
   , EventEmitter = require('events')
   , fs = require('fs')
 
@@ -60,7 +60,7 @@ function initConfig(args) {
     conf = require('./config/conf-base')
     secret = require('./config/conf-secret')
   } catch (err) {
-    logger.error(err + ' base config file is not present!')
+    console.error(err + ' base config file is not present!')
     process.exit(1)
   }
   // 2. load conf overrides file if present or last_config
@@ -68,7 +68,7 @@ function initConfig(args) {
     try {
       overrides = require(path.resolve(process.cwd(), args.conf))
     } catch (err) {
-      logger.error(err + ', failed to load input conf overrides file!')
+      console.error(err + ', failed to load input conf overrides file!')
     }
   }
   else {
@@ -84,12 +84,13 @@ function initConfig(args) {
     try {
       overridesSecret = require(path.resolve(process.cwd(), args.secret))
     } catch (err) {
-      logger.error(err + ', failed to load input secret overrides file!')
+      console.error(err + ', failed to load input secret overrides file!')
     }
   }
   config = _.defaultsDeep(config, args, overrides, conf)
   secret = _.defaultsDeep(overridesSecret, secret)
   config.secret = secret
+  config.logger = loggerInstance(config)
   return config
 }
 /**
@@ -98,7 +99,7 @@ function initConfig(args) {
  * @param {*} args 
  */
 function initExtra(conf, args) {
-  module.exports.debug = args.debug || conf.debug
+  module.exports.debug = args.debug
   var eventBus = new EventEmitter()
   conf.eventBus = eventBus
 }
@@ -125,9 +126,9 @@ function initDb(xcoin, conf, cb) {
   }
   require('mongodb').MongoClient.connect(connectionString, { useNewUrlParser: true, useUnifiedTopology: true }, function (err, client) {
     if (err) {
-      logger.error('WARNING: MongoDB Connection Error: ', err)
-      logger.error('WARNING: without MongoDB some features (such as backfilling/simulation) may be disabled.')
-      logger.error('Attempted authentication string: ' + connectionString)
+      console.error('WARNING: MongoDB Connection Error: ', err)
+      console.error('WARNING: without MongoDB some features (such as backfilling/simulation) may be disabled.')
+      console.error('Attempted authentication string: ' + connectionString)
       if (cb) cb(null, xcoin)
       return
     }

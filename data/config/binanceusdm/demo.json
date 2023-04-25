@@ -25,7 +25,6 @@
   "future": true,
   "trade_type": "auto",
   "market": "both",
-  "debug": true,
   "sell_stop_pct": 1,
   "buy_stop_pct": 0,
   "max_slippage_pct": 0.2,

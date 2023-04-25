@@ -56,7 +56,7 @@ module.exports = function (program, conf) {
             conf.mode = conf.paper ? 'paper' : 'live'
             conf.exchange = exchangename
             Object.keys(conf).forEach(function (k) {
-                if (k !== 'eventBus' && k !== 'secret' && k !== 'db') {
+                if (k !== 'eventBus' && k !== 'logger' && k !== 'secret' && k !== 'db') {
                     so[k] = conf[k]
                 }
             })
