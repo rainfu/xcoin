@@ -395,12 +395,11 @@ module.exports = function container(conf, so, inOptions) {
         // console.log('cancelOrder result', opts, body)
         if (body && (body.message === 'Order already done' || body.message === 'order not found')) return cb(body)
         cb(body)
+        return
       }, function (err) {
         // match error against string:
-
         if (err) {
           // decide if this error is allowed for a retry
-
           if (err.message && err.message.match(new RegExp(/-2011|UNKNOWN_ORDER/))) {
             console.error(('\ncancelOrder retry - unknown Order: ' + JSON.stringify(opts) + ' - ' + err).cyan)
           } else {
@@ -408,7 +407,7 @@ module.exports = function container(conf, so, inOptions) {
             return retry('cancelOrder', func_args, err)
           }
         }
-        cb()
+        cb(null, err)
       })
     },
     buy: function (opts, cb) {

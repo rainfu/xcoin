@@ -129,10 +129,16 @@ module.exports = function (program, conf) {
             s.balance.currency_hold = balance.currency_hold
             engine.initExchange((err, shortSymbols, shortBalance) => {
               let symbols = [...longSymbols, ...shortSymbols]
-              symbols.forEach(symbol => {
-                s.balance.start_capital = n(s.balance.start_capital).add(parseFloat(symbol.unrealizedProfit)).value()
-              })
-
+              if (so.future) {
+                symbols.forEach(symbol => {
+                  s.balance.start_capital = n(s.balance.start_capital).add(parseFloat(symbol.unrealizedProfit)).value()
+                })
+              }
+              else {
+                symbols.forEach(symbol => {
+                  s.balance.start_capital = n(s.balance.start_capital).add(parseFloat(symbol.capital)).value()
+                })
+              }
               //add buyed symbols to watch symbols
 
               let buyedSymbols = initBuyedSymbols(symbols)
@@ -152,7 +158,7 @@ module.exports = function (program, conf) {
                   buyedSymbols && buyedSymbols.forEach(b => {
                     s.symbols[b.product_id].action = 'bought'
                     s.symbols[b.product_id]['last_buy_price'] = b.entry_price
-                    s.symbols[b.product_id]['last_buy_type'] = 'prev_buy_' + (b.positionSide === 'LONG' ? 'long' : 'short')
+                    s.symbols[b.product_id]['last_buy_type'] = 'prev_buy_' + (b.positionSide === 'SHORT' ? 'short' : 'long')
                     s.symbols[b.product_id].my_trades.push({
                       order_id: crypto.randomBytes(4).toString('hex'),
                       time: (new Date()).getTime(),
@@ -397,14 +403,13 @@ module.exports = function (program, conf) {
         //add buyed symbol
         if (so.watch_include_bought) {
           buyedSymbols = symbols.map(symbol => {
-            // console.log('symbol', symbol)
-            return Object.assign(helpers.objectifySelector(symbol.normalized), { positionSide: symbol.positionSide, entry_price: symbol.entryPrice, asset_size: symbol.asset, capital_size: symbol.unrealizedProfit })
+            return Object.assign(helpers.objectifySelector(symbol.normalized), { positionSide: symbol.positionSide, entry_price: (so.future ? symbol.entryPrice : symbol.init_price), asset_size: symbol.asset, capital_size: (so.future ? symbol.unrealizedProfit : symbol.capital) })
           }).map(symbol => {
 
             let product = s.exchange.getProducts().find(x => symbol.product_id === (x.asset + '-' + x.currency))
             return Object.assign(symbol, product)
           }).filter(symbol => {
-            // console.log('symbol', symbol, s.capital_size > 0 && symbol.capital_size > so.min_buy_size)
+            // console.log('symbol', symbol, symbol.capital_size > so.min_buy_size)
             if (s.options.future) {
               return symbol.asset_size > symbol.min_size
             }
@@ -414,7 +419,7 @@ module.exports = function (program, conf) {
           })
           //  console.log('buyedSymbols', buyedSymbols)
           buyedSymbols.forEach(symbol => {
-            console.log('Find bought symbol '.cyan, (symbol.normalized).green, 'positionSide', symbol.positionSide, 'asset_size '.cyan, symbol.asset_size, 'capital_size ', symbol.capital_size)
+            console.log('Find bought symbol '.cyan, (symbol.normalized).green, 'positionSide', symbol.positionSide || 'LONG', 'asset_size '.cyan, symbol.asset_size, 'capital_size ', symbol.capital_size)
           })
 
           let shouldAddSymbols = buyedSymbols.filter(bs => {

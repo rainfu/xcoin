@@ -37,6 +37,7 @@ const updateConfig = (message, cb, s) => {
     let data = {
         action: message.action,
         data: s.options,
+        restart: message.restart,
         toast: 'trade.' + message.action + 'Ok'
     }
     if (cb) cb(data)
