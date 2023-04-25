@@ -349,8 +349,8 @@
             "name": "markdown_buy_pct",
             "type": "number",
             "step": [
-                0,
-                5,
+                -2,
+                2,
                 0.1
             ],
             "value": 0,
@@ -360,8 +360,8 @@
             "name": "markup_sell_pct",
             "type": "number",
             "step": [
-                0,
-                5,
+                -2,
+                2,
                 0.1
             ],
             "value": 0,
