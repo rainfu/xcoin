@@ -115,7 +115,7 @@ module.exports = function panacea(s, conf, engine, keyboard) {
       if (!this.wss) return
       if (s.status.status !== 'work') return
       if (!this.wss.clients.size) {
-        console.log("\nWebsocket no client".red)
+        debug.msg("\nWebsocket no client".red)
         return
       }
       this.wss.clients.forEach(client => {

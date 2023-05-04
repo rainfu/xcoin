@@ -26,7 +26,7 @@ const updateConfig = (message, cb, s) => {
         var target2 = require('path').resolve(__dirname, '../../../../data/config/last_config.json')
         require('fs').writeFileSync(target2, JSON.stringify(newConfig, null, 2))
         if (message.restart) {
-            console.log('\nSome Core Param changed .should restart process...'.orange)
+            debug.msg('\nSome Core Param changed .should restart process...'.cyan)
             var target3 = require('path').resolve(__dirname, '../../../../data/pm2/restart_' + s.options.exchange + "_" + (s.options.name || '') + '.json')
             //  console.log('wrote config', message.restart, target3)
             require('fs').writeFileSync(target3, JSON.stringify({ event: 'updateConfig', time: moment().format('MMDD HH:mm:ss') }, null, 2))
