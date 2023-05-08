@@ -1,0 +1,1 @@
+import{_ as s,c as a,o as n,N as l}from"./chunks/framework.9a843496.js";const A=JSON.parse('{"title":"Use PM2  manage bots","description":"","frontmatter":{},"headers":[],"relativePath":"pm2.md","lastUpdated":1683172688000}'),o={name:"pm2.md"},p=l("",19),e=[p];function t(r,c,y,D,F,i){return n(),a("div",null,e)}const d=s(o,[["render",t]]);export{A as __pageData,d as default};
