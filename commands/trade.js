@@ -141,56 +141,57 @@ module.exports = function (program, conf) {
               }
               //add buyed symbols to watch symbols
 
-              let buyedSymbols = initBuyedSymbols(symbols)
-              //remove blacklist symbols
-              initBlackListSymbols(buyedSymbols)
-              //init all watch symbols
-              engine.initSymbols(so.symbols)
-              console.log('Init exchanges symbols ok'.cyan, so.symbols.map(s => s.symbol ? s.label : s.product_id).join(','))
-              //get all klines for symbols
-              var opts = {
-                limit: so.min_periods
-              }
-              core.getInitKLines(() => {
-                console.log('get all init klines ok'.cyan/* , s */)
-                s.status.status = 'ready'
-                if (so.watch_include_bought) {
-                  buyedSymbols && buyedSymbols.forEach(b => {
-                    s.symbols[b.product_id].action = 'bought'
-                    s.symbols[b.product_id]['last_buy_price'] = b.entry_price
-                    s.symbols[b.product_id]['last_buy_type'] = 'prev_buy_' + (b.positionSide === 'SHORT' ? 'short' : 'long')
-                    s.symbols[b.product_id].my_trades.push({
-                      order_id: crypto.randomBytes(4).toString('hex'),
-                      time: (new Date()).getTime(),
-                      execution_time: 0,
-                      slippage: 0,
-                      type: 'buy',
-                      size: b.asset_size,
-                      fee: 0,
-                      price: b.entry_price,
-                      order_type: 'maker',
-                      action: s.symbols[b.product_id]['last_buy_type'],
-                      profit: 0,
-                      usdtProfit: 0,
-                      position_side: b.positionSide
-                    })
-                    s.symbols[b.product_id].sell_stop = n(b.entry_price).subtract(n(b.entry_price).multiply(so.sell_stop_pct / 100)).value()
-                    if (b.positionSide === 'SHORT') {
-                      s.symbols[b.product_id].sell_stop = n(b.entry_price).add(n(b.entry_price).multiply(so.sell_stop_pct / 100)).value()
-                    }
-                    // console.log('buyedSymbols', buyedSymbols)
-                    engine.syncBalance(() => {
-                      // console.log('xx'.cyan, b, s.symbols[b.product_id])
-                    }, b)
-                    //    console.log('s.symbols[b.product_id]', b.product_id, s.symbols[b.product_id]['last_buy_type'])
-                  })
-
+              initBuyedSymbols(symbols, (buyedSymbols) => {
+                //remove blacklist symbols
+                initBlackListSymbols(buyedSymbols)
+                //init all watch symbols
+                engine.initSymbols(so.symbols)
+                console.log('Init exchanges symbols ok'.cyan, so.symbols.map(s => s.symbol ? s.label : s.product_id).join(','))
+                //get all klines for symbols
+                var opts = {
+                  limit: so.min_periods
                 }
-                core.saveBotLoop()
-                engine.writeHeader()
-                timeScanLoop()
-                broadcastLoop()
-              }, _.cloneDeep(so.symbols), opts)
+                core.getInitKLines(() => {
+                  console.log('get all init klines ok'.cyan/* , s */)
+                  s.status.status = 'ready'
+                  if (so.watch_include_bought) {
+                    buyedSymbols && buyedSymbols.forEach(b => {
+                      s.symbols[b.product_id].action = 'bought'
+                      s.symbols[b.product_id]['last_buy_price'] = b.entry_price
+                      s.symbols[b.product_id]['last_buy_type'] = 'prev_buy_' + (b.positionSide === 'SHORT' ? 'short' : 'long')
+                      s.symbols[b.product_id].my_trades.push({
+                        order_id: crypto.randomBytes(4).toString('hex'),
+                        time: (new Date()).getTime(),
+                        execution_time: 0,
+                        slippage: 0,
+                        type: 'buy',
+                        size: b.asset_size,
+                        fee: 0,
+                        price: b.entry_price,
+                        order_type: 'maker',
+                        action: s.symbols[b.product_id]['last_buy_type'],
+                        profit: 0,
+                        usdtProfit: 0,
+                        position_side: b.positionSide
+                      })
+                      s.symbols[b.product_id].sell_stop = n(b.entry_price).subtract(n(b.entry_price).multiply(so.sell_stop_pct / 100)).value()
+                      if (b.positionSide === 'SHORT') {
+                        s.symbols[b.product_id].sell_stop = n(b.entry_price).add(n(b.entry_price).multiply(so.sell_stop_pct / 100)).value()
+                      }
+                      // console.log('buyedSymbols', buyedSymbols)
+                      engine.syncBalance(() => {
+                        // console.log('xx'.cyan, b, s.symbols[b.product_id])
+                      }, b)
+                      //    console.log('s.symbols[b.product_id]', b.product_id, s.symbols[b.product_id]['last_buy_type'])
+                    })
+
+                  }
+                  core.saveBotLoop()
+                  engine.writeHeader()
+                  timeScanLoop()
+                  broadcastLoop()
+                }, _.cloneDeep(so.symbols), opts)
+              })
             }, 'SHORT')
           })
         })
@@ -397,9 +398,12 @@ module.exports = function (program, conf) {
        * @param {*} symbols 
        * @returns 
        */
-      function initBuyedSymbols(symbols) {
-        if (!symbols || !symbols.length) return
+      function initBuyedSymbols(symbols, cb) {
         let buyedSymbols = []
+        if (!symbols || !symbols.length) {
+          if (cb) cb(buyedSymbols)
+          return
+        }
         //add buyed symbol
         if (so.watch_include_bought) {
           buyedSymbols = symbols.map(symbol => {
@@ -428,7 +432,34 @@ module.exports = function (program, conf) {
           so.symbols.push(...shouldAddSymbols)
         }
         //  console.log('so.symbols'.cyan, so.symbols)
-        return buyedSymbols
+        //get bought symbol init price for prev bot
+        if (!so.future) {
+          core.getLastBot((bot) => {
+            //    console.log('last bot', bot)
+            let prevSymbols = []
+            prevSymbols = bot.symbols.filter(pair => {
+              return pair.action && (pair.action === 'bought' || pair.action === 'partSell')
+            }).map(pair => {
+              return {
+                product_id: pair.product_id,
+                lastBuyPrice: pair.lastBuyPrice
+              }
+            })
+            //  console.log('prevSymbols', prevSymbols)
+            buyedSymbols.forEach(symbol => {
+              let prevSymbol = prevSymbols.find(p => p.product_id === symbol.product_id)
+              //    console.log('prevSymbol', symbol, prevSymbol)
+              if (prevSymbol && prevSymbol.lastBuyPrice) {
+                symbol.entry_price = prevSymbol.lastBuyPrice
+              }
+            })
+            // console.log('buyedSymbols2', buyedSymbols)
+            if (cb) cb(buyedSymbols)
+            return
+          })
+        } else {
+          if (cb) cb(buyedSymbols)
+        }
       }
       /**
        * remove symbol in backlist
