@@ -71,7 +71,8 @@ const getSymbols = (s, init = false) => {
             action: symbol.buy_order ? 'buying' : (symbol.sell_order ? 'selling' : symbol.action),
             inSignal: symbol.inSignal,
             trades: symbol.my_trades,
-            lastTradeTime: symbol.last_trade_time
+            lastTradeTime: symbol.last_trade_time,
+            lastBuyPrice: symbol.last_buy_price
         }
         if (init) {
             output.klines = symbol.lookback.map(p => {
