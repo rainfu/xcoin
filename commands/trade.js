@@ -36,10 +36,10 @@ module.exports = function (program, conf) {
         options: JSON.parse(JSON.stringify(minimist(process.argv))),
         symbols: {},
         status: {
-          hasConfig: true,
-          hasStrategy: true,
-          hasMarket: true,
-          hasBacktest: false,
+          hasConfig: conf.hasConfig,
+          hasStrategy: conf.hasStrategy,
+          hasMarket: conf.hasMarket,
+          hasBacktest: conf.hasBacktest,
           tradeListLen: 0,
           startCapital: 0,
           currentCapital: 0,
@@ -87,7 +87,7 @@ module.exports = function (program, conf) {
       var target = require('path').resolve(__dirname, '../data/config/last_config.json')
       require('fs').writeFileSync(target, JSON.stringify(so, null, 2))
       //init engine and other modules
-      var engine = engineFactory(s, conf)
+      var engine = engineFactory(s, conf,core)
       var core = coreFactory(s, conf, engine)
       var keyboard = keyboardFactory(s, conf, core)
       var output = outputFactory(s, conf, engine, keyboard)

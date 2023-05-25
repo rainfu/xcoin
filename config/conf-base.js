@@ -96,7 +96,11 @@ const options = {
     product_without_margin: true,
     same_period_multi_buy: false,
     buy_position_side_when_sell: true,
-    short_buy_pct: 10
+    short_buy_pct: 10,
+    hasConfig: true,
+    hasStrategy: true,
+    hasMarket: true,
+    hasBacktest: false,
 }
 var c = {
     output,

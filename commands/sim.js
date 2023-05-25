@@ -18,11 +18,12 @@ module.exports = function (program, conf) {
     .description('run a simulation on backfilled data')
     .option('--conf <path>', 'path to optional conf overrides file')
     .option('--strategy <name>', 'strategy to use', String, conf.strategy)
-    .option('--start <datetime>', 'start ("YYYYMMDDhhmm")')
-    .option('--end <datetime>', 'end ("YYYYMMDDhhmm")')
+    .option('--start <datetime>', 'start ("YYYYMMDDHHmm")')
+    .option('--end <datetime>', 'end ("YYYYMMDDHHmm")')
     .option('--bot <bid>', 'sim with bot backtest')
     .option('--watch_symbols <watch_symbols>', 'init symbols in trade', String, conf.watch_symbols)
     .option('--proxy <proxy>', 'use proxy', String, conf.proxy)
+    .option('--debug', 'output detailed debug info', Boolean, false)
     .action(function (exchange) {
       var s = {
         options: minimist(process.argv),
@@ -45,7 +46,9 @@ module.exports = function (program, conf) {
           so[k] = conf[k]
         }
       })
+     console.log('period',so,so.period,so.buy_pct)
       delete so._
+      delete so.symbols
       so.mode = 'sim'
       s.balance = {
         start_capital: so.currency_capital,
@@ -87,10 +90,10 @@ module.exports = function (program, conf) {
        */
       function run() {
         let products = s.exchange.getProducts()
-        console.log('\n' + so.exchange.cyan + ' getProducts to '.green, products.length.toString().yellow)
+        debug.msg('\n' + so.exchange.cyan + ' getProducts to '.green+" "+ products.length.toString().yellow)
         //init symbols
         engine.initSymbols(so.symbols)
-        console.log('Init exchanges symbols ok'.cyan, so.symbols.map(s => s.symbol ? s.label : s.product_id).join(','))
+        debug.msg('Init exchanges symbols ok'.cyan+" "+ so.symbols.map(s => s.symbol ? s.label : s.product_id).join(','))
         //sim symbols
         s.status.status = 'ready'
         simSymbolAll(so.symbols.slice(0), () => {
@@ -108,11 +111,12 @@ module.exports = function (program, conf) {
        * write head message on screeen
        */
       function writeHead() {
+        console.log('symbols',so.symbols)
         var head = '\n\n------------------------------------------ ' + ' STARTING ' + so.mode.toUpperCase() + ' TRADING ' + ' ------------------------------------------'
-        console.log(head)
+       debug.msg(head)
         console.log('Sim time'.cyan, so.period.green, moment(query_start).format('MM-DD HH:mm:ss').yellow, moment(so.start).format('MM-DD HH:mm:ss').yellow, moment(so.end).format('MMDD HH:mm:ss').yellow)
         if (so.proxy) {
-          console.log('!!! Use Proxy:', so.proxy)
+          debug.msg('!!! Use Proxy:', so.proxy)
         }
       }
       function initBotData(cb) {
@@ -181,14 +185,14 @@ module.exports = function (program, conf) {
           if (!opts.query.time) opts.query.time = {}
           opts.query.time['$gte'] = query_start
         }
-        // console.log('opts', JSON.stringify(opts))
+       console.log('opts', JSON.stringify(opts,null,2))
         var collectionCursor = tickerCollection
           .find(opts.query)
           .sort(opts.sort)
           .limit(opts.limit)
-        /*  tickerCollection.find(opts.query).count().then(count => {
-           console.log('total count', count)
-         }) */
+        tickerCollection.find(opts.query).count().then(count => {
+           console.log(symbol.normalized +' total count', count)
+         }) 
         collectionCursor.count().then((cursorTradeCount) => {
           var numTrades = 0
           var lastTrade
@@ -200,7 +204,8 @@ module.exports = function (program, conf) {
               totalCount = 0
               cursor = 0
               clockNow = null
-              console.log('SimSymbol lookback '.cyan, s.symbols[symbol.product_id].lookback.length, 'trades ', s.symbols[symbol.product_id].my_trades.length, 'balance ', s.balance.currency)
+              console.log('SimSymbol lookback '.cyan,symbol.product_id,  'balance ', s.balance.currency)
+           //   console.log('SimSymbol lookback '.cyan, s.symbols[symbol.product_id].lookback.length, 'trades ', s.symbols[symbol.product_id].my_trades.length, 'balance ', s.balance.currency)
               if (cb2) cb2()
               return
             }

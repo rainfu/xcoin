@@ -21,6 +21,7 @@ data/config/user
 /data/exchanges/*
 /data/pm2/*
 /data/logs/*
+/data/sim/*
 /data/strategies/*
 !.gitkeep
 /data/config/user

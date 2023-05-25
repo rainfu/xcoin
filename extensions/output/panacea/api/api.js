@@ -1,5 +1,5 @@
 var { getInitData, getRefreshData } = require('./status')
-    , { getBacktestList, delBacktest, getSimList, delSim, backtestSim } = require('./backtest')
+    , { getBacktestList, delBacktest, getSimList, delSim, addSim,backtestSim } = require('./backtest')
     , { addSymbol, removeAllSymbol, removeSymbol, sellAll, buy, sell, getBalance, getDemoBot } = require('./operation')
     , { updateConfig, updateSymbolFuture } = require('./config')
     , { checkVersion } = require('./panacea')
@@ -12,6 +12,7 @@ module.exports = function api() {
         delBacktest,
         getSimList,
         delSim,
+        addSim,
         backtestSim,
         addSymbol,
         removeAllSymbol,
