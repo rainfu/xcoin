@@ -10,7 +10,7 @@ var minimist = require("minimist"),
   keyboardFactory = require("../lib/keyboard"),
   webSocket = require("ws"),
   crypto = require("crypto"),
-  colors = require("colors")
+  colors = require("colors");
 module.exports = function (program, conf) {
   program
     .command("trade [exchange]")
@@ -61,7 +61,7 @@ module.exports = function (program, conf) {
     .option("--proxy <proxy>", "use proxy", String, conf.proxy)
     .action(function (exchange) {
       //re-init all symbols and run
-      var serverInt
+      var serverInt;
       var s = {
         options: JSON.parse(JSON.stringify(minimist(process.argv))),
         symbols: {},
@@ -79,9 +79,9 @@ module.exports = function (program, conf) {
           usdtProfit: 0,
           profit: 0,
         },
-      }
-      var so = s.options
-      var logger = conf.logger
+      };
+      var so = s.options;
+      var logger = conf.logger;
       // init bot options don't send this params to client
       Object.keys(conf).forEach(function (k) {
         if (
@@ -90,52 +90,52 @@ module.exports = function (program, conf) {
           k !== "secret" &&
           k !== "db"
         ) {
-          so[k] = conf[k]
+          so[k] = conf[k];
         }
-      })
-      delete so._
+      });
+      delete so._;
       if (so.run_for) {
-        so.endTime = moment().add(so.run_for, "m")
+        so.endTime = moment().add(so.run_for, "m");
       }
-      so.mode = so.paper ? "paper" : "live"
+      so.mode = so.paper ? "paper" : "live";
       if (so.mode !== "live") {
         s.balance = {
           start_capital: so.currency_capital,
           currency: so.currency_capital,
           currency_hold: 0,
-        }
+        };
       } else {
         s.balance = {
           start_capital: 0,
           currency: 0,
           currency_hold: 0,
-        }
+        };
       }
-      so.exchange = exchange
-      let symbolsIds = so.watch_symbols.split(",")
+      so.exchange = exchange;
+      let symbolsIds = so.watch_symbols.split(",");
       so.symbols = symbolsIds.map((symbol) => {
-        return helpers.objectifySelector(symbol)
-      })
+        return helpers.objectifySelector(symbol);
+      });
       // console.log('so,', so.symbols)
       // return
       var target = require("path").resolve(
         __dirname,
         "../data/config/last_config.json"
-      )
-      require("fs").writeFileSync(target, JSON.stringify(so, null, 2))
+      );
+      require("fs").writeFileSync(target, JSON.stringify(so, null, 2));
       //init engine and other modules
-      var engine = engineFactory(s, conf, core)
-      var core = coreFactory(s, conf, engine)
-      var keyboard = keyboardFactory(s, conf, core)
-      var output = outputFactory(s, conf, engine, keyboard)
+      var engine = engineFactory(s, conf, core);
+      var core = coreFactory(s, conf, engine);
+      var keyboard = keyboardFactory(s, conf, core);
+      var output = outputFactory(s, conf, engine, keyboard);
       //init bot head message
-      writeHead()
+      writeHead();
       //init web socket and other api
-      output.initialize()
+      output.initialize();
       //init bot keyboard event
-      initKeyboard()
+      initKeyboard();
       // start the main bot loop
-      run(0)
+      run(0);
       /**
        * start the main bot loop
        */
@@ -145,73 +145,73 @@ module.exports = function (program, conf) {
           console.log(
             "\n" + so.exchange.cyan + " refreshProducts to ".green,
             products.length.toString().yellow
-          )
+          );
           let notExitProducts = so.symbols.filter((symbol) => {
-            return products.every((p) => p.product_id !== symbol.product_id)
-          })
+            return products.every((p) => p.product_id !== symbol.product_id);
+          });
           notExitProducts.forEach((find) => {
-            let index = so.symbols.indexOf(find)
-            so.symbols.splice(index, 1)
-            delete s.symbols[find.product_id]
-            let i = 1
+            let index = so.symbols.indexOf(find);
+            so.symbols.splice(index, 1);
+            delete s.symbols[find.product_id];
+            let i = 1;
             so.symbols.forEach((symbol) => {
               if (s.symbols[symbol.product_id]) {
-                s.symbols[symbol.product_id].index = i
-                i++
+                s.symbols[symbol.product_id].index = i;
+                i++;
               }
-            })
-            console.log("Remove not exit symbol".green, find.product_id.cyan)
-          })
-          console.log("\nStart get purchased asset".cyan)
+            });
+            console.log("Remove not exit symbol".green, find.product_id.cyan);
+          });
+          console.log("\nStart get purchased asset".cyan);
           engine.initExchange((err, longSymbols, balance) => {
-            s.balance.start_capital = balance.currency
-            s.balance.currency = balance.currency
-            s.balance.currency_hold = balance.currency_hold
+            s.balance.start_capital = balance.currency;
+            s.balance.currency = balance.currency;
+            s.balance.currency_hold = balance.currency_hold;
             engine.initExchange((err, shortSymbols, shortBalance) => {
-              let symbols = [...longSymbols, ...shortSymbols]
+              let symbols = [...longSymbols, ...shortSymbols];
               if (so.future) {
                 symbols.forEach((symbol) => {
                   s.balance.start_capital = n(s.balance.start_capital)
                     .add(parseFloat(symbol.unrealizedProfit))
-                    .value()
-                })
+                    .value();
+                });
               } else {
                 symbols.forEach((symbol) => {
                   s.balance.start_capital = n(s.balance.start_capital)
                     .add(parseFloat(symbol.capital))
-                    .value()
-                })
+                    .value();
+                });
               }
               //add buyed symbols to watch symbols
 
               initBuyedSymbols(symbols, (buyedSymbols) => {
                 //remove blacklist symbols
-                initBlackListSymbols(buyedSymbols)
+                initBlackListSymbols(buyedSymbols);
                 //init all watch symbols
-                engine.initSymbols(so.symbols)
+                engine.initSymbols(so.symbols);
                 console.log(
                   "Init exchanges symbols ok".cyan,
                   so.symbols
                     .map((s) => (s.symbol ? s.label : s.product_id))
                     .join(",")
-                )
+                );
                 //get all klines for symbols
                 var opts = {
                   limit: so.min_periods,
-                }
+                };
                 core.getInitKLines(
                   () => {
-                    console.log("get all init klines ok".cyan /* , s */)
-                    s.status.status = "ready"
+                    console.log("get all init klines ok".cyan /* , s */);
+                    s.status.status = "ready";
                     if (so.watch_include_bought) {
                       buyedSymbols &&
                         buyedSymbols.forEach((b) => {
-                          s.symbols[b.product_id].action = "bought"
+                          s.symbols[b.product_id].action = "bought";
                           s.symbols[b.product_id]["last_buy_price"] =
-                            b.entry_price
+                            b.entry_price;
                           s.symbols[b.product_id]["last_buy_type"] =
                             "prev_buy_" +
-                            (b.positionSide === "SHORT" ? "short" : "long")
+                            (b.positionSide === "SHORT" ? "short" : "long");
                           s.symbols[b.product_id].my_trades.push({
                             order_id: crypto.randomBytes(4).toString("hex"),
                             time: new Date().getTime(),
@@ -226,14 +226,14 @@ module.exports = function (program, conf) {
                             profit: 0,
                             usdtProfit: 0,
                             position_side: b.positionSide,
-                          })
+                          });
                           s.symbols[b.product_id].last_trade_time =
-                            s.symbols[b.product_id].time
+                            s.symbols[b.product_id].time;
                           s.symbols[b.product_id].sell_stop = n(b.entry_price)
                             .subtract(
                               n(b.entry_price).multiply(so.sell_stop_pct / 100)
                             )
-                            .value()
+                            .value();
                           if (b.positionSide === "SHORT") {
                             s.symbols[b.product_id].sell_stop = n(b.entry_price)
                               .add(
@@ -241,44 +241,44 @@ module.exports = function (program, conf) {
                                   so.sell_stop_pct / 100
                                 )
                               )
-                              .value()
+                              .value();
                           }
                           // console.log('buyedSymbols', buyedSymbols)
                           engine.syncBalance(() => {
                             // console.log('xx'.cyan, b, s.symbols[b.product_id])
-                          }, b)
+                          }, b);
                           //    console.log('s.symbols[b.product_id]', b.product_id, s.symbols[b.product_id]['last_buy_type'])
-                        })
+                        });
                     }
-                    core.saveBotLoop()
-                    engine.writeHeader()
-                    timeScanLoop()
-                    broadcastLoop()
+                    core.saveBotLoop();
+                    engine.writeHeader();
+                    timeScanLoop();
+                    broadcastLoop();
                   },
                   _.cloneDeep(so.symbols),
                   opts
-                )
-              })
-            }, "SHORT")
-          })
-        })
+                );
+              });
+            }, "SHORT");
+          });
+        });
       }
       /**
        * get tickers from websocket server
        */
       function broadcastLoop() {
-        output.refresh()
+        output.refresh();
         setInterval(() => {
-          output.refresh()
-        }, so.poll_broadcast_time)
+          output.refresh();
+        }, so.poll_broadcast_time);
       }
 
       function timeScanLoop() {
         if (so.with_server) {
-          websocketScan()
+          websocketScan();
         } else {
-          timeScan()
-          setInterval(timeScan, so.poll_scan_time)
+          timeScan();
+          setInterval(timeScan, so.poll_scan_time);
         }
       }
       /**
@@ -288,70 +288,70 @@ module.exports = function (program, conf) {
         console.log(
           "Websocket client to scan ".green +
             ("ws://" + so.server.ip + ":" + so.server.port).cyan
-        )
+        );
         let client = new webSocket(
           "ws://" + so.server.ip + ":" + so.server.port
-        )
+        );
 
         client.on("error", function (err) {
-          console.log("error........", err)
-        })
+          console.log("error........", err);
+        });
         client.on("open", function open() {
-          clearInterval(serverInt)
+          clearInterval(serverInt);
           //client.send(JSON.stringify({ message: { action: 'test' } }));
-        })
+        });
         client.on("close", function close() {
           if (serverInt) {
-            clearInterval(serverInt)
+            clearInterval(serverInt);
           }
           serverInt = setInterval(() => {
-            console.log("check server status...".green)
-            timeScanLoop()
-          }, 3000)
+            console.log("check server status...".green);
+            timeScanLoop();
+          }, 3000);
           //client.send(JSON.stringify({ message: { action: 'test' } }));
-        })
+        });
         client.on("message", function message(data) {
-          let message = JSON.parse(data)
+          let message = JSON.parse(data);
           //  console.log('message..', message)
           if (message.action === "tickers") {
             // console.log('start scan', message.data)
             let inTrades = message.data.filter((t) => {
-              return so.symbols.some((sy) => sy.normalized === t.selector)
-            })
+              return so.symbols.some((sy) => sy.normalized === t.selector);
+            });
             // console.log('inTrades', inTrades)
-            checkTrade(inTrades)
+            checkTrade(inTrades);
           }
           //console.log('received: %s', data);
-        })
+        });
         //  console.log('timeScan symbols', so.symbols.length)
       }
       /**
        * get tickers from own exchagne request
        */
       function timeScan() {
-        checkRunForEnd()
+        checkRunForEnd();
         if (so.symbols.length) {
-          klineScan()
+          klineScan();
         } else {
-          console.log("no symbol scan")
+          console.log("no symbol scan");
           setTimeout(() => {
-            console.log("xxx")
-          }, 3000)
+            console.log("xxx");
+          }, 3000);
         }
       }
       function klineScan() {
         let opts = {
           symbols: so.symbols,
-        }
+        };
         s.exchange.getTickers(opts, function (err, realTickers) {
           // console.log('realTickers', realTickers)
-          if (err || !realTickers) return
+          if (err || !realTickers) return;
           // console.log('forward scan', realTickers)
           let inTrades = Object.keys(realTickers)
             .filter((t) => {
               return so.symbols.some(
                 (sy) => sy.normalized === realTickers[t].normalized
-              )
+              );
             })
             .map((t) => {
               /*  klineScanCount++
@@ -385,7 +385,7 @@ module.exports = function (program, conf) {
             else {
               realTickers[t].close = realTickers[t].close * (100 - klineScanCount / 10) / 100
             } */
-              let id = crypto.randomBytes(4).toString("hex")
+              let id = crypto.randomBytes(4).toString("hex");
               return {
                 id,
                 _id: id,
@@ -398,10 +398,10 @@ module.exports = function (program, conf) {
                 percentage: realTickers[t].percentage,
                 volume: realTickers[t].baseVolume,
                 isTrade: true,
-              }
-            })
-          checkTrade(inTrades)
-        })
+              };
+            });
+          checkTrade(inTrades);
+        });
       }
       /**
        * check trade
@@ -410,7 +410,9 @@ module.exports = function (program, conf) {
       function checkTrade(inTrades) {
         // console.log('checkTrade', inTrades)
         inTrades.forEach((trade) => {
-          let symbol = so.symbols.find((sy) => sy.normalized === trade.selector)
+          let symbol = so.symbols.find(
+            (sy) => sy.normalized === trade.selector
+          );
           // console.log('realTickers', symbol, kline)
           engine.updateKLine(symbol, trade, false, function (err) {
             if (err) {
@@ -419,54 +421,56 @@ module.exports = function (program, conf) {
                   moment().format("YYYY-MM-DD HH:mm:ss") +
                   " - error updateKLine",
                 err
-              )
+              );
               // console.error(err)
-              return
+              return;
             }
-          })
-        })
+          });
+        });
         //write total report on screen
-        engine.refreshBotData()
+        engine.refreshBotData();
       }
       /**
        * write head message on screeen
        */
       function writeHead() {
         var head =
-          "\n\n------------------------------------------ INITIALIZE  OUTPUT ------------------------------------------"
-        console.log(head)
+          "\n\n------------------------------------------ INITIALIZE  OUTPUT ------------------------------------------";
+        console.log(head);
         logger.info(
           "------------------------------------------ BOT " +
             (so.name || "XCoin") +
             " START ------------------------------------------"
-        )
-        var minuses = Math.floor((head.length - so.mode.length - 19) / 2)
+        );
+        var minuses = Math.floor((head.length - so.mode.length - 19) / 2);
         console.log(
           "-".repeat(minuses) +
             " STARTING " +
             so.mode.toUpperCase() +
             " TRADING " +
             "-".repeat(minuses + (minuses % 2 == 0 ? 0 : 1))
-        )
+        );
         if (so.mode === "paper") {
           console.log(
             "!!! Paper mode enabled. No real trades are performed until you remove --paper from the startup command."
-          )
+          );
         }
         if (so.proxy) {
-          console.log("!!! Use Proxy:", so.proxy)
+          console.log("!!! Use Proxy:", so.proxy);
         }
-        console.log("Press " + " l ".inverse + " to list available commands.\n")
+        console.log(
+          "Press " + " l ".inverse + " to list available commands.\n"
+        );
       }
       /**
        *  init keyboard event
        */
       function initKeyboard() {
         if (!so.non_interactive) {
-          readline.emitKeypressEvents(process.stdin)
+          readline.emitKeypressEvents(process.stdin);
           if (process.stdin.setRawMode) {
-            process.stdin.setRawMode(true)
-            process.stdin.on("keypress", keyboard.executeKey)
+            process.stdin.setRawMode(true);
+            process.stdin.on("keypress", keyboard.executeKey);
           }
         }
       }
@@ -479,12 +483,12 @@ module.exports = function (program, conf) {
             "Run for pre defined ".red,
             so.run_for.red,
             "minites and exit!".red
-          )
+          );
           // Not sure if I should just handle exit code directly or thru printTrade.  Decided on printTrade being if code is added there for clean exits this can just take advantage of it.
           engine.exit(() => {
-            core.saveBot()
-            process.exit(0)
-          })
+            core.saveBot();
+            process.exit(0);
+          });
         }
       }
       /**
@@ -493,10 +497,10 @@ module.exports = function (program, conf) {
        * @returns
        */
       function initBuyedSymbols(symbols, cb) {
-        let buyedSymbols = []
+        let buyedSymbols = [];
         if (!symbols || !symbols.length) {
-          if (cb) cb(buyedSymbols)
-          return
+          if (cb) cb(buyedSymbols);
+          return;
         }
         //add buyed symbol
         if (so.watch_include_bought) {
@@ -514,25 +518,25 @@ module.exports = function (program, conf) {
                     ? symbol.unrealizedProfit
                     : symbol.capital,
                 }
-              )
+              );
             })
             .map((symbol) => {
               let product = s.exchange
                 .getProducts()
-                .find((x) => symbol.product_id === x.asset + "-" + x.currency)
-              return Object.assign(symbol, product)
+                .find((x) => symbol.product_id === x.asset + "-" + x.currency);
+              return Object.assign(symbol, product);
             })
             .filter((symbol) => {
               // console.log('symbol', symbol, symbol.capital_size > so.min_buy_size)
               if (s.options.future) {
-                return symbol.asset_size > symbol.min_size
+                return symbol.asset_size > symbol.min_size;
               } else {
                 return (
                   symbol.capital_size > 0 &&
                   symbol.capital_size > so.min_buy_size
-                )
+                );
               }
-            })
+            });
           //  console.log('buyedSymbols', buyedSymbols)
           buyedSymbols.forEach((symbol) => {
             console.log(
@@ -544,49 +548,49 @@ module.exports = function (program, conf) {
               symbol.asset_size,
               "capital_size ",
               symbol.capital_size
-            )
-          })
+            );
+          });
 
           let shouldAddSymbols = buyedSymbols.filter((bs) => {
-            return so.symbols.every((b2) => b2.normalized !== bs.normalized)
-          })
-          so.symbols.push(...shouldAddSymbols)
+            return so.symbols.every((b2) => b2.normalized !== bs.normalized);
+          });
+          so.symbols.push(...shouldAddSymbols);
         }
         //  console.log('so.symbols'.cyan, so.symbols)
         //get bought symbol init price for prev bot
         if (!so.future) {
           core.getLastBot((bot) => {
             //    console.log('last bot', bot)
-            let prevSymbols = []
+            let prevSymbols = [];
             prevSymbols = bot.symbols
               .filter((pair) => {
                 return (
                   pair.action &&
                   (pair.action === "bought" || pair.action === "partSell")
-                )
+                );
               })
               .map((pair) => {
                 return {
                   product_id: pair.product_id,
                   lastBuyPrice: pair.lastBuyPrice,
-                }
-              })
+                };
+              });
             //  console.log('prevSymbols', prevSymbols)
             buyedSymbols.forEach((symbol) => {
               let prevSymbol = prevSymbols.find(
                 (p) => p.product_id === symbol.product_id
-              )
+              );
               //    console.log('prevSymbol', symbol, prevSymbol)
               if (prevSymbol && prevSymbol.lastBuyPrice) {
-                symbol.entry_price = prevSymbol.lastBuyPrice
+                symbol.entry_price = prevSymbol.lastBuyPrice;
               }
-            })
+            });
             // console.log('buyedSymbols2', buyedSymbols)
-            if (cb) cb(buyedSymbols)
-            return
-          })
+            if (cb) cb(buyedSymbols);
+            return;
+          });
         } else {
-          if (cb) cb(buyedSymbols)
+          if (cb) cb(buyedSymbols);
         }
       }
       /**
@@ -596,22 +600,22 @@ module.exports = function (program, conf) {
       function initBlackListSymbols(buyedSymbols) {
         if (so.watch_with_black_list) {
           if (so.black_list) {
-            console.log("Remove symbol from black list".cyan, so.black_list)
+            console.log("Remove symbol from black list".cyan, so.black_list);
             let black_list = so.black_list.split(",").map((symbol) => {
-              return helpers.objectifySelector(symbol)
-            })
+              return helpers.objectifySelector(symbol);
+            });
             so.symbols = so.symbols.filter((b) => {
               return black_list.every((b2) => {
-                return b.normalized !== b2.normalized
-              })
-            })
+                return b.normalized !== b2.normalized;
+              });
+            });
             if (buyedSymbols) {
               buyedSymbols = buyedSymbols.filter((b) => {
-                return !black_list.find((b2) => b2.normalized === b.normalized)
-              })
+                return !black_list.find((b2) => b2.normalized === b.normalized);
+              });
             }
           }
         }
       }
-    })
-}
+    });
+};
