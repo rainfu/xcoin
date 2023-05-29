@@ -277,7 +277,7 @@ XCoin通过配置文件初始化机器人，包括以下几类配置文件
     {
       name: 'post_only',//POSTONLY订单
       type: "bool",
-      value: false,
+      value: true,
       group: "other"
     },
     {

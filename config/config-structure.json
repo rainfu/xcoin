@@ -365,7 +365,7 @@
         {
             "name": "post_only",
             "type": "bool",
-            "value": false,
+            "value": true,
             "group": "other"
         },
         {

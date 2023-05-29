@@ -39,7 +39,7 @@
   "markdown_buy_pct": 0,
   "markup_sell_pct": 0,
   "order_type": "maker",
-  "post_only": false,
+  "post_only": true,
   "use_fee_asset": false,
   "days": 2,
   "keep_lookback_periods": 500,

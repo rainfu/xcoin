@@ -274,7 +274,7 @@ The basic configuration file is located in the /confg directory, and the file na
      {
        name: 'post_only', //POSTONLY order
        type: "bool",
-       value: false,
+       value: true,
        group: "other"
      },
      {
