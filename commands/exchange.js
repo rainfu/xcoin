@@ -34,6 +34,7 @@ module.exports = function (program, conf) {
         .option('--buy', 'test with buy')
         .option('--selllist <selllist>', 'sell all symbols', String, '')
         .option('--balance', 'get symbol balance')
+        .option('--secret <path>', 'get exchange secret',String,'')
         .option('--cancel', 'cancel order')
         .action(function (exchangename, cmd) {
             let so = {}

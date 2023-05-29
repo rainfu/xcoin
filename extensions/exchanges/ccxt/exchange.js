@@ -424,6 +424,7 @@ module.exports = function container(conf, so, inOptions) {
         opts.type = 'market'
       } else {
         args.timeInForce = 'GTC'
+        args.postOnly = opts.post_only
       }
       if (!client.has.createMarketOrder) {
         opts.type = 'limit'
@@ -495,6 +496,7 @@ module.exports = function container(conf, so, inOptions) {
         opts.type = 'market'
       } else {
         args.timeInForce = 'GTC'
+        args.postOnly=opts.post_only
       }
       if (!client.has.createMarketOrder) {
         opts.type = 'limit'

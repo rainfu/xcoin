@@ -50,6 +50,12 @@ const getBacktestData = (s) => {
 const getSymbols = (s, init = false) => {
     return Object.keys(s.symbols).map(key => {
         const symbol = s.symbols[key]
+        let new_trades=[]
+        //perferm new_trades data transfer
+        if (symbol.new_trades&&symbol.new_trades.length){
+            new_trades=JSON.parse(JSON.stringify(symbol.new_trades))
+            delete symbol.new_trades
+        }
         let output = {
             product_id: symbol.product_id,
             price: (symbol.period && symbol.period.close) || '',
@@ -71,6 +77,7 @@ const getSymbols = (s, init = false) => {
             action: symbol.buy_order ? 'buying' : (symbol.sell_order ? 'selling' : symbol.action),
             inSignal: symbol.inSignal,
             trades: symbol.my_trades,
+            newTrades:new_trades,
             lastTradeTime: symbol.last_trade_time,
             lastBuyPrice: symbol.last_buy_price
         }
