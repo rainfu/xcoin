@@ -197,8 +197,8 @@
       "normalized": "binanceusdm.GALA-USDT"
     }
   ],
-  "takerFee": 0.02,
-  "makerFee": 0.04,
+  "takerFee": 0.04,
+  "makerFee": 0.02,
   "poll_watch_wait": 1500,
   "same_period_multi_buy": false,
   "buy_position_side_when_sell": true,
