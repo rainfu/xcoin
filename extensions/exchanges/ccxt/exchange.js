@@ -571,7 +571,7 @@ module.exports = function container(conf, so, inOptions) {
           if (body.status !== 'open' && body.status !== 'canceled') {
             order.status = 'done'
             order.done_at = new Date().getTime()
-            order.price = body.type === 'market' ? parseFloat(body.average) : parseFloat(body.price)
+            order.price = body.average?parseFloat(body.average): parseFloat(body.price)
             order.filled_size = parseFloat(body.amount) - parseFloat(body.remaining)
             return cb(null, order)
           }
