@@ -52,7 +52,11 @@ const getSymbols = (s, init = false) => {
     const symbol = s.symbols[key];
     let new_trades = [];
     //perferm new_trades data transfer
-    if (symbol.new_trades && symbol.new_trades.length) {
+    if (
+      s.options.mode !== "sim" &&
+      symbol.new_trades &&
+      symbol.new_trades.length
+    ) {
       new_trades = JSON.parse(JSON.stringify(symbol.new_trades));
       delete symbol.new_trades;
     }

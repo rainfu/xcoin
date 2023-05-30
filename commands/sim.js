@@ -7,6 +7,7 @@ var tb = require("timebucket"),
   helpers = require("../lib/helpers"),
   engineFactory = require("../lib/engine"),
   collectionService = require("../lib/mongo-service"),
+  { getBacktestData } = require("../extensions/output/panacea/api/status"),
   crypto = require("crypto");
 
 module.exports = function (program, conf) {
@@ -109,9 +110,6 @@ module.exports = function (program, conf) {
         s.status.status = "ready";
         simSymbolAll(so.symbols.slice(0), () => {
           engine.exit(() => {
-            s.status.status = "finished";
-            s.status.startTime = so.start;
-            s.status.endTime = so.end;
             saveSim(so.bot, (res) => {
               logger.debug(
                 "Save sim ok with Id".cyan +
@@ -350,15 +348,15 @@ module.exports = function (program, conf) {
       }
       function saveSim(botId, cb) {
         let id = crypto.randomBytes(4).toString("hex");
-        let simRes = {
+        let simRes = Object.assign(getBacktestData(s), {
           bid: botId || -1,
-          time: new Date().getTime(),
           id,
           _id: id,
-          symbols: s.symbols,
-          options: s.options,
-          status: s.status,
-        };
+          time: new Date().getTime(),
+        });
+        simRes.status.status = "finished";
+        simRes.status.startTime = so.start;
+        simRes.status.endTime = so.end;
         // console.log('simRes', simRes.id, simRes.data.symbols)
         simCollection
           .insertOne(simRes)

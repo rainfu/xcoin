@@ -5,11 +5,11 @@ var command_args = [
   "sim",
   "binanceusdm",
   "--conf",
-  "./data/sim/temp.json",
+  "./data/sim/manual.json",
   "--start",
-  "202305280000",
+  "202305261200",
   "--end",
-  "202305280600",
+  "202305290600",
   "--debug",
 ];
 console.log("\n ----- Start backtest from client ".cyan, command_args);

@@ -48,7 +48,7 @@ module.exports = function sim(conf, so, s) {
     initFees: function () {
       //User can change the fees from client ,so we sould reset the fees for this
       real_exchange.initFees();
-      if (so.future) {
+      if (so.mode !== "sim" && so.future) {
         this.makerFee = real_exchange.makerFee * (so.leverage || 20);
         this.takerFee = real_exchange.takerFee * (so.leverage || 20);
       } else {
