@@ -20,7 +20,7 @@ module.exports = function sim(conf, so, s) {
   var last_order_id = 1001;
   var orders = {};
   var openOrders = {};
-
+  var logger = conf.logger;
   // When orders change in any way, it's likely our "_hold" values have changed. Recalculate them
   function recalcHold(product_id) {
     let balance = s.balance;
@@ -49,8 +49,8 @@ module.exports = function sim(conf, so, s) {
       //User can change the fees from client ,so we sould reset the fees for this
       real_exchange.initFees();
       if (so.future) {
-        this.makerFee = real_exchange.makerFee * (so.leverage || 10);
-        this.takerFee = real_exchange.takerFee * (so.leverage || 10);
+        this.makerFee = real_exchange.makerFee * (so.leverage || 20);
+        this.takerFee = real_exchange.takerFee * (so.leverage || 20);
       } else {
         this.makerFee = real_exchange.makerFee;
         this.takerFee = real_exchange.takerFee;
@@ -76,6 +76,9 @@ module.exports = function sim(conf, so, s) {
           currency_hold: s.balance.currency_hold,
           asset: s.symbols[symbol.product_id].asset_amount,
           asset_hold: s.symbols[symbol.product_id].asset_hold,
+          unrealizedProfit: s.symbols[symbol.product_id].unrealizedProfit,
+          leverage: s.symbols[symbol.product_id].leverage,
+          isolated: s.symbols[symbol.product_id].isolated,
           positionSide: "LONG",
         };
         // console.log('getBalance..', balance)
@@ -123,19 +126,18 @@ module.exports = function sim(conf, so, s) {
 
     buy: function (opts, cb) {
       setTimeout(function () {
-        if (so.debug)
-          console.log(
-            `\nbuying ${opts.size * opts.price} vs on hold: ${
-              s.balance.currency
-            } - ${s.balance.currency_hold} = ${
-              s.balance.currency - s.balance.currency_hold
-            }`
-          );
+        logger.debug(
+          `buying ${opts.size * opts.price} vs on hold: ${
+            s.balance.currency
+          } - ${s.balance.currency_hold} = ${
+            s.balance.currency - s.balance.currency_hold
+          }`
+        );
         if (
           opts.size * opts.price >
           s.balance.currency - s.balance.currency_hold
         ) {
-          if (so.debug) console.log("nope");
+          logger.debug("nope");
           return cb(null, { status: "rejected", reject_reason: "balance" });
         }
 
@@ -181,20 +183,19 @@ module.exports = function sim(conf, so, s) {
 
     sell: function (opts, cb) {
       setTimeout(function () {
-        if (so.debug)
-          console.log(
-            `selling ${opts.size} vs on hold: ${
-              s.symbols[opts.product_id].asset_amount
-            } - ${s.symbols[opts.product_id].asset_hold} = ${
-              s.symbols[opts.product_id].asset_amount -
-              s.symbols[opts.product_id].asset_hold
-            }`
-          );
+        logger.debug(
+          `selling ${opts.size} vs on hold: ${
+            s.symbols[opts.product_id].asset_amount
+          } - ${s.symbols[opts.product_id].asset_hold} = ${
+            s.symbols[opts.product_id].asset_amount -
+            s.symbols[opts.product_id].asset_hold
+          }`
+        );
         if (
           opts.size >
           s.balance.asset - s.symbols[opts.product_id].asset_hold
         ) {
-          if (so.debug) console.log("nope");
+          logger.debug("nope");
           return cb(null, { status: "rejected", reject_reason: "balance" });
         }
 
@@ -321,12 +322,12 @@ module.exports = function sim(conf, so, s) {
     order.remaining_size = order.size - order.filled_size;
 
     if (order.remaining_size <= 0) {
-      if (so.debug) console.log("\nfull fill bought");
+      logger.debug(buy_order.product_id.green, "full fill bought".cyan);
       order.status = "done";
       order.done_at = trade.time;
       delete openOrders["~" + order.id];
     } else {
-      if (so.debug) console.log("\npartial fill buy");
+      logger.debug(buy_order.product_id.green, "partial fill buy".cyan);
     }
   }
 
@@ -385,12 +386,12 @@ module.exports = function sim(conf, so, s) {
     order.remaining_size = order.size - order.filled_size;
 
     if (order.remaining_size <= 0) {
-      if (so.debug) console.log("\nfull fill sold");
+      logger.debug(sell_order.product_id.green, "full fill sold".cyan);
       order.status = "done";
       order.done_at = trade.time;
       delete openOrders["~" + order.id];
     } else {
-      if (so.debug) console.log("\npartial fill sell");
+      logger.debug(sell_order.product_id.green, "partial fill sell".cyan);
     }
   }
   return exchange;

@@ -20,7 +20,6 @@
     "port": 17841,
     "save_pairs": "binance.BTC-USDT,binance.DOGE-USDT,binance.CFX-USDT,binance.LQTY-USDT,binance.KAVA-USDT,binance.AGIX-USDT"
   },
-  "user": "demo",
   "exchange": "binance",
   "future": false,
   "trade_type": "auto",

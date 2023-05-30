@@ -39,7 +39,7 @@ const delBacktest = (message, cb, s, conf) => {
 const getSimList = (message, cb, s, conf) => {
   let simCollection = collectionService(conf).getSims();
   simCollection
-    .find({ bid: message.data.bid })
+    .find(message.data.query)
     .skip(message.data.from)
     .limit(message.data.limit)
     .sort({ time: -1 })

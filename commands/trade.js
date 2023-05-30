@@ -142,7 +142,7 @@ module.exports = function (program, conf) {
       function run(code = 0) {
         //var days = Math.ceil((new Date().getTime() - query_start) / 86400000)
         s.exchange.refreshProducts((products) => {
-          console.log(
+          logger.info(
             "\n" + so.exchange.cyan + " refreshProducts to ".green,
             products.length.toString().yellow
           );
@@ -160,9 +160,9 @@ module.exports = function (program, conf) {
                 i++;
               }
             });
-            console.log("Remove not exit symbol".green, find.product_id.cyan);
+            logger.info("Remove not exit symbol".green, find.product_id.cyan);
           });
-          console.log("\nStart get purchased asset".cyan);
+          logger.info("\nStart get purchased asset".cyan);
           engine.initExchange((err, longSymbols, balance) => {
             s.balance.start_capital = balance.currency;
             s.balance.currency = balance.currency;
@@ -189,7 +189,7 @@ module.exports = function (program, conf) {
                 initBlackListSymbols(buyedSymbols);
                 //init all watch symbols
                 engine.initSymbols(so.symbols);
-                console.log(
+                logger.info(
                   "Init exchanges symbols ok".cyan,
                   so.symbols
                     .map((s) => (s.symbol ? s.label : s.product_id))
@@ -201,7 +201,7 @@ module.exports = function (program, conf) {
                 };
                 core.getInitKLines(
                   () => {
-                    console.log("get all init klines ok".cyan /* , s */);
+                    logger.info("get all init klines ok".cyan /* , s */);
                     s.status.status = "ready";
                     if (so.watch_include_bought) {
                       buyedSymbols &&
@@ -285,7 +285,7 @@ module.exports = function (program, conf) {
        * get tickers from websocket server
        */
       function websocketScan() {
-        console.log(
+        logger.info(
           "Websocket client to scan ".green +
             ("ws://" + so.server.ip + ":" + so.server.port).cyan
         );
@@ -294,7 +294,7 @@ module.exports = function (program, conf) {
         );
 
         client.on("error", function (err) {
-          console.log("error........", err);
+          logger.error("error........", err);
         });
         client.on("open", function open() {
           clearInterval(serverInt);
@@ -305,7 +305,7 @@ module.exports = function (program, conf) {
             clearInterval(serverInt);
           }
           serverInt = setInterval(() => {
-            console.log("check server status...".green);
+            logger.info("check server status...".green);
             timeScanLoop();
           }, 3000);
           //client.send(JSON.stringify({ message: { action: 'test' } }));
@@ -333,9 +333,9 @@ module.exports = function (program, conf) {
         if (so.symbols.length) {
           klineScan();
         } else {
-          console.log("no symbol scan");
+          logger.debug("no symbol scan");
           setTimeout(() => {
-            console.log("xxx");
+            logger.debug("---");
           }, 3000);
         }
       }
@@ -436,14 +436,13 @@ module.exports = function (program, conf) {
       function writeHead() {
         var head =
           "\n\n------------------------------------------ INITIALIZE  OUTPUT ------------------------------------------";
-        console.log(head);
         logger.info(
           "------------------------------------------ BOT " +
             (so.name || "XCoin") +
             " START ------------------------------------------"
         );
         var minuses = Math.floor((head.length - so.mode.length - 19) / 2);
-        console.log(
+        logger.info(
           "-".repeat(minuses) +
             " STARTING " +
             so.mode.toUpperCase() +
@@ -451,14 +450,14 @@ module.exports = function (program, conf) {
             "-".repeat(minuses + (minuses % 2 == 0 ? 0 : 1))
         );
         if (so.mode === "paper") {
-          console.log(
+          logger.info(
             "!!! Paper mode enabled. No real trades are performed until you remove --paper from the startup command."
           );
         }
         if (so.proxy) {
-          console.log("!!! Use Proxy:", so.proxy);
+          logger.info("!!! Use Proxy:".green + so.proxy);
         }
-        console.log(
+        logger.info(
           "Press " + " l ".inverse + " to list available commands.\n"
         );
       }
@@ -479,7 +478,7 @@ module.exports = function (program, conf) {
        */
       function checkRunForEnd() {
         if (so.endTime && so.endTime - moment() < 0) {
-          console.log(
+          logger.info(
             "Run for pre defined ".red,
             so.run_for.red,
             "minites and exit!".red
@@ -539,15 +538,23 @@ module.exports = function (program, conf) {
             });
           //  console.log('buyedSymbols', buyedSymbols)
           buyedSymbols.forEach((symbol) => {
-            console.log(
-              "Find bought symbol ".cyan,
-              symbol.normalized.green,
-              "positionSide",
-              symbol.positionSide || "LONG",
-              "asset_size ".cyan,
-              symbol.asset_size,
-              "capital_size ",
-              symbol.capital_size
+            logger.info(
+              "Find bought symbol ".cyan +
+                " " +
+                symbol.normalized.green +
+                " " +
+                "positionSide" +
+                " " +
+                symbol.positionSide ||
+                "LONG" +
+                  " " +
+                  "asset_size ".cyan +
+                  " " +
+                  symbol.asset_size +
+                  " " +
+                  "capital_size " +
+                  " " +
+                  symbol.capital_size
             );
           });
 
@@ -600,7 +607,9 @@ module.exports = function (program, conf) {
       function initBlackListSymbols(buyedSymbols) {
         if (so.watch_with_black_list) {
           if (so.black_list) {
-            console.log("Remove symbol from black list".cyan, so.black_list);
+            logger.info(
+              "Remove symbol from black list".cyan + " " + so.black_list
+            );
             let black_list = so.black_list.split(",").map((symbol) => {
               return helpers.objectifySelector(symbol);
             });

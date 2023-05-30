@@ -5,7 +5,6 @@ var tb = require("timebucket"),
   colors = require("colors"),
   _ = require("lodash"),
   helpers = require("../lib/helpers"),
-  debug = require("../lib/debug"),
   engineFactory = require("../lib/engine"),
   collectionService = require("../lib/mongo-service"),
   crypto = require("crypto");
@@ -27,7 +26,7 @@ module.exports = function (program, conf) {
       conf.watch_symbols
     )
     .option("--proxy <proxy>", "use proxy", String, conf.proxy)
-    .option("--debug", "output detailed debug info", Boolean, false)
+    .option("--debug", "output detailed debug info")
     .action(function (exchange) {
       var s = {
         options: minimist(process.argv),
@@ -43,6 +42,7 @@ module.exports = function (program, conf) {
           profit: 0,
         },
       };
+      var logger = conf.logger;
       var so = s.options;
       // init bot options don't send this params to client
       Object.keys(conf).forEach(function (k) {
@@ -55,7 +55,6 @@ module.exports = function (program, conf) {
           so[k] = conf[k];
         }
       });
-      console.log("period", so, so.period, so.buy_pct);
       delete so._;
       delete so.symbols;
       so.mode = "sim";
@@ -72,7 +71,10 @@ module.exports = function (program, conf) {
       if (so.start) {
         so.start = moment(so.start, "YYYYMMDDHHmm").valueOf();
       } else {
-        so.start = moment().subtract(30, "minutes").valueOf();
+        so.start = tb()
+          .resize(so.period)
+          .subtract(so.min_periods)
+          .toMilliseconds();
       }
       if (so.end) {
         so.end = moment(so.end, "YYYYMMDDHHmm").valueOf();
@@ -100,33 +102,32 @@ module.exports = function (program, conf) {
        * start the main bot loop
        */
       function run() {
-        let products = s.exchange.getProducts();
-        debug.msg(
-          "\n" +
-            so.exchange.cyan +
-            " getProducts to ".green +
-            " " +
-            products.length.toString().yellow
-        );
         //init symbols
         engine.initSymbols(so.symbols);
-        debug.msg(
-          "Init exchanges symbols ok".cyan +
-            " " +
-            so.symbols.map((s) => (s.symbol ? s.label : s.product_id)).join(",")
-        );
+        logger.debug("Init exchanges symbols ok".cyan + " " + so.watch_symbols);
         //sim symbols
         s.status.status = "ready";
         simSymbolAll(so.symbols.slice(0), () => {
           engine.exit(() => {
             s.status.status = "finished";
-            saveSim(so.bot, () => {
-              console.log(
+            s.status.startTime = so.start;
+            s.status.endTime = so.end;
+            saveSim(so.bot, (res) => {
+              logger.debug(
+                "Save sim ok with Id".cyan +
+                  " " +
+                  res.id +
+                  " " +
+                  JSON.stringify(res.status, null, 2)
+              );
+              logger.info(
                 "Save sim result ok with bot:".green +
                   (so.bot || -1).toString().cyan
               );
-              process.exit(0);
-              return;
+              setTimeout(() => {
+                //timer to save logs
+                process.exit(0);
+              }, 2000);
             });
           });
         });
@@ -135,23 +136,26 @@ module.exports = function (program, conf) {
        * write head message on screeen
        */
       function writeHead() {
-        console.log("symbols", so.symbols);
         var head =
           "\n\n------------------------------------------ " +
           " STARTING " +
           so.mode.toUpperCase() +
           " TRADING " +
           " ------------------------------------------";
-        debug.msg(head);
-        console.log(
-          "Sim time".cyan,
-          so.period.green,
-          moment(query_start).format("MM-DD HH:mm:ss").yellow,
-          moment(so.start).format("MM-DD HH:mm:ss").yellow,
-          moment(so.end).format("MMDD HH:mm:ss").yellow
+        logger.info(head);
+        logger.info(
+          "Sim".cyan +
+            " " +
+            so.period.green +
+            " " +
+            moment(query_start).format("MM-DD HH:mm:ss").yellow +
+            " " +
+            moment(so.start).format("MM-DD HH:mm:ss").yellow +
+            " " +
+            moment(so.end).format("MMDD HH:mm:ss").yellow
         );
         if (so.proxy) {
-          debug.msg("!!! Use Proxy:", so.proxy);
+          logger.debug("!!! Use Proxy:" + so.proxy);
         }
       }
       function initBotData(cb) {
@@ -199,8 +203,10 @@ module.exports = function (program, conf) {
 
       function simSymbolAll(symbols, cb) {
         if (!symbols.length) {
-          console.log(
-            "All " + ("" + so.symbols.length).cyan + " Symbols sim ok"
+          logger.debug(
+            "All ".green +
+              ("" + so.symbols.length).yellow +
+              " Symbols sim ok".cyan
           );
           if (cb) cb();
           return;
@@ -232,7 +238,12 @@ module.exports = function (program, conf) {
           if (!opts.query.time) opts.query.time = {};
           opts.query.time["$gte"] = query_start;
         }
-        console.log("opts", JSON.stringify(opts, null, 2));
+        logger.debug(
+          symbol.product_id.green +
+            " get ticker opts".cyan +
+            " " +
+            JSON.stringify(opts)
+        );
         var collectionCursor = tickerCollection
           .find(opts.query)
           .sort(opts.sort)
@@ -241,7 +252,11 @@ module.exports = function (program, conf) {
           .find(opts.query)
           .count()
           .then((count) => {
-            console.log(symbol.normalized + " total count", count);
+            logger.debug(
+              symbol.product_id.green +
+                " total count".cyan +
+                (" " + count).yellow
+            );
           });
         collectionCursor.count().then((cursorTradeCount) => {
           var numTrades = 0;
@@ -250,20 +265,19 @@ module.exports = function (program, conf) {
           const collectionCursorStream = collectionCursor.stream();
           var onCollectionCursorEnd = (cb2) => {
             if (numTrades === 0) {
-              console.log(
-                symbol.normalized.green +
-                  " sim Ok with " +
-                  ("" + totalCount).cyan +
+              logger.debug(
+                symbol.product_id.green +
+                  " sim Ok with ".cyan +
+                  ("" + totalCount).yellow +
                   " records"
               );
               totalCount = 0;
               cursor = 0;
               clockNow = null;
-              console.log(
-                "SimSymbol lookback ".cyan,
-                symbol.product_id,
-                "balance ",
-                s.balance.currency
+              logger.debug(
+                symbol.product_id.green +
+                  " get balance ".cyan +
+                  (" " + s.balance.currency).yellow
               );
               //   console.log('SimSymbol lookback '.cyan, s.symbols[symbol.product_id].lookback.length, 'trades ', s.symbols[symbol.product_id].my_trades.length, 'balance ', s.balance.currency)
               if (cb2) cb2();
@@ -304,7 +318,7 @@ module.exports = function (program, conf) {
           .limit(1)
           .toArray()
           .then((botDatas) => {
-            debug.msg(
+            logger.debug(
               "botDatas".green +
                 " " +
                 botDatas.length.toString().cyan +
@@ -324,7 +338,7 @@ module.exports = function (program, conf) {
           .limit(100)
           .toArray()
           .then((simDatas) => {
-            debug.msg(
+            logger.debug(
               "simDatas".green +
                 " " +
                 simDatas.length.toString().cyan +
@@ -348,8 +362,8 @@ module.exports = function (program, conf) {
         // console.log('simRes', simRes.id, simRes.data.symbols)
         simCollection
           .insertOne(simRes)
-          .then(() => {
-            if (cb) cb();
+          .then((res) => {
+            if (cb) cb(simRes);
           })
           .catch((err) => {
             console.error(err);
