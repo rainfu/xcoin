@@ -212,9 +212,10 @@ module.exports = function (program, conf) {
                           s.symbols[b.product_id]["last_buy_type"] =
                             "prev_buy_" +
                             (b.positionSide === "SHORT" ? "short" : "long");
+                          let orderTime = new Date().getTime();
                           s.symbols[b.product_id].my_trades.push({
                             order_id: crypto.randomBytes(4).toString("hex"),
-                            time: new Date().getTime(),
+                            time: orderTime,
                             execution_time: 0,
                             slippage: 0,
                             type: "buy",
@@ -227,8 +228,7 @@ module.exports = function (program, conf) {
                             usdtProfit: 0,
                             position_side: b.positionSide,
                           });
-                          s.symbols[b.product_id].last_trade_time =
-                            s.symbols[b.product_id].time;
+                          s.symbols[b.product_id].last_trade_time = orderTime;
                           s.symbols[b.product_id].sell_stop = n(b.entry_price)
                             .subtract(
                               n(b.entry_price).multiply(so.sell_stop_pct / 100)

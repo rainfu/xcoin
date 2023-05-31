@@ -118,15 +118,15 @@ const addSim = (message, cb) => {
   var command_args = [
     "sim",
     message.data.exchange,
-    "--debug",
     "--conf",
     "./data/sim/temp.json",
     "--start",
     message.data.options.startTime,
     "--end",
     message.data.options.endTime,
+    "--debug",
   ];
-  console.log("Start backtest from client ".green);
+  console.log("\n ----- Start backtest from client ".cyan, command_args);
   var simProcess = spawn(
     path.resolve(__dirname, "../../../../", xcoin_cmd),
     command_args
@@ -137,7 +137,7 @@ const addSim = (message, cb) => {
         console.log(`sim: ${data}`);
       }); */
   simProcess.on("error", (error) => {
-    console.log("error", error);
+    console.log("error".cyan, error);
     let data = {
       action: message.action,
       toast: "backtest." + message.action + "Error",
@@ -147,7 +147,11 @@ const addSim = (message, cb) => {
   });
   simProcess.on("exit", (code) => {
     if (code) {
-      console.log("simProcess exit with code".green, code);
+      console.log(
+        "\n ----- Sim error,exit with code".cyan,
+        code.yellow,
+        " ------\n"
+      );
       let data = {
         action: message.action,
         toast: "backtest." + message.action + "Error",
@@ -160,6 +164,7 @@ const addSim = (message, cb) => {
       toast: "backtest." + message.action + "Ok",
     };
     if (cb) cb(data);
+    console.log("\n ----- Sim ok ------\n".cyan);
   });
 };
 module.exports = {
