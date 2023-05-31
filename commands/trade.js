@@ -226,7 +226,8 @@ module.exports = function (program, conf) {
                             action: s.symbols[b.product_id]["last_buy_type"],
                             profit: 0,
                             usdtProfit: 0,
-                            position_side: b.positionSide,
+                            position_side:
+                              b.positionSide === "SHORT" ? "short" : "long",
                           });
                           s.symbols[b.product_id].last_trade_time = orderTime;
                           s.symbols[b.product_id].sell_stop = n(b.entry_price)
