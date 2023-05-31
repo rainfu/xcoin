@@ -1,5 +1,6 @@
 const checkVersion = (message, cb) => {
   let versionObj = require("../../../../data/panacea/version.json");
+  console.log("checkVersion", message);
   function versionCompare(oldVer, newVer) {
     let v1s = oldVer.split(".");
     let v2s = newVer.split(".");
@@ -8,11 +9,13 @@ const checkVersion = (message, cb) => {
     return newV > oldV;
   }
   let hasNewVersion = versionCompare(message.data.version, versionObj.version);
+  console.log("hasNewVersion", hasNewVersion);
   if (!hasNewVersion) return;
   let data = {
     action: message.action,
     data: versionObj,
   };
+  console.log("checkVersion ok", data);
   if (cb) cb(data);
 };
 module.exports = {

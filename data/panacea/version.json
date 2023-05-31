@@ -1,8 +1,8 @@
 {
     "version": "1.6.5",
     "description": {
-        "en": "- Add backtest module\n- Opti trade\n- Bug fix",
-        "cn": "- 添加回测模块\n- 交易优化\n- Bug修复"
+        "en": "<ul><li>Add backtest module</li><li>Opti trade</li><li>Bug fix</li></ul>",
+        "cn": "<ul><li>添加回测模块</li><li>交易优化</li><li>Bug修复</li><ul>"
     },
     "downloadLink": "https://www.ciiat.com/download",
     "enforce":true
