@@ -1,8 +1,9 @@
 {
-    "version": "1.2.7",
+    "version": "1.6.5",
     "description": {
-        "en": "Add new strategy,bug fix",
-        "cn": "添加新的策略，修复大量Bug，建议更新"
+        "en": "- Add backtest module\n- Opti trade\n- Bug fix",
+        "cn": "- 添加回测模块\n- 交易优化\n- Bug修复"
     },
-    "downloadLink": "https://www.ciiat.com/download"
+    "downloadLink": "https://www.ciiat.com/download",
+    "enforce":true
 }
