@@ -32,3 +32,4 @@ data/config/user
 /commands/dexchange.js
 /extensions/exchanges/pancakeswap
 /CHANGELOG.md
+/commands/defi.js
