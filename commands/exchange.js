@@ -13,48 +13,33 @@ module.exports = function (program, conf) {
     .command("exchange [exchange]")
     .allowUnknownOption()
     .description("test exchange function")
-    .option("--debug", "output detailed debug info")
-    .option("--trade", "test get trades function")
-    .option("--selector <selector>", "init selector")
+    .option("--debug", "output with debug info")
+    .option(
+      "--watch_symbols <watch_symbols>",
+      "watch_symbols",
+      String,
+      conf.watch_symbols
+    )
+    .option("--secret <path>", "custom exchange api secret", String, "")
     .option("--proxy <proxy>", "use proxy", String, conf.proxy)
-    .option("--tickers <tickers>", "refresh tickers")
-    .option("--ticker <ticker>", "refresh ticker")
-    .option("--quote <quote>", "refresh quote")
-    .option("--refresh", "refresh products")
-    .option("--getorder <orderid>", "get order", String, null)
-    .option("--getorders <symbol>", "get orders", String, null)
-    .option("--kline", "refresh klines")
-    .option("--leverage", "update leverage")
-    .option("--lnum <length>", "update leverage level", Number, 10)
-    .option("--leverageall", "update all leverage")
-    .option("--position_side <position_side>", "position_side /LONG or SHORT")
-    .option("--buy_size <buysize>", "buy with currency size", Number, 1000)
-    .option("--sell_pct <sell_pct>", "sell_pct", Number, conf.sell_pct)
-    .option("--sell", "test with buy and sell order")
-    .option("--buy", "test with buy")
-    .option("--selllist <selllist>", "sell all symbols", String, "")
-    .option("--balance", "get symbol balance")
-    .option("--secret <path>", "get exchange secret", String, "")
-    .option("--cancel", "cancel order")
+    .option("--trade", "test get trades function")
+    .option("--kline", "test get klines function")
+    .option("--tickers", "test get tickers function")
+    .option("--quote", "test get quote function")
+    .option("--refresh", "refresh all products")
+    .option("--order <orderid>", "get order with id", String, null)
+    .option("--orders", "get orders", String, null)
+    .option("--buy <buy_pct>", "buy with buy_pct", Number, conf.buy_pct)
+    .option("--sell <sell_pct>", "sell with sell_pct", Number, conf.sell_pct)
+    .option("--sellall", "sell all symbols")
+    .option("--balance <position_side>", "LONG or SHORT", String, "LONG")
     .action(function (exchangename, cmd) {
       let so = {};
       conf.proxy = cmd.proxy;
-      conf.selllist = cmd.selllist;
-      conf.buy_size = cmd.buy_size;
-      conf.balance = cmd.balance;
-      conf.leverage = cmd.leverage;
-      conf.leverageall = cmd.leverageall;
-      conf.debug = cmd.debug;
-      conf.trade = cmd.trade;
-      conf.sell = cmd.sell;
-      conf.refresh = cmd.refresh;
-      conf.onlysell = cmd.onlysell;
-      conf.getorder = cmd.getorder;
-      conf.getorders = cmd.getorders;
-      conf.tickers = cmd.tickers;
-      conf.lnum = cmd.lnum || 10;
-      conf.sell_pct = cmd.sell_pct;
-      conf.mode = conf.paper ? "paper" : "live";
+      conf.watch_symbols = cmd.watch_symbols;
+      conf.buy_pct = cmd.buy;
+      conf.sell_pct = cmd.sell;
+      conf.position_side = (cmd.balance || "long").toUpperCase();
       conf.exchange = exchangename;
       Object.keys(conf).forEach(function (k) {
         if (
@@ -67,46 +52,29 @@ module.exports = function (program, conf) {
         }
       });
       delete so._;
-      if (so.run_for) {
-        so.endTime = moment().add(so.run_for, "m");
-      }
-
       let symbolsIds = so.watch_symbols.split(",");
       so.symbols = symbolsIds.map((symbol) => {
         return helpers.objectifySelector(symbol);
       });
-      // console.log('so', so)
+      //  console.log("so", so);
       var exchange;
       try {
-        if (so.mode !== "live") {
-          exchange = require(path.resolve(
-            __dirname,
-            "../extensions/exchanges/sim/exchange"
-          ))(conf, so, s);
-        } else {
-          exchange = require(path.resolve(
-            __dirname,
-            `../extensions/exchanges/${exchangename}/exchange`
-          ))(conf, so);
-        }
+        exchange = require(path.resolve(
+          __dirname,
+          `../extensions/exchanges/${exchangename}/exchange`
+        ))(conf, so);
       } catch (e) {
         exchange = require(path.resolve(
           __dirname,
           "../extensions/exchanges/ccxt/exchange"
         ))(conf, so);
       }
-      // console.log('exchange', exchange)
-      so.position_side = (cmd.position_side || "long").toUpperCase();
-
-      // console.log('so', so, exchange)
-      // console.log('so', so, exchange)
-      if (so.getorder) {
-        console.log("start get order");
-        let parms = so.getorder.split(",");
+      if (cmd.order) {
         var opts = {
-          order_id: parms[0],
-          product_id: parms[1],
+          order_id: cmd.order,
+          product_id: so.symbols[0].product_id,
         };
+        console.log("start get order".cyan, opts);
         exchange.getOrder(opts, function (err, res) {
           if (err) console.log("error", err);
           console.log("getOrder ok..", res);
@@ -114,12 +82,12 @@ module.exports = function (program, conf) {
         });
         return;
       }
-      if (so.getorders) {
-        console.log("start get orders");
+      if (cmd.orders) {
         var opts = {
-          product_id: so.getorders,
+          product_id: so.symbols[0].product_id,
           limit: 5,
         };
+        console.log("start get orders ".cyan, opts);
         exchange.getOrders(opts, function (err, res) {
           if (err) console.log("error", err);
           console.log("getOrders ok..", res);
@@ -127,8 +95,7 @@ module.exports = function (program, conf) {
         });
         return;
       }
-
-      if (so.refresh) {
+      if (cmd.refresh) {
         console.log(exchangename.green + " start refresh products".cyan);
         exchange.refreshProducts(() => {
           console.log(
@@ -141,7 +108,7 @@ module.exports = function (program, conf) {
         return;
       }
 
-      if (so.trade) {
+      if (cmd.trade) {
         //get trades
         var tradeOpts = {
           product_id: so.symbols[0].product_id,
@@ -159,7 +126,7 @@ module.exports = function (program, conf) {
       }
 
       //implement kline
-      if (so.kline) {
+      if (cmd.kline) {
         //get trades
         let opts = {
           product_id: so.symbols[0].product_id,
@@ -189,28 +156,16 @@ module.exports = function (program, conf) {
 
         return;
       }
-      if (so.tickers) {
+      if (cmd.tickers) {
         debug.msg(
           "start refresh all symbol tickers".green +
             " " +
             (" " + so.symbols.product_id).yellow
         );
-        getTickers(JSON.parse(JSON.stringify(symbols)));
+        getTickers(JSON.parse(JSON.stringify(so.symbols)));
         return;
       }
-      if (so.ticker) {
-        exchange.getTicker(so.symbols[0], function (err, realTickers) {
-          if (err) {
-            console.log("err", err);
-            return;
-          }
-          console.log(exchange.name + " ticker ok".green, realTickers);
-          process.exit();
-          return;
-        });
-        return;
-      }
-      if (so.quote) {
+      if (cmd.quote) {
         exchange.getQuote(so.symbols[0], function (err, realTickers) {
           if (err) {
             console.log("err", err);
@@ -239,44 +194,14 @@ module.exports = function (program, conf) {
         return;
       }
 
-      //implement leverage
-      if (so.leverage) {
-        console.log(
-          exchangename.green +
-            " " +
-            so.symbols[0].product_id +
-            " start update leverage".green +
-            " to " +
-            so.leverage
-        );
-        exchange.updateLeverage(
-          {
-            leverage: so.lnum,
-            product_id: so.symbols[0].product_id,
-          },
-          function (err, res) {
-            if (err) return;
-            console.log("updateLeverage ok".green + ": " + JSON.stringify(res));
-            process.exit();
-            // checkSymbols(cb, symbols, JSON.parse(JSON.stringify(symbols)))
-          }
-        );
-        return;
-      }
-      if (so.leverageall) {
-        exchange.updateLeverageAll(function (err, res) {
-          if (err) return;
-          console.log(
-            "updateLeverage all ok".green + ": " + JSON.stringify(res)
-          );
-          process.exit();
-          // checkSymbols(cb, symbols, JSON.parse(JSON.stringify(symbols)))
-        });
-        return;
-      }
       //implement balane
-      if (so.balance) {
-        console.log(exchangename.cyan + " start get balance".green);
+      if (cmd.balance) {
+        console.log(
+          exchangename.cyan +
+            " start get balance".green +
+            " " +
+            so.position_side
+        );
         exchange.getBalance(
           {
             position_side: so.position_side || "LONG",
@@ -405,73 +330,68 @@ module.exports = function (program, conf) {
       }
       exchange.refreshProducts(() => {
         console.log(
-          so.selector.exchange_id + " refreshProducts",
+          exchangename + " refreshProducts",
           exchange.getProducts().length
         );
         //getBalance && getQuote
         debug.msg("start getBalance".green);
         var opts = {
-          position_side: selector.position_side || "LONG",
-          currency: selector.currency,
-          asset: selector.asset,
+          position_side: so.position_side || "LONG",
+          currency: so.symbols[0].currency,
+          asset: so.symbols[0].asset,
         };
         exchange.getBalance(opts, function (err, balance) {
           if (err) {
             console.log("error", err);
             return;
           }
-          console.log(s.selector.exchange_id + " getBalance", balance);
+          console.log(exchangename + " getBalance", balance);
           //start only sell
-          if (so.sell) {
-            debug.msg("start sell ".green);
-            if (so.selllist === "all") {
-              let shouldSellSymbols = Object.keys(balance.assets).map(function (
-                symbol
-              ) {
-                return Object.assign(
-                  objectifySelector(exchange.name + "." + symbol + "-USDT"),
-                  {
-                    position_side: selector.position_side,
-                    size: balance.assets[symbol].asset,
-                  }
-                );
-              });
-              //  console.log('shouldSellSymbols', shouldSellSymbols)
-              sellAllSymbols(shouldSellSymbols.reverse());
-            } else if (so.selllist) {
-              let ss = so.selllist.toUpperCase().split(",");
-              let shouldSellSymbols = ss.map(function (symbol) {
-                let sel = objectifySelector(symbol);
-                return Object.assign(sel, {
-                  position_side: selector.position_side,
-                  size: balance.assets[sel.asset].asset,
-                });
-              });
-              // console.log('shouldSellSymbols', shouldSellSymbols)
-              sellAllSymbols(shouldSellSymbols.reverse());
-            } else {
-              console.log("no selllist ");
-            }
+          if (cmd.sellall) {
+            debug.msg("start sellall ".green);
+            let shouldSellSymbols = Object.keys(balance.assets).map(function (
+              symbol
+            ) {
+              return Object.assign(
+                objectifySelector(exchange.name + "." + symbol + "-USDT"),
+                {
+                  position_side: so.position_side,
+                  size: balance.assets[symbol].asset,
+                }
+              );
+            });
+            //  console.log('shouldSellSymbols', shouldSellSymbols)
+            sellAllSymbols(shouldSellSymbols.reverse());
             return;
           }
-          debug.msg("start getQuote".green);
-          exchange.getQuote(
-            { product_id: selector.product_id },
-            (err, quotes) => {
-              if (err) {
-                console.log("error", err);
-                return;
-              }
-              console.log(s.selector.exchange_id + " getQuote", quotes);
-              if (so.buy) {
+          if (cmd.sell) {
+            let sombol = so.symbols[0];
+            Object.assign(sombol, {
+              position_side: so.position_side,
+              size: balance.assets[sombol.asset].asset,
+            });
+            // console.log('shouldSellSymbols', shouldSellSymbols)
+            sellAllSymbols([symbol]);
+            return;
+          }
+          if (cmd.buy) {
+            debug.msg("start getQuote".green);
+            exchange.getQuote(
+              { product_id: so.symbols[0].product_id },
+              (err, quotes) => {
+                if (err) {
+                  console.log("error", err);
+                  return;
+                }
+                console.log(so.symbols[0].exchange_id + " getQuote", quotes);
                 let opts = {
-                  size: getFullNum(so.buy_size / quotes.ask),
+                  size: getFullNum(so.buy_pct / quotes.ask),
                   price: quotes.ask,
-                  product_id: selector.product_id,
-                  asset: selector.asset,
+                  product_id: so.symbols[0].product_id,
+                  asset: so.symbols[0].asset,
                   order_type: so.order_type,
                   position_side: so.position_side,
-                  currency: selector.currency,
+                  currency: so.symbols[0].currency,
                 };
                 //start buy
                 debug.msg("start buy".green);
@@ -483,7 +403,7 @@ module.exports = function (program, conf) {
                     if (ti2) clearInterval(ti2);
                     return;
                   }
-                  console.log(s.selector.exchange_id + " buy new", order.id);
+                  console.log(so.symbols[0].exchange_id + " buy new", order.id);
                   opts.api_order = order;
                   opts.order_id = order.id;
                 });
@@ -516,8 +436,8 @@ module.exports = function (program, conf) {
                   }
                 }, conf.order_poll_time);
               }
-            }
-          );
+            );
+          }
         });
       });
     });
