@@ -29,7 +29,4 @@ data/config/user
 /data/config/jenny
 /data/config/last_config.json
 /config/conf-secret.js
-/commands/dexchange.js
-/extensions/exchanges/pancakeswap
 /CHANGELOG.md
-/commands/defi.js

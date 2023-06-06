@@ -1,0 +1,217 @@
+{
+  "conf": "./data/config/pancakeswap/demo.json",
+  "with_server": false,
+  "name": "defi",
+  "sim_price": false,
+  "paper": true,
+  "strategy": {
+    "id": "RSI",
+    "name": "RSI",
+    "des": "RSI",
+    "editable": false,
+    "group": "custom",
+    "order": 10,
+    "strategies": [
+      {
+        "name": "RSI",
+        "des": "RSI",
+        "editable": false,
+        "group": "oscillators",
+        "input": [
+          {
+            "name": "period",
+            "type": "number",
+            "step": [
+              2,
+              100,
+              1
+            ],
+            "value": 8
+          },
+          {
+            "name": "overBoughtThreshold",
+            "type": "number",
+            "step": [
+              0,
+              100,
+              1
+            ],
+            "value": 75,
+            "show": true,
+            "pos": "bottom",
+            "owner": "RSI",
+            "priceline": true
+          },
+          {
+            "name": "overSoldThreshold",
+            "type": "number",
+            "step": [
+              0,
+              100,
+              1
+            ],
+            "value": 25,
+            "show": true,
+            "pos": "bottom",
+            "owner": "RSI",
+            "priceline": true
+          },
+          {
+            "name": "valType",
+            "type": "array",
+            "list": [
+              "open",
+              "high",
+              "low",
+              "close",
+              "volume"
+            ],
+            "value": [
+              "close"
+            ]
+          }
+        ],
+        "output": [
+          {
+            "name": "RSI",
+            "report": true,
+            "show": true,
+            "pos": "bottom",
+            "type": "line",
+            "mark": true
+          },
+          {
+            "name": "signals",
+            "report": false,
+            "show": true,
+            "pos": "bottom",
+            "type": "marker"
+          }
+        ],
+        "buyPoint": {
+          "connect": "base",
+          "source": "RSI",
+          "op": "crossUp",
+          "target": "overSoldThreshold"
+        },
+        "sellPoint": {
+          "connect": "base",
+          "source": "RSI",
+          "op": "crossDown",
+          "target": "overBoughtThreshold"
+        },
+        "inputParams": {
+          "period": 8,
+          "overBoughtThreshold": 75,
+          "overSoldThreshold": 25,
+          "valType": [
+            "close"
+          ]
+        }
+      }
+    ]
+  },
+  "period": "4h",
+  "poll_scan_time": 3000,
+  "min_periods": 720,
+  "watch_symbols": "panckaeswap.0x55d398326f99059ff775485246999027b3197955-0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c",
+  "output": {
+    "panacea": {
+      "on": true,
+      "ip": "0.0.0.0",
+      "port": 17811
+    }
+  },
+  "server": {
+    "ip": "127.0.0.1",
+    "port": 17819,
+    "save_pairs": "mexc.ETH-USDT,mexc.LOOP-USDT,mexc.BTC-USDT,mexc.GPT-USDT,mexc.MASK-USDT",
+    "db": "tickers"
+  },
+  "exchange": "mexc",
+  "future": false,
+  "trade_type": "auto",
+  "market": "only_long",
+  "sell_stop_pct": 5,
+  "buy_stop_pct": 0,
+  "max_slippage_pct": 0.5,
+  "buy_pct": 20,
+  "max_buy_size": 0,
+  "sell_pct": 100,
+  "order_adjust_time": 5000,
+  "max_sell_loss_pct": 0,
+  "max_buy_loss_pct": 0,
+  "order_poll_time": 5000,
+  "wait_for_settlement": 5000,
+  "markdown_buy_pct": 0,
+  "markup_sell_pct": 0,
+  "order_type": "taker",
+  "post_only": true,
+  "use_fee_asset": false,
+  "days": 2,
+  "keep_lookback_periods": 50000,
+  "currency_capital": 1000,
+  "asset_capital": 0,
+  "rsi_periods": 14,
+  "avg_slippage_pct": 0.045,
+  "cancel_after": "day",
+  "save_bot_time": 60000,
+  "min_buy_size": 10,
+  "max_watch_size": 10,
+  "price_format": "0.000000000000",
+  "quarentine_time": 0,
+  "run_for": 0,
+  "profit_not_lost": true,
+  "profit_win_enable": true,
+  "profit_win_first_rate": 10,
+  "profit_win_first_percent": 25,
+  "profit_win_second_rate": 20,
+  "profit_win_second_percent": 36,
+  "profit_win_third_rate": 50,
+  "profit_win_third_percent": 50,
+  "profit_win_max_rate": 100,
+  "profit_win_max_percent": 50,
+  "profit_stop_enable": true,
+  "profit_stop_pct": 20,
+  "profit_stop_first_rate": 10,
+  "profit_stop_first_percent": 30,
+  "profit_stop_second_rate": 20,
+  "profit_stop_second_percent": 40,
+  "profit_stop_third_rate": 30,
+  "profit_stop_third_percent": 50,
+  "profit_stop_max_rate": 50,
+  "profit_stop_max_percent": 70,
+  "profit_stop_percent": 50,
+  "watch_include_bought": true,
+  "watch_with_black_list": true,
+  "black_list": "",
+  "poll_broadcast_time": 5000,
+  "poll_init_klines": 1500,
+  "buy_profit_pct": 0,
+  "max_check_order_num": 10,
+  "product_active": true,
+  "product_currency": "USDT",
+  "product_min_volume": 50000,
+  "product_without_margin": true,
+  "restart": true,
+  "mode": "paper",
+  "poll_watch_wait": 1000,
+  "same_period_multi_buy": false,
+  "buy_position_side_when_sell": true,
+  "poll_position_side_time": 3000,
+  "short_buy_pct": 20,
+  "hasBacktest": true,
+  "hasConfig": true,
+  "hasStrategy": true,
+  "hasMarket": true,
+  "defi": {
+    "dailyVolumeUSD": 10000,
+    "hourVolumeUSD": 1000,
+    "since": 30,
+    "limit": 100,
+    "minHolders": 1500,
+    "minVolumeUSD": 100000,
+    "dminReserveUSD": 100000,
+    "minTotalTransactions": 1000
+}
+}
