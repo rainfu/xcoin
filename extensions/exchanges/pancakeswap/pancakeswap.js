@@ -15,14 +15,15 @@ const {
 } = require("@apollo/client");
 const { fetch } = require("cross-fetch");
 const {
-  getToken,
-  getPair,
-  getPairArray,
-  getPairHourData,
-  getTokenExtraInfo,
   getProducts,
+  getTokenPool,
+  getPool,
+  getToken,
+  getPools,
+  getPoolHourData,
+  getTokenExtraInfo,
   getPairArrayDaylyData,
-} = require("./defi/PanQuery");
+} = require("./defi/PanQuery3");
 const tb = require("timebucket");
 const readline = require("readline");
 module.exports = class pancakeswap extends Exchange {
@@ -97,6 +98,7 @@ module.exports = class pancakeswap extends Exchange {
   }
   async fetchToken(opts, params = {}) {
     let res;
+    console.log("opts", opts);
     res = await getToken(
       this.apolloClient,
       opts.token,
@@ -104,16 +106,27 @@ module.exports = class pancakeswap extends Exchange {
       true,
       true
     );
-    console.log("getTokenExtraInfo ok", res);
+    console.log("fetchToken ok", res);
     return res;
   }
   async fetchMarkets(opts, params = {}) {
-    let since = opts.since || 30;
+    let products = [];
+    try {
+      products = require(`../../../data/exchanges/pancakeswap_products.json`);
+    } catch (e) {}
+    let blacklist = [];
+    try {
+      blacklist = require(`../../../data/exchanges/pancakeswap_blacklist.json`);
+    } catch (e) {}
+    console.log("products", products.length, "blacklist", blacklist.length);
+    let newTokenList = [];
+    let since = opts.since || 1;
     let baseTokenAddress = opts.baseTokenAddress || this.baseTokenAddress;
-    let minHolders = opts.minHolders || 1500;
-    let limit = opts.limit || 100;
+    let minHolders = opts.minHolders || 1000;
+    let maxHolders = opts.maxHolders || 50000;
+    let limit = opts.limit || 1000;
     let minVolumeUSD = opts.minVolumeUSD || 100000;
-    let minReserveUSD = opts.minReserveUSD || 100000;
+    let maxVolumeUSD = opts.maxVolumeUSD || 50000000;
     let minTotalTransactions = opts.minTotalTransactions || 1000;
     //  console.log('fetchMarkets', baseTokenAddress, since, minHolders, limit, minVolumeUSD, minReserveUSD, minTotalTransactions)
     if (since) {
@@ -121,70 +134,92 @@ module.exports = class pancakeswap extends Exchange {
       // console.log('init since..', (new Date()).getTime(), since, query_start)
       since = query_start / 1000;
     }
-    const pairs = await getProducts(
+    let tokens = await getProducts(
       this.apolloClient,
       "new",
       baseTokenAddress,
       since,
       limit,
       minVolumeUSD,
-      minReserveUSD,
+      maxVolumeUSD,
       minTotalTransactions
     );
-    console.log("fetchMarkets get pairs ok", pairs.length);
-    // console.log('fetchMarkets', response)
-    // console.log('fetchMarkets', pairs)
-    const result = [];
-    let base, quote, decimals, name, price;
-    for (let i = 0; i < pairs.length; i++) {
-      const market = pairs[i];
-      if (market.token0.id === baseTokenAddress) {
-        base = market.token1.id;
-        decimals = parseInt(market.token1.decimals) || 18;
-        quote = market.token0.id;
-        name = market.token1.symbol + "/" + market.token0.symbol;
-        price = market.token0Price;
-      } else {
-        base = market.token0.id;
-        decimals = parseInt(market.token0.decimals) || 18;
-        quote = market.token1.id;
-        name = market.token0.symbol + "/" + market.token1.symbol;
-        price = market.token1Price;
-      }
+    console.log("fetchMarkets get tokens ok", tokens.length);
+    tokens = tokens.filter(
+      (t) =>
+        t.token.txCount >= minTotalTransactions &&
+        t.token.volumeUSD >= minVolumeUSD &&
+        t.token.volumeUSD <= maxVolumeUSD
+    );
+    // console.log("fetchMarkets filter tokens ok", tokens.length);
+    for (let i = 0; i < tokens.length; i++) {
+      let token = tokens[i];
+      let black = blacklist.find((t) => t.base === token.token.id);
+      if (black) continue;
+      let find = products.find((t) => t.asset === token.token.id);
+      if (find) continue;
       let symbol = {
-        id: market.id,
-        name: name,
-        base: base,
-        quote: quote,
+        base: token.token.id,
+        quote: this.baseTokenAddress,
         active: true,
-        decimals: decimals,
-        price: price,
-        reserveUSD: market.reserveUSD,
-        created: this.iso8601(1000 * market.timestamp),
+        decimals: token.token.decimals,
+        price: token.priceUSD,
+        volumeUSD: token.token.volumeUSD,
+        txCount: token.token.txCount,
       };
-      symbol = await getTokenExtraInfo(null, symbol, this.options.api.bscscan);
-      readline.clearLine(process.stdout);
-      readline.cursorTo(process.stdout, 0);
-      process.stdout.write(
-        (
-          "fetchMarkets " +
-          (symbol.symbol ? symbol.symbol : symbol.base) +
-          " " +
-          i +
-          "/" +
-          pairs.length
-        ).green
-      );
-      symbol.info = market;
-      // console.log('symbol', symbol)
-      if (!symbol.holders || (symbol.holders && symbol.holders > minHolders)) {
-        result.push(symbol);
+      try {
+        symbol = await getTokenExtraInfo(
+          null,
+          symbol,
+          this.options.api.bscscan
+        );
+      } catch (e) {
+        console.log("getTokenExtraInfo error", e);
+      }
+      if (
+        !symbol.holders ||
+        (symbol.holders &&
+          symbol.holders >= minHolders &&
+          symbol.holders <= maxHolders)
+      ) {
+        let tokenPool = await getTokenPool(
+          this.apolloClient,
+          baseTokenAddress,
+          symbol.base
+        );
+        //  console.log("tokenpool", tokenPool.whitelistPools);
+        if (tokenPool.whitelistPools.length) {
+          let fitPool = tokenPool.whitelistPools.find(
+            (w) =>
+              w.token0.id === baseTokenAddress ||
+              w.token1.id === baseTokenAddress
+          );
+          // console.log("fitPool", fitPool);
+          if (fitPool) {
+            Object.assign(symbol, {
+              id: fitPool.id,
+              name:
+                fitPool.token0.id === baseTokenAddress
+                  ? fitPool.token1.symbol + "/" + fitPool.token0.symbol
+                  : fitPool.token0.symbol + "/" + fitPool.token1.symbol,
+              csymbol:
+                fitPool.token0.id === baseTokenAddress
+                  ? fitPool.token0.symbol
+                  : fitPool.token1.symbol,
+              price:
+                fitPool.token0.id === baseTokenAddress
+                  ? fitPool.token0Price
+                  : fitPool.token1Price,
+            });
+            newTokenList.push(symbol);
+          }
+        }
+      } else {
+        blacklist.push(symbol);
       }
     }
-    //console.log('result', result)//mi 0xcfbb1bfa710cb2eba070cc3bec0c35226fea4baf feg 0xacFC95585D80Ab62f67A14C566C1b7a49Fe91167
-    //const res2 = await getTokenData(this.apolloClient, '0x9da5d475a090f7127628b18887a330a838c6f8ab'.toLowerCase())
-    //console.log('res2', JSON.stringify(res2, null, 2))
-    return result;
+    console.log("newTokenList ok", newTokenList.length);
+    return { newTokenList, blacklist };
   }
 
   parseTicker(ticker, pairDayData, market = undefined) {
@@ -195,22 +230,14 @@ module.exports = class pancakeswap extends Exchange {
     let timestamp = this.milliseconds();
     let id = this.safeString(ticker, "id");
 
-    let last = this.numberToString(
+    let last =
       ticker.token0.id === this.baseTokenAddress.toLowerCase()
-        ? this.safeString(ticker, "token0Price")
-        : this.safeString(ticker, "token1Price")
-    );
-    let volume = this.safeString(ticker, "reserveUSD");
-    let hourData = this.safeValue(ticker, "pairHourData");
+        ? this.safeNumber(ticker, "token0Price")
+        : this.safeNumber(ticker, "token1Price");
+    let volume = 0;
     // console.log('hourData', hourData)
     let hourVolume = "0";
-    if (hourData && hourData.length) {
-      hourVolume = this.safeString(hourData[0], "hourlyVolumeUSD");
-    }
     let dayVolume = "0";
-    if (pairDayData) {
-      dayVolume = this.safeString(pairDayData, "dailyVolumeUSD");
-    }
     //  console.log('pairDayData', pairDayData, dayVolume)
     return {
       symbol: id,
@@ -374,32 +401,25 @@ module.exports = class pancakeswap extends Exchange {
   }
   async fetchTicker(product, params = {}) {
     //  console.log('fetchTicker', product)
-    let response = await getPair(this.apolloClient, product.id);
-    // console.log('fetchTicker', response)
-    const data = this.safeValue(response, "data", {});
-    const pair = this.safeValue(data, "pair", {});
-    const pairDayData = this.safeValue(data, "pairDayDatas", {})[0];
-    // console.log('fetchTicker', pairDayData, this.iso8601(1000 * pairDayData.date))
-    return this.parseTicker(pair, pairDayData);
+    let response = await getPool(this.apolloClient, product.id);
+    let last =
+      response.token0.id === this.baseTokenAddress.toLowerCase()
+        ? this.safeNumber(response, "token0Price")
+        : this.safeNumber(response, "token1Price");
+    return {
+      bid: last,
+      ask: last,
+      dayVolume: 0,
+    };
   }
-  async fetchPair(product, params = {}) {
-    // console.log('fetchPair', tokens)
-    let response = await getPair(
+  async fetchPool(product, params = {}) {
+    // console.log('fetchPool', tokens)
+    let pair = await getPool(
       this.apolloClient,
       product.id,
       product.asset.toLowerCase(),
       product.currency.toLowerCase()
     );
-    // console.log('fetchPair', res)
-    const data = this.safeValue(response, "data", {});
-    const pair = this.safeValue(data, "pair", {});
-    // const pairAddress = res.id
-    //  res = await getPairHourData(this.apolloClient, pairAddress, 0, 100, 0)
-    //  console.log('getPairHourData', res.data.pairHourDatas)
-    // res = await getPairDaylyData(this.apolloClient, pairAddress, 0, 100, 0)
-    // console.log('getPairDaylyData', res.data.pairDayDatas)
-    // res = await getPairTransactions(this.apolloClient, pairAddress, 0, 100, 0)
-    //console.log('getPairTransactions', res)
     return pair;
   }
   async fetchPairs(pairAddressArray, params = {}) {
@@ -417,13 +437,11 @@ module.exports = class pancakeswap extends Exchange {
   }
   async fetchTickers(symbols, limit = 1000, params = {}) {
     symbols = symbols.map((s) => s.id);
-    const response = await getPairArray(this.apolloClient, symbols);
-    const data = this.safeValue(response, "data", {});
-    const pairs = this.safeValue(data, "pairs", {});
-    console.log("pairs", pairs);
+    const response = await getPools(this.apolloClient, symbols, limit);
+    // console.log("response", response);
     const result = {};
-    for (let t = 0; t < pairs.length; t++) {
-      const ticker = pairs[t];
+    for (let t = 0; t < response.length; t++) {
+      const ticker = response[t];
       const label =
         ticker.token0.id === this.baseTokenAddress.toLowerCase()
           ? ticker.token1.id.toLowerCase() +
@@ -433,8 +451,9 @@ module.exports = class pancakeswap extends Exchange {
             "/" +
             ticker.token1.id.toLowerCase();
       result[label] = this.parseTicker(ticker);
+      console.log("result", result[label].bid);
     }
-    //  console.log('result', result)
+
     return result;
   }
   async fetchTrades(opts, params = {}) {
@@ -494,35 +513,28 @@ module.exports = class pancakeswap extends Exchange {
     let limit =
       opts.limit === undefined ? defaultLimit : Math.min(opts.limit, maxLimit);
     const since = parseInt(opts.from / 1000);
-    // console.log('fetchTrades', since, limit)
-    let response = await getPairHourData(
+    let response = await getPoolHourData(
       this.apolloClient,
       opts.id,
       since,
       limit,
       0
     );
-    // console.log('getPairHourData', response)
+    // console.log("getPoolHourData", response);
     const data = this.safeValue(response, "data", {});
-    let pairHourDatas = this.safeValue(data, "pairHourDatas", {});
-    //console.log('pairHourDatas', pairHourDatas, pairHourDatas.length)
+    const data2 = this.safeValue(data, "pool", {});
+    let pairHourDatas = this.safeValue(data2, "poolHourData", {});
+    console.log("pairHourDatas", pairHourDatas[0], pairHourDatas.length);
     return this.parseOHLCVs(pairHourDatas, undefined, since, limit);
   }
   parseOHLCV(ohlcv) {
-    const price =
-      ohlcv.pair.token0.id === this.baseTokenAddress.toLowerCase()
-        ? this.safeNumber(ohlcv, "reserve0") /
-          this.safeNumber(ohlcv, "reserve1")
-        : this.safeNumber(ohlcv, "reserve1") /
-          this.safeNumber(ohlcv, "reserve0");
-    const priceStr = this.numberToString(price);
     return [
-      this.safeTimestamp(ohlcv, "hourStartUnix"),
-      priceStr,
-      priceStr,
-      priceStr,
-      priceStr,
-      this.safeNumber(ohlcv, "hourlyVolumeUSD"),
+      this.safeTimestamp(ohlcv, "periodStartUnix"),
+      this.safeNumber(ohlcv, "open"),
+      this.safeNumber(ohlcv, "high"),
+      this.safeNumber(ohlcv, "low"),
+      this.safeNumber(ohlcv, "close"),
+      this.safeNumber(ohlcv, "volumeUSD"),
     ];
   }
 };

@@ -3,7 +3,7 @@
   "with_server": false,
   "name": "defi",
   "sim_price": false,
-  "paper": true,
+  "paper": false,
   "strategy": {
     "id": "RSI",
     "name": "RSI",
@@ -111,15 +111,15 @@
       }
     ]
   },
-  "period": "4h",
-  "poll_scan_time": 3000,
-  "min_periods": 720,
-  "watch_symbols": "panckaeswap.0x55d398326f99059ff775485246999027b3197955-0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c",
+  "period": "1h",
+  "poll_scan_time": 10000,
+  "min_periods": 32,
+  "watch_symbols": "pancakeswap.CNNC-WBNB",
   "output": {
     "panacea": {
       "on": true,
       "ip": "0.0.0.0",
-      "port": 17811
+      "port": 17891
     }
   },
   "server": {
@@ -194,7 +194,7 @@
   "product_min_volume": 50000,
   "product_without_margin": true,
   "restart": true,
-  "mode": "paper",
+  "mode": "live",
   "poll_watch_wait": 1000,
   "same_period_multi_buy": false,
   "buy_position_side_when_sell": true,
@@ -205,13 +205,12 @@
   "hasStrategy": true,
   "hasMarket": true,
   "defi": {
-    "dailyVolumeUSD": 10000,
-    "hourVolumeUSD": 1000,
-    "since": 30,
+    "since": 1,
     "limit": 100,
-    "minHolders": 1500,
-    "minVolumeUSD": 100000,
-    "dminReserveUSD": 100000,
+    "minHolders": 1000,
+    "maxHolders":50000,
+    "minVolumeUSD": 50000,
+    "maxVolumeUSD": 5000000,
     "minTotalTransactions": 1000
 }
 }

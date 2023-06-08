@@ -202,9 +202,9 @@ class Swapper {
       .formatUnits(balanceamount, this.BASE_TOKEN.decimals || 18)
       .toString(); //余额1
     balance[this.BASE_TOKEN.address.toLowerCase()] = {
-      free: valB,
+      free: parseFloat(valB),
       used: 0,
-      total: valB,
+      total: parseFloat(valB),
       info: balanceamount,
     };
     //console.log(this.BASE_TOKEN.address.toLowerCase(), balance[this.BASE_TOKEN.address.toLowerCase()])
@@ -228,9 +228,9 @@ class Swapper {
             .toString(); //余额1
           // console.log('response', tokens[i], outputBalance, valB)
           balance[address.toLowerCase()] = {
-            free: valB,
+            free: parseFloat(valB),
             used: 0,
-            total: valB,
+            total: parseFloat(valB),
             info: tokenBalance,
           };
         }

@@ -149,6 +149,7 @@ module.exports = function (program, conf) {
             klines.length,
             "the first",
             klines[0],
+            "the last",
             klines[klines.length - 1]
           );
           process.exit(0);
@@ -212,7 +213,10 @@ module.exports = function (program, conf) {
             if (err) return;
             if (!balance.assets) return;
             delete balance.assets["NFT"];
-            // console.log('balance', balance)
+            /*  console.log(
+              "balance " + so.symbols[0].currency + " hold",
+              balance.currency_hold
+            ); */
             let symbols = Object.keys(balance.assets).map((key) => {
               return Object.assign(balance.assets[key], {
                 product_id: key + "-" + so.symbols[0].currency,
@@ -221,38 +225,39 @@ module.exports = function (program, conf) {
               });
             });
             //console.log('symbols2', symbols)
-            exchange.getTickers({ symbols }, function (err, realTickers) {
-              // console.log('realTickers', realTickers)
-              // console.log('forward scan', realTickers.length, realTickers[realTickers.length - 1])
-              let sum = 0;
-              if (realTickers) {
-                Object.keys(realTickers).forEach((t) => {
-                  let symbol = symbols.find(
-                    (s) =>
-                      s.normalized === realTickers[t].normalized ||
-                      s.normalized + ":USDT" === realTickers[t].normalized
-                  );
-                  //  console.log('t', t, realTickers[t], symbol)
-                  if (symbol) {
-                    symbol.capital = n(symbol.asset)
-                      .multiply(realTickers[t].close)
-                      .value();
-                    console.log("balance", symbol.normalized, symbol.capital);
-                    sum += symbol.capital;
-                  }
-                });
-              }
-              console.log("balance USDT ", balance.currency);
-              console.log("balance USDT hold", balance.currency_hold);
+            if (symbols.length) {
+              exchange.getTickers({ symbols }, function (err, realTickers) {
+                // console.log('realTickers', realTickers)
+                // console.log('forward scan', realTickers.length, realTickers[realTickers.length - 1])
+                let sum = 0;
+                if (realTickers) {
+                  Object.keys(realTickers).forEach((t) => {
+                    let symbol = symbols.find(
+                      (s) =>
+                        s.normalized === realTickers[t].normalized ||
+                        s.normalized + ":USDT" === realTickers[t].normalized
+                    );
+                    //  console.log('t', t, realTickers[t], symbol)
+                    if (symbol) {
+                      symbol.capital = n(symbol.asset)
+                        .multiply(realTickers[t].close)
+                        .value();
+                      console.log("balance", symbol.normalized, symbol.capital);
+                      sum += symbol.capital;
+                    }
+                  });
+                }
 
-              console.log(
-                exchangename.green +
-                  "  get balance total".green +
-                  ": " +
-                  (balance.currency + sum)
-              );
-              process.exit();
-            });
+                console.log(
+                  exchangename.green +
+                    "  get balance total".green +
+                    ": " +
+                    (balance.currency + sum)
+                );
+                process.exit();
+              });
+            } else {
+            }
 
             // checkSymbols(cb, symbols, JSON.parse(JSON.stringify(symbols)))
           }

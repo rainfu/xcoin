@@ -7,7 +7,7 @@ const path = require("path"),
   HttpsProxyAgent = require("https-proxy-agent"),
   pancakeswap = require("./pancakeswap"),
   options = {};
-module.exports = function container(conf, s, proxy) {
+module.exports = function container(conf, so, inOptions) {
   var authed_client;
   var logger = conf.logger;
   function authedClient() {
@@ -37,8 +37,8 @@ module.exports = function container(conf, s, proxy) {
     return authed_client;
   }
   function setProxy(client) {
-    if (proxy) {
-      const agent = new HttpsProxyAgent(proxy);
+    if (so.proxy) {
+      const agent = new HttpsProxyAgent(so.proxy);
       client.agent = agent;
     }
   }
@@ -72,7 +72,6 @@ module.exports = function container(conf, s, proxy) {
   }
   var orders = {};
   var products = [];
-
   var exchange = {
     name: exchagneId,
     historyScan: "forward",
@@ -94,27 +93,53 @@ module.exports = function container(conf, s, proxy) {
       };
       return periodToHour[period];
     },
-    refreshProducts(cb, force = true) {
-      if (!force) {
-        return cb(this.getProducts());
+    initFees() {
+      if (
+        conf.secret.keys[exchagneId] &&
+        conf.secret.keys[exchagneId].takerFee
+      ) {
+        this.takerFee = conf.secret.keys[exchagneId].takerFee;
       }
+      if (
+        conf.secret.keys[exchagneId] &&
+        conf.secret.keys[exchagneId].makerFee
+      ) {
+        this.makerFee = conf.secret.keys[exchagneId].makerFee;
+      }
+      if (so.takerFee) {
+        this.takerFee = so.takerFee;
+      }
+      if (so.makerFee) {
+        this.makerFee = so.makerFee;
+      }
+    },
+    refreshProducts(cb, force = true) {
+      //if (!force) {
+      return cb(this.getProducts());
+      // }
       var client = authedClient();
       console.log("refreshProducts start..", JSON.stringify(conf.defi));
-      client.fetchMarkets(conf.defi).then((markets) => {
-        console.log("refreshProducts get..", markets.length);
-        const resProducts = markets.map((market) => {
+      client.fetchMarkets(conf.defi).then(({ newTokenList, blacklist }) => {
+        console.log(
+          "refreshProducts ok..",
+          newTokenList.length,
+          blacklist.length
+        );
+        const resProducts = newTokenList.map((market) => {
           // NOTE: price_filter also contains minPrice and maxPrice
           return {
             id: market.id,
             asset: market.base,
             symbol: market.symbol,
+            csymbol: market.csymbol,
             currency: market.quote,
             active: market.active,
             decimals: market.decimals.toString(),
             price: market.price,
-            reserveUSD: market.reserveUSD || 0,
             created: market.created,
-            label: market.symbol
+            volumeUSD: market.volumeUSD,
+            txCount: market.txCount,
+            label: market.name
               ? market.name.replace("unknown", market.symbol)
               : market.name,
             verified: market.verified,
@@ -124,8 +149,8 @@ module.exports = function container(conf, s, proxy) {
             site: market.site || "",
             social: market.social || "",
             exchagne_id: exchagneId,
-            product_id: market.base + "-" + market.quote,
-            normalized: exchagneId + "." + market.base + "-" + market.quote,
+            product_id: market.symbol + "-" + market.csymbol,
+            normalized: exchagneId + "." + market.symbol + "-" + market.csymbol,
           };
         });
         //  console.log('resProducts', resProducts.length)
@@ -159,11 +184,22 @@ module.exports = function container(conf, s, proxy) {
         if (newProducts.length) {
           var newProductTarget = require("path").resolve(
             __dirname,
-            "products_" + moment().format("YYYYMMDDHH") + ".json"
+            "../../../data/exchanges/" + exchagneId + "_new.json"
           );
           require("fs").writeFileSync(
             newProductTarget,
-            JSON.stringify(newProducts, null, 2)
+            JSON.stringify(newProducts, null, 2),
+            { flag: "a" }
+          );
+        }
+        if (blacklist.length) {
+          var blacklistTarget = require("path").resolve(
+            __dirname,
+            "../../../data/exchanges/" + exchagneId + "_blacklist.json"
+          );
+          require("fs").writeFileSync(
+            blacklistTarget,
+            JSON.stringify(blacklist, null, 2)
           );
         }
         // console.log('wrote', target)
@@ -186,7 +222,7 @@ module.exports = function container(conf, s, proxy) {
       // console.log('product', p, product)
       return product;
     },
-    getPairOptions(opts) {
+    getPoolOptions(opts) {
       if (!opts.asset || !opts.currency) {
         const ac = opts.product_id.split("-");
         opts.asset = ac[0];
@@ -198,7 +234,10 @@ module.exports = function container(conf, s, proxy) {
       });
       opts.id = product.id;
       opts.decimals = product.decimals;
+      opts.asset = product.asset;
+      opts.currency = product.currency;
       opts.symbol = product.symbol;
+      opts.csymbol = product.csymbol;
       return opts;
     },
     getTrades: function (opts, cb) {
@@ -209,7 +248,7 @@ module.exports = function container(conf, s, proxy) {
         opts.from = 0;
       }
       //  console.log('getTrades', opts, args)
-      this.getPairOptions(opts);
+      this.getPoolOptions(opts);
       // console.log('getTrades', opts, args)
       authlient
         .fetchTrades(opts, args)
@@ -241,12 +280,19 @@ module.exports = function container(conf, s, proxy) {
         .resize(opts.period)
         .subtract(opts.limit / this.periodOfHour(opts.period))
         .toMilliseconds();
-      this.getPairOptions(opts);
+      this.getPoolOptions(opts);
       //   var hour_period = authlient.periodOfHour(opts.period)
       authlient
         .fetchOHLCV(opts, args)
         .then((result) => {
-          // console.log('fetchOHLCV result', result[0], result[1], result[2], result[result.length - 2], result[result.length - 1])
+          /* console.log(
+            "fetchOHLCV result",
+            result[0],
+            result[1],
+            result[2],
+            result[result.length - 2],
+            result[result.length - 1]
+          ); */
           var klines = [];
           result.forEach((kline) => {
             let d = tb(kline[0]).resize(opts.period);
@@ -318,7 +364,7 @@ module.exports = function container(conf, s, proxy) {
       opts.side = "buy";
       delete opts.order_type;
       var order = {};
-      this.getPairOptions(opts);
+      this.getPoolOptions(opts);
       opts.extractIn = opts.price ? opts.price * opts.size : opts.size;
       opts.slippage = conf.max_slippage_pct;
       //  console.log('\nbuy opts', opts)
@@ -405,7 +451,7 @@ module.exports = function container(conf, s, proxy) {
       opts.side = "sell";
       delete opts.order_type;
       var order = {};
-      this.getPairOptions(opts);
+      this.getPoolOptions(opts);
       opts.extractIn = opts.price ? opts.price * opts.size : opts.size;
       opts.slippage = conf.max_slippage_pct;
       //  console.log('sell opts', opts)
@@ -469,7 +515,7 @@ module.exports = function container(conf, s, proxy) {
     getBalance: function (opts, cb) {
       var func_args = [].slice.call(arguments);
       var client = authedClient();
-      this.getPairOptions(opts);
+      this.getPoolOptions(opts);
       console.log("getBalance", opts);
       client
         .fetchBalance(opts)
@@ -542,12 +588,12 @@ module.exports = function container(conf, s, proxy) {
     getQuote: function (opts, cb) {
       var func_args = [].slice.call(arguments);
       var client = authedClient();
-      this.getPairOptions(opts);
-      //console.log('getQuote ...', opts.symbol ? opts.symbol : opts.product_id)
+      this.getPoolOptions(opts);
+      console.log("getQuote ...", opts);
       client
         .fetchTicker(opts)
         .then((result) => {
-          // console.log('getQuote result...', result)
+          console.log("getQuote result...", result);
           cb(null, {
             bid: result.bid,
             ask: result.ask,
@@ -563,9 +609,9 @@ module.exports = function container(conf, s, proxy) {
       var func_args = [].slice.call(arguments);
       var client = authedClient();
       opts.symbols.forEach((f) => {
-        this.getPairOptions(f);
+        this.getPoolOptions(f);
       });
-      console.log("getTickers ...", opts.symbols);
+      // console.log("getTickers ...", opts.symbols);
       client
         .fetchTickers(opts.symbols)
         .then((result) => {
@@ -576,7 +622,7 @@ module.exports = function container(conf, s, proxy) {
                 : exchagneId + ".") + r.replace("/", "-");
           });
           //console.log('getTickers result...', result)
-          logger.info("getTickers ", result);
+          //  logger.info("getTickers ", result);
           cb(null, result);
         })
         .catch(function (error) {
@@ -595,13 +641,13 @@ module.exports = function container(conf, s, proxy) {
           return retry("getTickers", func_args);
         });
     },
-    getPair: function (opts, cb) {
+    getPool: function (opts, cb) {
       var func_args = [].slice.call(arguments);
       var client = authedClient();
-      this.getPairOptions(opts);
-      console.log("getPair ...", opts);
+      this.getPoolOptions(opts);
+      console.log("getPool ...", opts);
       client
-        .fetchPair(opts)
+        .fetchPool(opts)
         .then((result) => {
           // console.log('getPair result...', result)
           cb(null, result);
@@ -629,6 +675,21 @@ module.exports = function container(conf, s, proxy) {
       // console.log('getCursor result...', trade, (trade.time || trade))
       return trade.time || trade;
     },
+    updateSymbols: function (symbols) {
+      let products = this.getProducts();
+      symbols.forEach((s) => {
+        let product = products.find((p) => p.normalized === s.normalized);
+        Object.assign(s, {
+          asset: product.asset,
+          currency: product.currency,
+          symbol: product.symbol,
+          csymbol: product.csymbol,
+          id: product.id,
+          decimals: product.decimals,
+        });
+      });
+    },
   };
+  exchange.updateSymbols(so.symbols);
   return exchange;
 };
