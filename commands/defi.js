@@ -68,10 +68,9 @@ module.exports = function (program, conf) {
         let opts = {
           product_id: so.symbols[0].product_id,
         };
-        console.log("getPool.", opts);
         exchange.getPool(opts, function (err, pool) {
           if (err) console.log("error", err);
-          console.log("getPool.", pool);
+          // console.log("getPool ok", pool);
           process.exit;
         });
         return;
@@ -90,5 +89,6 @@ module.exports = function (program, conf) {
         });
         return;
       }
+      process.exit(0);
     });
 };

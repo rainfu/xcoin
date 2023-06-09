@@ -71,7 +71,7 @@ module.exports = function container(conf, so, inOptions) {
     }, 20000);
   }
   var orders = {};
-  var products = [];
+  var products;
   var exchange = {
     name: exchagneId,
     historyScan: "forward",
@@ -208,36 +208,27 @@ module.exports = function container(conf, so, inOptions) {
     },
     getProducts: function () {
       try {
+        if (products) return products;
         return require(`../../../data/exchanges/${exchagneId}_products.json`);
       } catch (e) {
         return [];
       }
     },
-    getProduct(p) {
-      const product = this.getProducts().find(
-        (product) =>
-          p.asset.toLowerCase() === product.asset.toLowerCase() &&
-          p.currency.toLowerCase() === product.currency.toLowerCase()
-      );
-      // console.log('product', p, product)
-      return product;
-    },
     getPoolOptions(opts) {
-      if (!opts.asset || !opts.currency) {
-        const ac = opts.product_id.split("-");
-        opts.asset = ac[0];
-        opts.currency = ac[1];
+      var product;
+      if (opts.product_id) {
+        product = products.find((p) => p.product_id === opts.product_id);
+      } else if (opts.asset) {
+        product = products.find((p) => p.asset === opts.asset);
       }
-      var product = this.getProduct({
-        asset: opts.asset,
-        currency: opts.currency,
-      });
-      opts.id = product.id;
-      opts.decimals = product.decimals;
-      opts.asset = product.asset;
-      opts.currency = product.currency;
-      opts.symbol = product.symbol;
-      opts.csymbol = product.csymbol;
+      if (product) {
+        opts.id = product.id;
+        opts.decimals = product.decimals;
+        opts.asset = product.asset;
+        opts.currency = product.currency;
+        opts.symbol = product.symbol;
+        opts.csymbol = product.csymbol;
+      }
       return opts;
     },
     getTrades: function (opts, cb) {
@@ -276,10 +267,15 @@ module.exports = function container(conf, so, inOptions) {
       if (!opts.from) {
         opts.from = 0;
       }
-      opts.from = tb()
-        .resize(opts.period)
-        .subtract(opts.limit / this.periodOfHour(opts.period))
-        .toMilliseconds();
+      let comineNumb = this.periodOfHour(opts.period);
+      opts.limit = comineNumb * opts.limit;
+      /* console.log(
+        "opts",
+        opts.period,
+        opts.limit,
+        this.periodOfHour(opts.period)
+      ); */
+      opts.from = tb().resize("1h").subtract(opts.limit).toMilliseconds();
       this.getPoolOptions(opts);
       //   var hour_period = authlient.periodOfHour(opts.period)
       authlient
@@ -296,7 +292,7 @@ module.exports = function container(conf, so, inOptions) {
           var klines = [];
           result.forEach((kline) => {
             let d = tb(kline[0]).resize(opts.period);
-            let de = d.add(1);
+            let de = tb(kline[0]).resize(opts.period).add(1);
             const find = klines.find((kl) => kl.period_id === d.toString());
             if (!find) {
               klines.push({
@@ -315,14 +311,19 @@ module.exports = function container(conf, so, inOptions) {
               });
             } else {
               Object.assign(find, {
-                high: "" + Math.max(find.high, kline[2]),
-                low: "" + Math.min(find.low, kline[3]),
+                high: Math.max(find.high, kline[2]),
+                low: Math.min(find.low, kline[3]),
                 close: kline[4],
-                volume: "" + find.volume + kline[5],
+                volume: find.volume + kline[5],
               });
             }
           });
-          // console.log('fetchOHLCV ok', klines.length, klines[klines.length - 2], klines[klines.length - 1])
+          /* console.log(
+            "fetchOHLCV ok",
+            klines.length,
+            klines[klines.length - 2],
+            klines[klines.length - 1]
+          ); */
           cb(null, klines);
         })
         .catch(function (error) {
@@ -516,11 +517,29 @@ module.exports = function container(conf, so, inOptions) {
       var func_args = [].slice.call(arguments);
       var client = authedClient();
       this.getPoolOptions(opts);
-      console.log("getBalance", opts);
+      let tokens = [opts.asset];
+      if (opts.symbols) {
+        tokens = opts.symbols.map((s) => {
+          return s.asset;
+        });
+      }
+      // console.log("getBalance", tokens);
       client
-        .fetchBalance(opts)
+        .fetchBalance(tokens)
         .then((result) => {
-          console.log("getBalance result", result);
+          //   console.log("getBalance result", result);
+          /* let result = {
+            "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c": {
+              free: 0.4487151571559786,
+              used: 0,
+              total: 0.4487151571559786,
+            },
+            "0xed376501f61046a3f43dac6d5ab51a700dda46fc": {
+              free: 0,
+              used: 0,
+              total: 0,
+            },
+          }; */
           var balance = { asset: 0, currency: 0 };
           Object.keys(result).forEach(function (key) {
             if (key.toLowerCase() === opts.currency.toLowerCase()) {
@@ -530,12 +549,12 @@ module.exports = function container(conf, so, inOptions) {
               const num = result[key].free + result[key].used;
               // if (num > 0) {
               if (!balance.assets) balance.assets = {};
-              if (key.toLowerCase() !== opts.asset.toLowerCase()) {
-                balance.assets[key] = {
-                  asset: num,
-                  asset_hold: result[key].used,
-                };
-              }
+              //  if (key.toLowerCase() !== opts.asset.toLowerCase()) {
+              balance.assets[key] = {
+                asset: num,
+                asset_hold: result[key].used,
+              };
+              // }
               // }
             }
             if (key.toLowerCase() === opts.asset.toLowerCase()) {
@@ -543,7 +562,7 @@ module.exports = function container(conf, so, inOptions) {
               balance.asset_hold = result[key].used;
             }
           });
-          // console.log('getBalance result', balance)
+          //   console.log("getBalance result", balance);
           cb(null, balance);
         })
         .catch(function (error) {
@@ -589,11 +608,11 @@ module.exports = function container(conf, so, inOptions) {
       var func_args = [].slice.call(arguments);
       var client = authedClient();
       this.getPoolOptions(opts);
-      console.log("getQuote ...", opts);
+      // console.log("getQuote ...", opts);
       client
         .fetchTicker(opts)
         .then((result) => {
-          console.log("getQuote result...", result);
+          //  console.log("getQuote result...", opts.product_id, result.bid);
           cb(null, {
             bid: result.bid,
             ask: result.ask,
@@ -621,7 +640,7 @@ module.exports = function container(conf, so, inOptions) {
                 ? exchagneId + "future."
                 : exchagneId + ".") + r.replace("/", "-");
           });
-          //console.log('getTickers result...', result)
+          // console.log("getTickers result...", result);
           //  logger.info("getTickers ", result);
           cb(null, result);
         })
@@ -645,7 +664,7 @@ module.exports = function container(conf, so, inOptions) {
       var func_args = [].slice.call(arguments);
       var client = authedClient();
       this.getPoolOptions(opts);
-      console.log("getPool ...", opts);
+      // console.log("getPool...", opts);
       client
         .fetchPool(opts)
         .then((result) => {
@@ -676,7 +695,7 @@ module.exports = function container(conf, so, inOptions) {
       return trade.time || trade;
     },
     updateSymbols: function (symbols) {
-      let products = this.getProducts();
+      products = this.getProducts();
       symbols.forEach((s) => {
         let product = products.find((p) => p.normalized === s.normalized);
         Object.assign(s, {

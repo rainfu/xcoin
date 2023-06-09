@@ -186,6 +186,7 @@ module.exports = function (program, conf) {
 
               initBuyedSymbols(symbols, (buyedSymbols) => {
                 //remove blacklist symbols
+                // console.log("buyed..symbols", buyedSymbols);
                 initBlackListSymbols(buyedSymbols);
                 //init all watch symbols
                 engine.initSymbols(so.symbols);
@@ -195,6 +196,7 @@ module.exports = function (program, conf) {
                     .map((s) => (s.symbol ? s.label : s.product_id))
                     .join(",")
                 );
+
                 //get all klines for symbols
                 var opts = {
                   limit: so.min_periods,
@@ -244,7 +246,6 @@ module.exports = function (program, conf) {
                               )
                               .value();
                           }
-                          // console.log('buyedSymbols', buyedSymbols)
                           engine.syncBalance(() => {
                             // console.log('xx'.cyan, b, s.symbols[b.product_id])
                           }, b);
@@ -506,19 +507,19 @@ module.exports = function (program, conf) {
         if (so.watch_include_bought) {
           buyedSymbols = symbols
             .map((symbol) => {
-              return Object.assign(
-                helpers.objectifySelector(symbol.normalized),
-                {
-                  positionSide: symbol.positionSide,
-                  entry_price: so.future
-                    ? symbol.entryPrice
-                    : symbol.init_price,
-                  asset_size: symbol.asset,
-                  capital_size: so.future
-                    ? symbol.unrealizedProfit
-                    : symbol.capital,
-                }
+              let sy = so.symbols.find(
+                (s) => s.normalized === symbol.normalized
               );
+              return Object.assign(symbol, {
+                asset: sy.asset,
+                currency: sy.currency,
+                positionSide: symbol.positionSide,
+                entry_price: so.future ? symbol.entryPrice : symbol.init_price,
+                asset_size: symbol.asset,
+                capital_size: so.future
+                  ? symbol.unrealizedProfit
+                  : symbol.capital,
+              });
             })
             .map((symbol) => {
               let product = s.exchange
@@ -527,7 +528,13 @@ module.exports = function (program, conf) {
               return Object.assign(symbol, product);
             })
             .filter((symbol) => {
-              // console.log('symbol', symbol, symbol.capital_size > so.min_buy_size)
+              /*  console.log(
+                "symbol",
+                symbol,
+                symbol.capital_size,
+                so.min_buy_size,
+                symbol.capital_size > so.min_buy_size
+              ); */
               if (s.options.future) {
                 return symbol.asset_size > symbol.min_size;
               } else {
@@ -546,16 +553,15 @@ module.exports = function (program, conf) {
                 " " +
                 "positionSide" +
                 " " +
-                symbol.positionSide ||
-                "LONG" +
-                  " " +
-                  "asset_size ".cyan +
-                  " " +
-                  symbol.asset_size +
-                  " " +
-                  "capital_size " +
-                  " " +
-                  symbol.capital_size
+                (symbol.positionSide || "LONG") +
+                " " +
+                "asset_size ".cyan +
+                " " +
+                symbol.asset_size +
+                " " +
+                "capital_size " +
+                " " +
+                symbol.capital_size
             );
           });
 
@@ -568,7 +574,6 @@ module.exports = function (program, conf) {
         //get bought symbol init price for prev bot
         if (!so.future) {
           core.getLastBot((bot) => {
-            //    console.log('last bot', bot)
             let prevSymbols = [];
             prevSymbols = bot.symbols
               .filter((pair) => {
@@ -583,7 +588,7 @@ module.exports = function (program, conf) {
                   lastBuyPrice: pair.lastBuyPrice,
                 };
               });
-            //  console.log('prevSymbols', prevSymbols)
+            // console.log("prevSymbols", prevSymbols);
             buyedSymbols.forEach((symbol) => {
               let prevSymbol = prevSymbols.find(
                 (p) => p.product_id === symbol.product_id

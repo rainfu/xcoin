@@ -111,10 +111,10 @@
       }
     ]
   },
-  "period": "1h",
+  "period": "1d",
   "poll_scan_time": 10000,
   "min_periods": 32,
-  "watch_symbols": "pancakeswap.CNNC-WBNB",
+  "watch_symbols": "pancakeswap.MGP-WBNB,pancakeswap.GGG-WBNB,pancakeswap.RDNT-WBNB",
   "output": {
     "panacea": {
       "on": true,
@@ -156,7 +156,7 @@
   "avg_slippage_pct": 0.045,
   "cancel_after": "day",
   "save_bot_time": 60000,
-  "min_buy_size": 10,
+  "min_buy_size": 0.02,
   "max_watch_size": 10,
   "price_format": "0.000000000000",
   "quarentine_time": 0,
@@ -203,7 +203,7 @@
   "hasBacktest": true,
   "hasConfig": true,
   "hasStrategy": true,
-  "hasMarket": true,
+  "hasMarket": false,
   "defi": {
     "since": 1,
     "limit": 100,

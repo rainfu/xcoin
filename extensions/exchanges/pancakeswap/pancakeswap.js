@@ -15,14 +15,16 @@ const {
 } = require("@apollo/client");
 const { fetch } = require("cross-fetch");
 const {
-  getProducts,
-  getTokenPool,
-  getPool,
+  getRecentHotTokens,
   getToken,
-  getPools,
-  getPoolHourData,
+  getTokens,
+  getTokenWithPool,
   getTokenExtraInfo,
-  getPairArrayDaylyData,
+  getPool,
+  getPools,
+  getPoolWithHour,
+  getPoolWithDay,
+  getBundle,
 } = require("./defi/PanQuery3");
 const tb = require("timebucket");
 const readline = require("readline");
@@ -86,7 +88,7 @@ module.exports = class pancakeswap extends Exchange {
     this.swapper = new Swapper(this.options);
     this.baseTokenAddress = this.options.address.wbnb.toLowerCase();
     this.apolloClient = new ApolloClient({
-      link: new HttpLink({ uri: this.options.graphql3, fetch }),
+      link: new HttpLink({ uri: this.options.graphql, fetch }),
       cache: new InMemoryCache(),
       shouldBatch: true,
     });
@@ -96,17 +98,30 @@ module.exports = class pancakeswap extends Exchange {
       "Fetching order books is not supported by the API of " + this.id
     );
   }
+  async fetchBundle(opts, params = {}) {
+    let res;
+    console.log("fetchBundle", opts);
+    res = await getBundle(this.apolloClient);
+    console.log("fetchBundle ok", res);
+    return res;
+  }
   async fetchToken(opts, params = {}) {
     let res;
-    console.log("opts", opts);
+    console.log("fetchToken", opts);
     res = await getToken(
       this.apolloClient,
       opts.token,
       this.options.api.bscscan,
-      true,
       true
     );
     console.log("fetchToken ok", res);
+    return res;
+  }
+  async fetchTokens(symbols, params = {}) {
+    symbols = symbols.map((s) => s.asset);
+    console.log("fetchTokens", symbols);
+    const res = await getTokens(this.apolloClient, symbols);
+    console.log("fetchTokens ok", res);
     return res;
   }
   async fetchMarkets(opts, params = {}) {
@@ -134,15 +149,11 @@ module.exports = class pancakeswap extends Exchange {
       // console.log('init since..', (new Date()).getTime(), since, query_start)
       since = query_start / 1000;
     }
-    let tokens = await getProducts(
+    let tokens = await getRecentHotTokens(
       this.apolloClient,
-      "new",
       baseTokenAddress,
       since,
-      limit,
-      minVolumeUSD,
-      maxVolumeUSD,
-      minTotalTransactions
+      limit
     );
     console.log("fetchMarkets get tokens ok", tokens.length);
     tokens = tokens.filter(
@@ -182,7 +193,7 @@ module.exports = class pancakeswap extends Exchange {
           symbol.holders >= minHolders &&
           symbol.holders <= maxHolders)
       ) {
-        let tokenPool = await getTokenPool(
+        let tokenPool = await getTokenWithPool(
           this.apolloClient,
           baseTokenAddress,
           symbol.base
@@ -314,7 +325,7 @@ module.exports = class pancakeswap extends Exchange {
     }
     return response;
   }
-  async fetchBalance(tokens = null, params = {}) {
+  async fetchBalance(tokens = [], params = {}) {
     const balance = await this.swapper.getBalances(tokens, params);
     return balance;
   }
@@ -422,19 +433,6 @@ module.exports = class pancakeswap extends Exchange {
     );
     return pair;
   }
-  async fetchPairs(pairAddressArray, params = {}) {
-    // console.log('fetchPair', tokens)
-    //    pairAddressArray = ['0xea26b78255df2bbc31c1ebf60010d78670185bd0', '0x37908620def1491dd591b5a2d16022a33cdda415']
-    let res = await getPairArrayDaylyData(
-      this.apolloClient,
-      pairAddressArray,
-      0,
-      5,
-      0
-    );
-    console.log("getPairDaylyData", res.data.pairDayDatas);
-    return res;
-  }
   async fetchTickers(symbols, limit = 1000, params = {}) {
     symbols = symbols.map((s) => s.id);
     const response = await getPools(this.apolloClient, symbols, limit);
@@ -444,44 +442,16 @@ module.exports = class pancakeswap extends Exchange {
       const ticker = response[t];
       const label =
         ticker.token0.id === this.baseTokenAddress.toLowerCase()
-          ? ticker.token1.id.toLowerCase() +
-            "/" +
-            ticker.token0.id.toLowerCase()
-          : ticker.token0.id.toLowerCase() +
-            "/" +
-            ticker.token1.id.toLowerCase();
+          ? ticker.token1.symbol + "/" + ticker.token0.symbol
+          : ticker.token0.symbol + "/" + ticker.token1.symbol;
       result[label] = this.parseTicker(ticker);
-      console.log("result", result[label].bid);
+      // console.log("fetchTickers", label, result[label].bid);
     }
 
     return result;
   }
   async fetchTrades(opts, params = {}) {
-    const defaultLimit = 100;
-    const maxLimit = 500; //1619136000 1628208000000
-    let limit =
-      opts.limit === undefined ? defaultLimit : Math.min(opts.limit, maxLimit);
-    const since = parseInt(opts.from / 1000);
-    // console.log('fetchTrades', since, limit)
-    let response = await getPairHourData(
-      this.apolloClient,
-      opts.id,
-      since,
-      limit,
-      0
-    );
-    // console.log('getPairHourData', response)
-    const data = this.safeValue(response, "data", {});
-    let pairHourDatas = this.safeValue(data, "pairHourDatas", {});
-    // console.log('pairHourDatas', pairHourDatas[0], pairHourDatas.length)
-    return this.parseTrades(pairHourDatas, undefined, since, limit);
-    /* const result = {};
-        for (let t = 0; t < pairHourDatas.length; t++) {
-            const ticker = pairHourDatas[t];
-            const symbolLabel = symbol.asset + '/' + symbol.currency;
-            result[symbolLabel] = this.parseTicker(ticker);
-        }
-        return result; */
+    console.log("implementing...");
   }
   parseTrade(trade, market = undefined) {
     //console.log('trade', trade)
@@ -513,18 +483,16 @@ module.exports = class pancakeswap extends Exchange {
     let limit =
       opts.limit === undefined ? defaultLimit : Math.min(opts.limit, maxLimit);
     const since = parseInt(opts.from / 1000);
-    let response = await getPoolHourData(
+    let response = await getPoolWithHour(
       this.apolloClient,
       opts.id,
       since,
-      limit,
+      limit + 1,
       0
     );
-    // console.log("getPoolHourData", response);
-    const data = this.safeValue(response, "data", {});
-    const data2 = this.safeValue(data, "pool", {});
-    let pairHourDatas = this.safeValue(data2, "poolHourData", {});
-    console.log("pairHourDatas", pairHourDatas[0], pairHourDatas.length);
+    // console.log("getPoolWithHour", response);
+    let pairHourDatas = this.safeValue(response, "poolHourData", {});
+    //console.log("pairHourDatas", pairHourDatas[0], pairHourDatas.length);
     return this.parseOHLCVs(pairHourDatas, undefined, since, limit);
   }
   parseOHLCV(ohlcv) {

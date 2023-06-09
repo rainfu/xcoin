@@ -24,7 +24,7 @@ const Web3 = require("web3");
 
 class Swapper {
   constructor(options) {
-    //  console.log('swapper options', ChainId)
+    //  console.log("swapper options", options);
     this.mainChainId =
       options.chainId === 56 ? ChainId.MAINNET : ChainId.TESTNET;
     const WBNB = WETH[this.mainChainId];
@@ -194,7 +194,7 @@ class Swapper {
     }
   }
   //获取账户的现金余额
-  async getBalances(selector) {
+  async getBalances(tokens) {
     const walletAddress = await this.wallet.getAddress();
     let balance = {};
     let balanceamount = await this.wallet.getBalance();
@@ -208,12 +208,9 @@ class Swapper {
       info: balanceamount,
     };
     //console.log(this.BASE_TOKEN.address.toLowerCase(), balance[this.BASE_TOKEN.address.toLowerCase()])
-    if (selector) {
-      let tokens = [selector.asset, selector.currency];
+    if (tokens && tokens.length) {
       for (let i = 0; i < tokens.length; i++) {
         if (tokens[i].toLowerCase() === this.BASE_TOKEN.address.toLowerCase()) {
-          balance[tokens[i].toLowerCase()] =
-            balance[this.BASE_TOKEN.address.toLowerCase()];
         } else {
           const address = getAddress(tokens[i]);
           const tokenContract = new ethers.Contract(
@@ -223,9 +220,7 @@ class Swapper {
           );
           const tokenBalance = await tokenContract.balanceOf(walletAddress); ///输出token的金额
           // console.log('outputBalance', tokenBalance)
-          const valB = ethers.utils
-            .formatUnits(tokenBalance, selector.decimals || 18)
-            .toString(); //余额1
+          const valB = ethers.utils.formatUnits(tokenBalance, 18).toString(); //余额1
           // console.log('response', tokens[i], outputBalance, valB)
           balance[address.toLowerCase()] = {
             free: parseFloat(valB),
@@ -236,7 +231,7 @@ class Swapper {
         }
       }
     }
-    // console.log("balance", selector, balance);
+    //console.log("balance", balance);
     return balance;
   }
 
