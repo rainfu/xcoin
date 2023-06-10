@@ -636,9 +636,7 @@ module.exports = function (program, conf) {
       function initBlackListSymbols(buyedSymbols) {
         if (so.watch_with_black_list) {
           if (so.black_list) {
-            logger.info(
-              "Remove symbol from black list".cyan + " " + so.black_list
-            );
+            logger.info("Remove black list symbol".cyan + " " + so.black_list);
             let black_list = so.black_list.split(",").map((symbol) => {
               return helpers.objectifySelector(symbol);
             });

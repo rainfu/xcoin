@@ -60,7 +60,7 @@ module.exports = function sim(conf, so, s) {
       }
     },
     refreshProducts: function (cb) {
-      return real_exchange.refreshProducts(cb);
+      return real_exchange.refreshProducts(cb, false);
     },
     getTrades: function (opts, cb) {
       return real_exchange.getTrades(opts, cb);

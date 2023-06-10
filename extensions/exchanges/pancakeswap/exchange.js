@@ -764,8 +764,8 @@ module.exports = function container(conf, so, inOptions) {
     },
     updateSymbols: function (symbols) {
       products = this.getProducts();
-      symbols.forEach((s) => {
-        let product = products.find((p) => p.normalized === s.normalized);
+      return symbols.map((sy) => {
+        let product = products.find((p) => p.normalized === sy.normalized);
         return {
           asset: product.asset,
           currency: product.currency,
