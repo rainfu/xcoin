@@ -495,6 +495,32 @@ module.exports = class pancakeswap extends Exchange {
     //console.log("pairHourDatas", pairHourDatas[0], pairHourDatas.length);
     return this.parseOHLCVs(pairHourDatas, undefined, since, limit);
   }
+  async fetchOHLCV2(opts, params = {}) {
+    const defaultLimit = 100;
+    const maxLimit = 1000; //1619136000 1628208000000
+    let limit =
+      opts.limit === undefined ? defaultLimit : Math.min(opts.limit, maxLimit);
+    const since = parseInt(opts.from / 1000);
+    let response = await getPoolWithDay(
+      this.apolloClient,
+      opts.id,
+      since,
+      limit + 1,
+      0
+    );
+    let poolDayDatas = this.safeValue(response, "poolDayData", {});
+    //console.log("pairHourDatas", pairHourDatas[0], pairHourDatas.length);
+    return poolDayDatas.map((ohlcv) => {
+      return [
+        this.safeTimestamp(ohlcv, "date"),
+        this.safeNumber(ohlcv, "open"),
+        this.safeNumber(ohlcv, "high"),
+        this.safeNumber(ohlcv, "low"),
+        this.safeNumber(ohlcv, "close"),
+        this.safeNumber(ohlcv, "volumeUSD"),
+      ];
+    });
+  }
   parseOHLCV(ohlcv) {
     return [
       this.safeTimestamp(ohlcv, "periodStartUnix"),

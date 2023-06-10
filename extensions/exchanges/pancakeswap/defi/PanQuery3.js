@@ -142,9 +142,9 @@ const GET_POOL_WITH_DAY = gql`
       poolDayData(
         first: $limit
         sckip: $skip
-        orderBy: periodStartUnix
+        orderBy: date
         orderDirection: asc
-        where: { periodStartUnix_gte: $since }
+        where: { date_gte: $since }
       ) {
         high
         low
@@ -153,7 +153,7 @@ const GET_POOL_WITH_DAY = gql`
         token0Price
         token1Price
         volumeUSD
-        periodStartUnix
+        date
       }
       id
     }
@@ -360,7 +360,7 @@ const getPoolWithHour = async (client, pair, since, limit, skip = 0) => {
 };
 
 const getPoolWithDay = async (client, pair, since, limit, skip = 0) => {
-  console.log("getPoolWithDay", pair, since, limit, skip);
+  // console.log("getPoolWithDay", pair, since, limit, skip);
   let result = await client.query({
     query: GET_POOL_WITH_DAY,
     variables: {
@@ -371,8 +371,7 @@ const getPoolWithDay = async (client, pair, since, limit, skip = 0) => {
     },
     fetchPolicy: "cache-first",
   });
-  // console.log("result.", result);
-  return result;
+  return result.data.pool;
 };
 
 module.exports = {

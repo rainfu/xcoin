@@ -11,6 +11,9 @@ const addSymbol = (message, cb, s, conf, engine) => {
   );
   if (!shouldAddSymbols.length) return;
   let symbols = shouldAddSymbols.map((p) => helpers.objectifySelector(p));
+  if (s.options.defi) {
+    symbols = s.exchange.updateSymbols(symbols);
+  }
   engine.initSymbols(symbols);
   var core = coreFactory(s, conf, engine);
   core.getInitKLines(

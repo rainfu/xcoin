@@ -837,6 +837,9 @@ module.exports = function container(conf, so, inOptions) {
         this.makerFee = so.makerFee;
       }
     },
+    updateSymbols(products) {
+      return products;
+    },
   };
   return exchange;
 };

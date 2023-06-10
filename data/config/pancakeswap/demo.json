@@ -211,6 +211,7 @@
     "maxHolders":50000,
     "minVolumeUSD": 50000,
     "maxVolumeUSD": 5000000,
-    "minTotalTransactions": 1000
+    "minTotalTransactions": 1000,
+    "new_token_scan_time":600000
 }
 }

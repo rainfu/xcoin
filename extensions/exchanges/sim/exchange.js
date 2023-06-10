@@ -45,6 +45,9 @@ module.exports = function sim(conf, so, s) {
     takerFee: real_exchange.takerFee,
     dynamicFees: real_exchange.dynamicFees,
     getProducts: real_exchange.getProducts,
+    updateSymbols(products) {
+      return products;
+    },
     initFees: function () {
       //User can change the fees from client ,so we sould reset the fees for this
       real_exchange.initFees();

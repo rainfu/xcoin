@@ -114,9 +114,9 @@ module.exports = function container(conf, so, inOptions) {
       }
     },
     refreshProducts(cb, force = true) {
-      //if (!force) {
-      return cb(this.getProducts());
-      // }
+      if (!force) {
+        return cb(this.getProducts());
+      }
       var client = authedClient();
       console.log("refreshProducts start..", JSON.stringify(conf.defi));
       client.fetchMarkets(conf.defi).then(({ newTokenList, blacklist }) => {
@@ -261,27 +261,92 @@ module.exports = function container(conf, so, inOptions) {
         });
     },
     getKLines: function (opts, cb) {
+      // console.log("getKLines", opts);
       var func_args = [].slice.call(arguments);
       var authlient = authedClient();
       var args = {};
       if (!opts.from) {
         opts.from = 0;
       }
-      let comineNumb = this.periodOfHour(opts.period);
-      opts.limit = comineNumb * opts.limit;
-      /* console.log(
+      if (opts.period === "1d") {
+        opts.from = tb()
+          .resize(opts.period)
+          .subtract(opts.limit)
+          .toMilliseconds();
+        this.getPoolOptions(opts);
+        authlient
+          .fetchOHLCV2(opts, args)
+          .then((result) => {
+            var klines = [];
+            result.forEach((kline) => {
+              let d = tb(kline[0]).resize(opts.period);
+              let de = tb(kline[0]).resize(opts.period).add(1);
+              const find = klines.find((kl) => kl.period_id === d.toString());
+              if (!find) {
+                klines.push({
+                  period_id: d.toString(),
+                  time: d.toMilliseconds(),
+                  size: opts.period,
+                  close_time: de.toMilliseconds() - 1,
+                  closeStr: moment(de.toMilliseconds() - 1).format(
+                    "YYYYMMDDHHMM"
+                  ),
+                  open: kline[1],
+                  high: kline[2],
+                  low: kline[3],
+                  close: kline[4],
+                  volume: kline[5],
+                });
+              } else {
+                Object.assign(find, {
+                  high: Math.max(find.high, kline[2]),
+                  low: Math.min(find.low, kline[3]),
+                  close: kline[4],
+                  volume: find.volume + kline[5],
+                });
+              }
+            });
+            /* console.log(
+              "fetchOHLCV ok",
+              klines.length,
+              klines[klines.length - 2],
+              klines[klines.length - 1]
+            ); */
+            cb(null, klines);
+          })
+          .catch(function (error) {
+            logger.error("getKLines An error occurred:" + error.toString());
+            if (
+              error.name &&
+              error.name.match(
+                new RegExp(
+                  /BadSymbol|InvalidOrder|InsufficientFunds|BadRequest/
+                )
+              )
+            ) {
+              return cb(error.name, {
+                status: "rejected",
+                reject_reason: error.name,
+              });
+            }
+            return retry("getKLines", func_args);
+          });
+      } else {
+        let comineNumb = this.periodOfHour(opts.period);
+        opts.limit = comineNumb * opts.limit;
+        /* console.log(
         "opts",
         opts.period,
         opts.limit,
         this.periodOfHour(opts.period)
       ); */
-      opts.from = tb().resize("1h").subtract(opts.limit).toMilliseconds();
-      this.getPoolOptions(opts);
-      //   var hour_period = authlient.periodOfHour(opts.period)
-      authlient
-        .fetchOHLCV(opts, args)
-        .then((result) => {
-          /* console.log(
+        opts.from = tb().resize("1h").subtract(opts.limit).toMilliseconds();
+        this.getPoolOptions(opts);
+        //   var hour_period = authlient.periodOfHour(opts.period)
+        authlient
+          .fetchOHLCV(opts, args)
+          .then((result) => {
+            /* console.log(
             "fetchOHLCV result",
             result[0],
             result[1],
@@ -289,58 +354,61 @@ module.exports = function container(conf, so, inOptions) {
             result[result.length - 2],
             result[result.length - 1]
           ); */
-          var klines = [];
-          result.forEach((kline) => {
-            let d = tb(kline[0]).resize(opts.period);
-            let de = tb(kline[0]).resize(opts.period).add(1);
-            const find = klines.find((kl) => kl.period_id === d.toString());
-            if (!find) {
-              klines.push({
-                period_id: d.toString(),
-                time: d.toMilliseconds(),
-                size: opts.period,
-                close_time: de.toMilliseconds() - 1,
-                closeStr: moment(de.toMilliseconds() - 1).format(
-                  "YYYYMMDDHHMM"
-                ),
-                open: kline[1],
-                high: kline[2],
-                low: kline[3],
-                close: kline[4],
-                volume: kline[5],
-              });
-            } else {
-              Object.assign(find, {
-                high: Math.max(find.high, kline[2]),
-                low: Math.min(find.low, kline[3]),
-                close: kline[4],
-                volume: find.volume + kline[5],
-              });
-            }
-          });
-          /* console.log(
+            var klines = [];
+            result.forEach((kline) => {
+              let d = tb(kline[0]).resize(opts.period);
+              let de = tb(kline[0]).resize(opts.period).add(1);
+              const find = klines.find((kl) => kl.period_id === d.toString());
+              if (!find) {
+                klines.push({
+                  period_id: d.toString(),
+                  time: d.toMilliseconds(),
+                  size: opts.period,
+                  close_time: de.toMilliseconds() - 1,
+                  closeStr: moment(de.toMilliseconds() - 1).format(
+                    "YYYYMMDDHHMM"
+                  ),
+                  open: kline[1],
+                  high: kline[2],
+                  low: kline[3],
+                  close: kline[4],
+                  volume: kline[5],
+                });
+              } else {
+                Object.assign(find, {
+                  high: Math.max(find.high, kline[2]),
+                  low: Math.min(find.low, kline[3]),
+                  close: kline[4],
+                  volume: find.volume + kline[5],
+                });
+              }
+            });
+            /* console.log(
             "fetchOHLCV ok",
             klines.length,
             klines[klines.length - 2],
             klines[klines.length - 1]
           ); */
-          cb(null, klines);
-        })
-        .catch(function (error) {
-          logger.error("getKLines An error occurred:" + error.toString());
-          if (
-            error.name &&
-            error.name.match(
-              new RegExp(/BadSymbol|InvalidOrder|InsufficientFunds|BadRequest/)
-            )
-          ) {
-            return cb(error.name, {
-              status: "rejected",
-              reject_reason: error.name,
-            });
-          }
-          return retry("getKLines", func_args);
-        });
+            cb(null, klines);
+          })
+          .catch(function (error) {
+            logger.error("getKLines An error occurred:" + error.toString());
+            if (
+              error.name &&
+              error.name.match(
+                new RegExp(
+                  /BadSymbol|InvalidOrder|InsufficientFunds|BadRequest/
+                )
+              )
+            ) {
+              return cb(error.name, {
+                status: "rejected",
+                reject_reason: error.name,
+              });
+            }
+            return retry("getKLines", func_args);
+          });
+      }
     },
     cancelOrder: function (opts, cb) {
       //去中心化平台无法取消交易
@@ -698,14 +766,17 @@ module.exports = function container(conf, so, inOptions) {
       products = this.getProducts();
       symbols.forEach((s) => {
         let product = products.find((p) => p.normalized === s.normalized);
-        Object.assign(s, {
+        return {
           asset: product.asset,
           currency: product.currency,
           symbol: product.symbol,
           csymbol: product.csymbol,
           id: product.id,
           decimals: product.decimals,
-        });
+          exchange_id: product.exchagne_id,
+          product_id: product.product_id,
+          normalized: product.normalized,
+        };
       });
     },
   };

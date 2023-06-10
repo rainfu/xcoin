@@ -146,6 +146,9 @@ module.exports = function (program, conf) {
             "\n" + so.exchange.cyan + " refreshProducts to ".green,
             products.length.toString().yellow
           );
+          if (so.defi) {
+            so.symbols = s.exchange.updateSymbols(products);
+          }
           let notExitProducts = so.symbols.filter((symbol) => {
             return products.every((p) => p.product_id !== symbol.product_id);
           });
@@ -256,6 +259,9 @@ module.exports = function (program, conf) {
                     engine.writeHeader();
                     timeScanLoop();
                     broadcastLoop();
+                    if (so.defi) {
+                      newTokenLoop();
+                    }
                   },
                   _.cloneDeep(so.symbols),
                   opts
@@ -263,11 +269,28 @@ module.exports = function (program, conf) {
               });
             }, "SHORT");
           });
-        });
+        }, false);
       }
       /**
        * get tickers from websocket server
        */
+      function newTokenLoop() {
+        console.log("newTokenScan");
+        setInterval(() => {
+          newTokenScan();
+        }, so.defi.new_token_scan_time);
+      }
+
+      function newTokenScan() {
+        console.log("newTokenScan");
+        s.exchange.refreshProducts((products, newProducts) => {
+          logger.info(
+            "\n" + so.exchange.cyan + " find new product ".green,
+            newProducts.length.toString().yellow
+          );
+        }, true);
+      }
+
       function broadcastLoop() {
         output.refresh();
         setInterval(() => {
