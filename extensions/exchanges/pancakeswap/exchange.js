@@ -780,6 +780,6 @@ module.exports = function container(conf, so, inOptions) {
       });
     },
   };
-  exchange.updateSymbols(so.symbols);
+  so.symbols = exchange.updateSymbols(so.symbols);
   return exchange;
 };

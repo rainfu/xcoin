@@ -275,7 +275,6 @@ module.exports = function (program, conf) {
        * get tickers from websocket server
        */
       function newTokenLoop() {
-        console.log("newTokenScan");
         setInterval(() => {
           newTokenScan();
         }, so.defi.new_token_scan_time);
@@ -284,13 +283,34 @@ module.exports = function (program, conf) {
       function newTokenScan() {
         console.log("newTokenScan");
         s.exchange.refreshProducts((products, newProducts) => {
-          logger.info(
-            "\n" + so.exchange.cyan + " find new product ".green,
-            newProducts.length.toString().yellow
-          );
+          if (newProducts && newProducts.length) {
+            logger.info(
+              "\n" + so.exchange.cyan + " find new product ".green,
+              newProducts.length.toString().yellow
+            );
+            let newSymbols = s.exchange.updateSymbols(newProducts);
+            engine.initSymbols(newSymbols);
+            core.getInitKLines(
+              () => {
+                so.symbols.push(...newSymbols);
+                if (so.symbols && so.symbols.length) {
+                  let i = 1;
+                  so.symbols.forEach((symbol) => {
+                    if (s.symbols[symbol.product_id]) {
+                      s.symbols[symbol.product_id].index = i;
+                      i++;
+                    }
+                  });
+                }
+              },
+              newSymbols,
+              {
+                limit: so.min_periods,
+              }
+            );
+          }
         }, true);
       }
-
       function broadcastLoop() {
         output.refresh();
         setInterval(() => {
@@ -647,7 +667,9 @@ module.exports = function (program, conf) {
             });
             if (buyedSymbols) {
               buyedSymbols = buyedSymbols.filter((b) => {
-                return !black_list.find((b2) => b2.normalized === b.normalized);
+                return black_list.every((b2) => {
+                  return b.normalized !== b2.normalized;
+                });
               });
             }
           }

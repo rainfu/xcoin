@@ -29,17 +29,17 @@ module.exports = function (program, conf) {
     .option("--refresh", "refresh all products")
     .option("--order <orderid>", "get order with id", String, null)
     .option("--orders", "get orders", String, null)
-    .option("--buy <buy_pct>", "buy with buy_pct", Number, conf.buy_pct)
-    .option("--sell <sell_pct>", "sell with sell_pct", Number, conf.sell_pct)
+    .option("--buy <buy_pct>", "buy with buy_pct", Number, null)
+    .option("--sell <sell_pct>", "sell with sell_pct", Number, null)
     .option("--sellall", "sell all symbols")
-    .option("--balance <position_side>", "LONG or SHORT", String, "LONG")
+    .option("--balance <position_side>", "LONG or SHORT", String, "")
     .action(function (exchangename, cmd) {
       let so = {};
       conf.proxy = cmd.proxy;
       conf.watch_symbols = cmd.watch_symbols;
       conf.buy_pct = cmd.buy;
       conf.sell_pct = cmd.sell;
-      conf.position_side = (cmd.balance || "long").toUpperCase();
+      conf.position_side = cmd.balance.toUpperCase();
       conf.exchange = exchangename;
       Object.keys(conf).forEach(function (k) {
         if (
@@ -333,13 +333,10 @@ module.exports = function (program, conf) {
           }, conf.order_poll_time);
         });
       }
-      exchange.refreshProducts(() => {
-        console.log(
-          exchangename + " refreshProducts",
-          exchange.getProducts().length
-        );
+      exchange.refreshProducts((products) => {
+        console.log(exchangename + " refreshProducts", products.length);
         //getBalance && getQuote
-        debug.msg("start getBalance".green);
+        console.log("start getBalance".green, so.symbols[0]);
         var opts = {
           position_side: so.position_side || "LONG",
           currency: so.symbols[0].currency,
@@ -355,29 +352,41 @@ module.exports = function (program, conf) {
           if (cmd.sellall) {
             debug.msg("start sellall ".green);
             let shouldSellSymbols = Object.keys(balance.assets).map(function (
-              symbol
+              asset
             ) {
-              return Object.assign(
-                objectifySelector(exchange.name + "." + symbol + "-USDT"),
-                {
-                  position_side: so.position_side,
-                  size: balance.assets[symbol].asset,
-                }
-              );
+              let p = products.find((p) => p.asset === asset);
+              if (p) {
+                return Object.assign(p, {
+                  position_side: so.position_side || "LONG",
+                  size: balance.assets[asset].asset,
+                });
+              }
             });
-            //  console.log('shouldSellSymbols', shouldSellSymbols)
+            console.log("shouldSellSymbols", shouldSellSymbols);
             sellAllSymbols(shouldSellSymbols.reverse());
             return;
           }
+
           if (cmd.sell) {
-            let sombol = so.symbols[0];
-            Object.assign(sombol, {
-              position_side: so.position_side,
-              size: balance.assets[sombol.asset].asset,
-            });
-            // console.log('shouldSellSymbols', shouldSellSymbols)
-            sellAllSymbols([symbol]);
-            return;
+            let symbol = so.symbols[0];
+            debug.msg("start getQuote".green);
+            exchange.getQuote(
+              { product_id: symbol.product_id },
+              (err, quotes) => {
+                if (err) {
+                  console.log("error", err);
+                  return;
+                }
+                console.log(symbol.exchange_id + " getQuote", quotes);
+                Object.assign(symbol, {
+                  price: quotes.ask,
+                  position_side: so.position_side || "LONG",
+                  size: getFullNum(balance.asset * (so.sell_pct / 100)),
+                });
+                sellAllSymbols([symbol]);
+                return;
+              }
+            );
           }
           if (cmd.buy) {
             debug.msg("start getQuote".green);
@@ -390,12 +399,14 @@ module.exports = function (program, conf) {
                 }
                 console.log(so.symbols[0].exchange_id + " getQuote", quotes);
                 let opts = {
-                  size: getFullNum(so.buy_pct / quotes.ask),
+                  size: getFullNum(
+                    balance.currency * (so.buy_pct / 100 / quotes.ask)
+                  ),
                   price: quotes.ask,
                   product_id: so.symbols[0].product_id,
                   asset: so.symbols[0].asset,
                   order_type: so.order_type,
-                  position_side: so.position_side,
+                  position_side: so.position_side || "LONG",
                   currency: so.symbols[0].currency,
                 };
                 //start buy
@@ -444,6 +455,6 @@ module.exports = function (program, conf) {
             );
           }
         });
-      });
+      }, false);
     });
 };

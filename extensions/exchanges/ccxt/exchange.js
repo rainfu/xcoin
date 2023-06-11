@@ -106,7 +106,10 @@ module.exports = function container(conf, so, inOptions) {
     historyScanUsesTime: true,
     makerFee: 0.1,
     takerFee: 0.1,
-    refreshProducts: function (cb) {
+    refreshProducts: function (cb, force = true) {
+      if (!force) {
+        return cb(this.getProducts());
+      }
       var client = publicClient();
       function getFullNum(num) {
         if (isNaN(num)) {

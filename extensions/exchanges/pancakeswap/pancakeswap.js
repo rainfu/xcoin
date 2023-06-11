@@ -149,12 +149,7 @@ module.exports = class pancakeswap extends Exchange {
       // console.log('init since..', (new Date()).getTime(), since, query_start)
       since = query_start / 1000;
     }
-    let tokens = await getRecentHotTokens(
-      this.apolloClient,
-      baseTokenAddress,
-      since,
-      limit
-    );
+    let tokens = await getRecentHotTokens(this.apolloClient, since, limit);
     console.log("fetchMarkets get tokens ok", tokens.length);
     tokens = tokens.filter(
       (t) =>
@@ -390,7 +385,6 @@ module.exports = class pancakeswap extends Exchange {
         throw new ExchangeError("GetBuyTradeError");
         return;
       }
-      // console.log('trade', trade)
       const response = await this.swapper.execSwap(trade.inputAmount, trade);
       // console.log('response', response)
       return this.parseOrder(

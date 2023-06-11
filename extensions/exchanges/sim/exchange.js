@@ -59,8 +59,8 @@ module.exports = function sim(conf, so, s) {
         this.takerFee = real_exchange.takerFee;
       }
     },
-    refreshProducts: function (cb) {
-      return real_exchange.refreshProducts(cb, false);
+    refreshProducts: function (cb, force = false) {
+      return real_exchange.refreshProducts(cb, force);
     },
     getTrades: function (opts, cb) {
       return real_exchange.getTrades(opts, cb);
