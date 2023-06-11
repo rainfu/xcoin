@@ -325,14 +325,16 @@ module.exports = class pancakeswap extends Exchange {
     return balance;
   }
   async fetchOrder(id, params = {}) {
-    const request = {
+    //  https://api.bscscan.com/api?module=account&action=txlistinternal&txhash=0x651c965d8c9396deccd1128b178ea76f27a4cd8099862a3d941130d9201cf8c0&apikey=V433U58M7ZWPZ38PMPJS1HVS5AF7S5F9WZ
+    // https://api.bscscan.com/api/?txhash=0x651c965d8c9396deccd1128b178ea76f27a4cd8099862a3d941130d9201cf8c0&apiKey=V433U58M7ZWPZ38PMPJS1HVS5AF7S5F9WZ&module=transaction&action=gettxreceiptstatus&req_time=1686466270
+    let request = {
       txhash: id,
       apiKey: this.apiKey,
       module: "transaction",
       action: "gettxreceiptstatus",
       req_time: this.seconds(),
     };
-    const response = await this.request(
+    let response = await this.request(
       "",
       "bscscan",
       "GET",
@@ -340,9 +342,31 @@ module.exports = class pancakeswap extends Exchange {
     );
     // console.log('response', response)
     let status = this.safeString(response.result && response.result, "status");
+    let defi_fee = 0;
+    if (status === "1") {
+      /* request = {
+        txhash: id,
+        apiKey: this.apiKey,
+        module: "account",
+        action: "txlistinternal",
+        req_time: this.seconds(),
+      };
+      response = await this.request(
+        "",
+        "bscscan",
+        "GET",
+        this.extend(request, params)
+      ); */
+      //const gasPrice = this.swapper.getGasPrice();
+      defi_fee = await this.swapper.getFee(id);
+      //const gasUsed = this.safeString(response.result[0], "gasUsed");
+      // const gasUsed = transaction.gasUsed;
+      // console.log("defi_fee", defi_fee);
+    }
     return {
       id: id,
       status: status === "1" ? "done" : status === "0" ? "rejected" : "open",
+      defi_fee,
       info: response,
     };
   }
@@ -393,7 +417,7 @@ module.exports = class pancakeswap extends Exchange {
             status: "open",
             type: side,
             size: trade.inputAmount.toSignificant(6),
-            price: trade.executionPrice.invert().toSignificant(6),
+            price: price,
             initialAmount: amount,
           },
           response

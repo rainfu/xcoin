@@ -25,6 +25,7 @@ const Web3 = require("web3");
 class Swapper {
   constructor(options) {
     //  console.log("swapper options", options);
+    this.gasPrice = 0;
     this.mainChainId =
       options.chainId === 56 ? ChainId.MAINNET : ChainId.TESTNET;
     const WBNB = WETH[this.mainChainId];
@@ -158,12 +159,12 @@ class Swapper {
       this.provider
     );
     this.accountContract = this.accountContract.connect(this.wallet);
-    console.log(
+    /*  console.log(
       `inputToken loaded:${this.inputToken.chainId} ${this.inputToken.address} / ${this.inputToken.symbol} / ${this.inputToken.decimals}`
     );
     console.log(
       `OutputToken loaded:${this.inputToken.chainId} ${this.outputToken.address} / ${this.outputToken.symbol} / ${this.outputToken.decimals}`
-    );
+    ); */
 
     //1.授权output Token交易
     if (this.mainChainId === ChainId.MAINNET) {
@@ -174,7 +175,7 @@ class Swapper {
   }
   async approve(spender, amount) {
     if (this.accountContract.address === spender) {
-      // console.warn(`approved: the same token:`, spender)
+      // console.warn(`approved: the same token:`, spender);
       return;
     }
     const add = await this.accountContract.allowance(
@@ -253,6 +254,18 @@ class Swapper {
     // necessary for all paths to return a value
     return undefined;
   }
+  getGasPrice() {
+    return this.web3.utils.fromWei(this.gasPrice, "ether");
+  }
+  async getFee(hash) {
+    let transaction = await this.web3.eth.getTransactionReceipt(hash);
+    // console.log("getTransaction", transaction);
+    // return this.web3.utils.fromWei(this.gasPrice, "ether");
+    return (
+      this.web3.utils.fromWei(String(transaction.gasUsed), "wei") *
+      this.web3.utils.fromWei(String(transaction.effectiveGasPrice), "ether")
+    );
+  }
   async GetTrade(amount, slippage) {
     this.swapOptions.allowedSlippage = new Percent(
       JSBI.BigInt(Math.floor(slippage * 100)),
@@ -300,8 +313,8 @@ class Swapper {
     return /^0x0*$/.test(hexNumberString);
   }
   async execSwap(amount, trade) {
+    // this.gasPrice = await this.web3.eth.getGasPrice();
     const startTime = Date.now();
-    //  console.log('execSwap,tradeInfo currency', trade.inputAmount.currency)
     if (this.inputToken.equals(this.BASE_TOKEN)) {
       trade.inputAmount.currency = ETHER;
     }
@@ -309,14 +322,15 @@ class Swapper {
       trade.outputAmount.currency = ETHER;
     }
     const parameters = Router.swapCallParameters(trade, this.swapOptions);
-    // console.log('execSwap,parameters', parameters)
+    // console.log("execSwap,parameters", parameters);
     const encoded_tx = this.routerContract.methods[parameters.methodName](
       ...parameters.args
     ).encodeABI();
     amount = ethers.utils.formatEther(parameters.value);
-    // console.log('amount', amount)
+    //console.log("amount", amount);
     const value = parseUnits(amount, trade.inputAmount.decimals);
-    // console.log('value', value)
+    // console.log("value", value);
+
     let transactionObject = {
       gasLimit: 2062883, //gas费用
       // value: value,//转账金额
@@ -325,7 +339,7 @@ class Swapper {
       to: this.options.address.router,
       value: value,
     };
-    // console.log('execSwap,transactionObject', transactionObject)
+    // console.log("execSwap,transactionObject", transactionObject);
     let routeTag = `Swap:[${trade.inputAmount.currency.symbol}->${
       trade.outputAmount.currency.symbol
     }][price=${trade.executionPrice.invert().toSignificant(6)}]`;
@@ -334,13 +348,14 @@ class Swapper {
     /* try { */
     const value2 = parameters.value;
     const options = !value2 || this.isZero(value2) ? {} : { value: value2 };
+    // console.log("start get gas..", parameters, options);
     gas = await this.gas(parameters, options);
-    // console.log('trade gas..', gas.toNumber())
+    //  console.log("trade gas..", gas.toNumber());
     /* } catch (e) {
             console.error("gas.error:", e)
         } */
     if (gas) {
-      transactionObject.gasLimit = gas.toNumber() * 3; //使用3倍gas费
+      transactionObject.gasLimit = gas.toNumber(); //使用3倍gas费
     }
     const wasteGas = Date.now() - startTime;
     console.log(
@@ -350,17 +365,26 @@ class Swapper {
         .formatUnits(value, trade.inputAmount.decimals)
         .toString()}`
     );
-    //  return
     const res = await this.wallet.sendTransaction(transactionObject);
-    // console.log('swap res', res)
-    /* const receipt = await res.wait();//等待区块确认
-        const transTime = Date.now() - startTime
-        console.log('swap receipt', receipt)
-        if (receipt.status) {
-            console.info(`Transaction.success: ${routeTag} gasUsed:${receipt.gasUsed.toString()},time:${transTime}ms,confirmations:${receipt.confirmations}`);
-        } else {
-            console.error("Swap.error:", receipt)
-        } */
+    /* console.log("swap res", res);
+
+    const receipt = await res.wait(); //等待区块确认
+    const transTime = Date.now() - startTime;
+    console.log(
+      "swap receipt",
+      receipt.gasUsed.toString(),
+      receipt.cumulativeGasUsed.toString(),
+      receipt.effectiveGasPrice.toString()
+    );
+    if (receipt.status) {
+      console.info(
+        `Transaction.success: ${routeTag} gasUsed:${receipt.gasUsed.toString()},time:${transTime}ms,confirmations:${
+          receipt.confirmations
+        }`
+      );
+    } else {
+      console.error("Swap.error:", receipt);
+    } */
     return {
       hash: res.hash /*,
             trade ,

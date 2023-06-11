@@ -157,7 +157,6 @@ module.exports = function container(conf, so, inOptions) {
         const exitProducts = this.getProducts();
         //清理不需要的地址
         const newProducts = [];
-        console.log("exitProducts", exitProducts.length);
         resProducts.map((product) => {
           //合并老的地址
           const find = exitProducts.find((p) => p.id === product.id);
@@ -436,7 +435,7 @@ module.exports = function container(conf, so, inOptions) {
       this.getPoolOptions(opts);
       opts.extractIn = opts.price ? opts.price * opts.size : opts.size;
       opts.slippage = conf.max_slippage_pct;
-      //  console.log('\nbuy opts', opts)
+      //console.log("buy opts", opts);
       client
         .createOrder(
           opts,
@@ -523,7 +522,7 @@ module.exports = function container(conf, so, inOptions) {
       this.getPoolOptions(opts);
       opts.extractIn = opts.price ? opts.price * opts.size : opts.size;
       opts.slippage = conf.max_slippage_pct;
-      //  console.log('sell opts', opts)
+      // console.log("sell opts", opts);
       client
         .createOrder(
           opts,
@@ -535,13 +534,18 @@ module.exports = function container(conf, so, inOptions) {
           args
         )
         .then((result) => {
-          console.log("sell result...", result);
+          // console.log("sell result...", result);
           if (result && result.message === "Insufficient funds") {
             order = {
               status: "rejected",
               reject_reason: "balance",
             };
             return cb(null, order);
+          } else if (!result.id) {
+            return cb(null, {
+              status: "rejected",
+              reject_reason: "create order error",
+            });
           }
           order = {
             id: result ? result.id : null,
@@ -656,6 +660,7 @@ module.exports = function container(conf, so, inOptions) {
           } else if (body.status !== "open" && body.status !== "canceled") {
             order.status = "done";
             order.done_at = new Date().getTime();
+            order.defi_fee = body.defi_fee;
             order.filled_size = 0;
             return cb(null, order);
           }
