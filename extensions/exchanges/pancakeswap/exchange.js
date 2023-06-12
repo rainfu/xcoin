@@ -662,7 +662,7 @@ module.exports = function container(conf, so, inOptions) {
       client
         .fetchBalance(tokens)
         .then((result) => {
-          //   console.log("getBalance result", result);
+          // console.log("getBalance result", result);
           /* let result = {
             "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c": {
               free: 0.4487151571559786,
