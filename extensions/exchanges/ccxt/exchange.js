@@ -177,6 +177,7 @@ module.exports = function container(conf, so, inOptions) {
         );
       });
     },
+    addProducts(plist, cb) {},
     getProducts: function () {
       try {
         return require(`../../../data/exchanges/${exchagneId}_products.json`);
@@ -840,9 +841,13 @@ module.exports = function container(conf, so, inOptions) {
         this.makerFee = so.makerFee;
       }
     },
-    updateSymbols(products) {
-      return products;
+    updateSymbols(symbols) {
+      products = this.getProducts();
+      return symbols.filter((sy) => {
+        return products.find((p) => p.normalized === sy.normalized);
+      });
     },
   };
+  so.symbols = exchange.updateSymbols(so.symbols);
   return exchange;
 };

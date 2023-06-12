@@ -366,7 +366,7 @@
   "period": "1d",
   "poll_scan_time": 10000,
   "min_periods": 32,
-  "watch_symbols": "pancakeswap.RDNT-WBNB,pancakeswap.GQ-WBNB",
+  "watch_symbols": "pancakeswap.RDNT-WBNB,pancakeswap.BUSD-WBNB,pancakeswap.TLOS-WBNB,pancakeswap.MGP-WBNB",
   "output": {
     "panacea": {
       "on": true,
@@ -389,7 +389,7 @@
   "max_slippage_pct": 0.5,
   "buy_pct": 5,
   "max_buy_size": 0,
-  "sell_pct": 10,
+  "sell_pct": 100,
   "order_adjust_time": 5000,
   "max_sell_loss_pct": 0,
   "max_buy_loss_pct": 0,

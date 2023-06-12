@@ -45,8 +45,11 @@ module.exports = function sim(conf, so, s) {
     takerFee: real_exchange.takerFee,
     dynamicFees: real_exchange.dynamicFees,
     getProducts: real_exchange.getProducts,
-    updateSymbols(products) {
-      return products;
+    updateSymbols(symbols) {
+      products = this.getProducts();
+      return symbols.filter((sy) => {
+        return products.find((p) => p.normalized === sy.normalized);
+      });
     },
     initFees: function () {
       //User can change the fees from client ,so we sould reset the fees for this
@@ -397,5 +400,6 @@ module.exports = function sim(conf, so, s) {
       logger.debug(sell_order.product_id.green, "partial fill sell".cyan);
     }
   }
+  so.symbols = exchange.updateSymbols(so.symbols);
   return exchange;
 };

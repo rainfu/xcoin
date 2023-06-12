@@ -40,6 +40,35 @@ const GET_TOKENS = gql`
     }
   }
 `;
+const GET_TOKENS_WITH_POOL = gql`
+  query getTokensWithPool($tokens: [Bytes]!) {
+    tokens(where: { symbol_in: $tokens }) {
+      id
+      name
+      symbol
+      txCount
+      volume
+      volumeUSD
+      totalSupply
+      whitelistPools(first: 3, orderBy: volumeUSD, orderDirection: desc) {
+        id
+        token0Price
+        token1Price
+        token0 {
+          id
+          name
+          symbol
+        }
+        token1 {
+          id
+          name
+          symbol
+        }
+        volumeUSD
+      }
+    }
+  }
+`;
 const GET_TOKEN_WITH_POOL = gql`
   query getTokenWithPool($tokenAddress: String!) {
     token(id: $tokenAddress) {
@@ -178,6 +207,23 @@ const GET_POOLS = gql`
     }
   }
 `;
+const GET_TOKEN_BY_ASSET = gql`
+  query getTokenByAsset($asset: String!) {
+    tokens(
+      orderBy: volumeUSD
+      orderDirection: desc
+      where: { symbol: $asset }
+    ) {
+      id
+      symbol
+      name
+      decimals
+      totalSupply
+      volumeUSD
+      txCount
+    }
+  }
+`;
 
 const getToken = async (client, tokenAddress, apiKey = "", withInfo = true) => {
   let result, token;
@@ -192,6 +238,24 @@ const getToken = async (client, tokenAddress, apiKey = "", withInfo = true) => {
     token = await getTokenExtraInfo(token, null, apiKey);
   }
   //console.log('getToken', token)
+  return token;
+};
+
+const getTokenByAsset = async (client, asset, apiKey = "", withInfo = true) => {
+  let result, token;
+  result = await client.query({
+    query: GET_TOKEN_BY_ASSET,
+    variables: {
+      asset,
+    },
+  });
+  // console.log("result", result.data.tokens);
+  if (!result.data.tokens.length) return null;
+  token = result.data.tokens[0];
+  if (withInfo) {
+    token = await getTokenExtraInfo(token, null, apiKey);
+  }
+  // console.log("getToken", token);
   return token;
 };
 
@@ -215,6 +279,18 @@ const getTokens = async (client, tokens) => {
     fetchPolicy: "cache-first",
   });
   //console.log("getTokens ok", result);
+  return result.data.tokens;
+};
+const getTokensWithPool = async (client, tokens) => {
+  console.log("getTokensWithPool", tokens);
+  let result = await client.query({
+    query: GET_TOKENS_WITH_POOL,
+    variables: {
+      tokens,
+    },
+    fetchPolicy: "cache-first",
+  });
+  console.log("getTokens ok", result);
   return result.data.tokens;
 };
 const getTokenWithPool = async (
@@ -379,6 +455,8 @@ module.exports = {
   getToken,
   getTokens,
   getTokenWithPool,
+  getTokensWithPool,
+  getTokenByAsset,
   getTokenExtraInfo,
   getPool,
   getPools,

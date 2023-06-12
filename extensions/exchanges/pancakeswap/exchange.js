@@ -205,6 +205,77 @@ module.exports = function container(conf, so, inOptions) {
         cb(exitProducts, newProducts);
       });
     },
+    addProducts(plist, cb) {
+      var client = authedClient();
+      // console.log("addProducts start..", JSON.stringify(plist));
+      client.fetchProducts(plist).then(({ newTokenList }) => {
+        // console.log("addProducts ok..", newTokenList);
+        const resProducts = newTokenList.map((market) => {
+          // NOTE: price_filter also contains minPrice and maxPrice
+          return {
+            id: market.id,
+            asset: market.base,
+            symbol: market.symbol,
+            csymbol: market.csymbol,
+            currency: market.quote,
+            active: market.active,
+            decimals: market.decimals.toString(),
+            price: market.price,
+            created: market.created,
+            volumeUSD: market.volumeUSD,
+            txCount: market.txCount,
+            label: market.name
+              ? market.name.replace("unknown", market.symbol)
+              : market.name,
+            verified: market.verified,
+            contract_name: market.contract_name,
+            total_supply: market.total_supply || "",
+            holders: market.holders || "",
+            site: market.site || "",
+            social: market.social || "",
+            exchagne_id: exchagneId,
+            product_id: market.symbol + "-" + market.csymbol,
+            normalized: exchagneId + "." + market.symbol + "-" + market.csymbol,
+          };
+        });
+        // logger.info("find new products".yellow, resProducts);
+        const exitProducts = this.getProducts();
+        resProducts.map((product) => {
+          //合并老的地址
+          const find = exitProducts.find((p) => p.id === product.id);
+          if (find) {
+            Object.assign(find, product);
+          } else {
+            exitProducts.push(product);
+          }
+        });
+        console.log(
+          "\nrefreshProducts ok all %s,new %s",
+          exitProducts.length,
+          resProducts.length
+        );
+        var target = require("path").resolve(
+          __dirname,
+          "../../../data/exchanges/" + exchagneId + "_products.json"
+        );
+        require("fs").writeFileSync(
+          target,
+          JSON.stringify(exitProducts, null, 2)
+        );
+        if (resProducts.length) {
+          var newProductTarget = require("path").resolve(
+            __dirname,
+            "../../../data/exchanges/" + exchagneId + "_new.json"
+          );
+          require("fs").writeFileSync(
+            newProductTarget,
+            JSON.stringify(resProducts, null, 2)
+            /*  { flag: "a" } */
+          );
+        }
+        cb(resProducts);
+      });
+    },
     getProducts: function () {
       try {
         if (products) return products;
@@ -761,20 +832,24 @@ module.exports = function container(conf, so, inOptions) {
     },
     updateSymbols: function (symbols) {
       products = this.getProducts();
-      return symbols.map((sy) => {
-        let product = products.find((p) => p.normalized === sy.normalized);
-        return {
-          asset: product.asset,
-          currency: product.currency,
-          symbol: product.symbol,
-          csymbol: product.csymbol,
-          id: product.id,
-          decimals: product.decimals,
-          exchange_id: product.exchagne_id,
-          product_id: product.product_id,
-          normalized: product.normalized,
-        };
-      });
+      return symbols
+        .filter((sy) => {
+          return products.find((p) => p.normalized === sy.normalized);
+        })
+        .map((sy) => {
+          let product = products.find((p) => p.normalized === sy.normalized);
+          return {
+            asset: product.asset,
+            currency: product.currency,
+            symbol: product.symbol,
+            csymbol: product.csymbol,
+            id: product.id,
+            decimals: product.decimals,
+            exchange_id: product.exchagne_id,
+            product_id: product.product_id,
+            normalized: product.normalized,
+          };
+        });
     },
   };
   so.symbols = exchange.updateSymbols(so.symbols);

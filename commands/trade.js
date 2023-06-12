@@ -143,28 +143,30 @@ module.exports = function (program, conf) {
         //var days = Math.ceil((new Date().getTime() - query_start) / 86400000)
         s.exchange.refreshProducts((products) => {
           logger.info(
-            "\n" + so.exchange.cyan + " refreshProducts to ".green,
+            so.exchange.cyan + " refreshProducts to ".green,
             products.length.toString().yellow
           );
           if (so.defi) {
             so.symbols = s.exchange.updateSymbols(products);
-          }
-          let notExitProducts = so.symbols.filter((symbol) => {
-            return products.every((p) => p.product_id !== symbol.product_id);
-          });
-          notExitProducts.forEach((find) => {
-            let index = so.symbols.indexOf(find);
-            so.symbols.splice(index, 1);
-            delete s.symbols[find.product_id];
-            let i = 1;
-            so.symbols.forEach((symbol) => {
-              if (s.symbols[symbol.product_id]) {
-                s.symbols[symbol.product_id].index = i;
-                i++;
-              }
+            let notExitProducts = symbolsIds.filter((symbol) => {
+              return products.every((p) => p.normalized !== symbol);
             });
-            logger.info("Remove not exit symbol".green, find.product_id.cyan);
-          });
+            logger.info("notExitProducts".cyan, notExitProducts);
+            if (notExitProducts.length) {
+              setTimeout(() => {
+                logger.info("start init new Products".cyan, notExitProducts);
+                s.exchange.addProducts(
+                  notExitProducts.map((symbol) => {
+                    return helpers.objectifySelector(symbol);
+                  }),
+                  (newProducts) => {
+                    addSymbols(newProducts);
+                  },
+                  true
+                );
+              }, 60000);
+            }
+          }
           logger.info("\nStart get purchased asset".cyan);
           engine.initExchange((err, longSymbols, balance) => {
             s.balance.start_capital = balance.currency;
@@ -283,33 +285,36 @@ module.exports = function (program, conf) {
       function newTokenScan() {
         console.log("newTokenScan");
         s.exchange.refreshProducts((products, newProducts) => {
-          if (newProducts && newProducts.length) {
-            logger.info(
-              "\n" + so.exchange.cyan + " find new product ".green,
-              newProducts.length.toString().yellow
-            );
-            let newSymbols = s.exchange.updateSymbols(newProducts);
-            engine.initSymbols(newSymbols);
-            core.getInitKLines(
-              () => {
-                so.symbols.push(...newSymbols);
-                if (so.symbols && so.symbols.length) {
-                  let i = 1;
-                  so.symbols.forEach((symbol) => {
-                    if (s.symbols[symbol.product_id]) {
-                      s.symbols[symbol.product_id].index = i;
-                      i++;
-                    }
-                  });
-                }
-              },
-              newSymbols,
-              {
-                limit: so.min_periods,
-              }
-            );
-          }
+          addSymbols(newProducts);
         }, true);
+      }
+      function addSymbols(newSymbols) {
+        if (newSymbols && newSymbols.length) {
+          logger.info(
+            "\n" + so.exchange.cyan + " find new symbol ".green,
+            newSymbols.length.toString().yellow
+          );
+          let symbols = s.exchange.updateSymbols(newSymbols);
+          engine.initSymbols(symbols);
+          core.getInitKLines(
+            () => {
+              so.symbols.push(...symbols);
+              if (so.symbols && so.symbols.length) {
+                let i = 1;
+                so.symbols.forEach((symbol) => {
+                  if (s.symbols[symbol.product_id]) {
+                    s.symbols[symbol.product_id].index = i;
+                    i++;
+                  }
+                });
+              }
+            },
+            symbols,
+            {
+              limit: so.min_periods,
+            }
+          );
+        }
       }
       function broadcastLoop() {
         output.refresh();

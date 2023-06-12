@@ -19,13 +19,14 @@ const {
   getToken,
   getTokens,
   getTokenWithPool,
+  getTokenByAsset,
   getTokenExtraInfo,
   getPool,
   getPools,
   getPoolWithHour,
   getPoolWithDay,
   getBundle,
-} = require("./defi/PanQuery3");
+} = require("./defi/PanQuery");
 const tb = require("timebucket");
 const readline = require("readline");
 module.exports = class pancakeswap extends Exchange {
@@ -194,7 +195,7 @@ module.exports = class pancakeswap extends Exchange {
           symbol.base
         );
         //  console.log("tokenpool", tokenPool.whitelistPools);
-        if (tokenPool.whitelistPools.length) {
+        if (tokenPool && tokenPool.whitelistPools.length) {
           let fitPool = tokenPool.whitelistPools.find(
             (w) =>
               w.token0.id === baseTokenAddress ||
@@ -227,7 +228,61 @@ module.exports = class pancakeswap extends Exchange {
     console.log("newTokenList ok", newTokenList.length);
     return { newTokenList, blacklist };
   }
-
+  async fetchProducts(products, params = {}) {
+    let newTokenList = [];
+    // console.log("fetchProducts ", products);
+    let symbols = products.map((s) => s.asset);
+    // console.log("fetchProducts 2", symbols);
+    for (let i = 0; i < products.length; i++) {
+      let symbol = {
+        quote: this.baseTokenAddress,
+        active: true,
+      };
+      const res = await getTokenByAsset(
+        this.apolloClient,
+        products[i].asset,
+        this.options.api.bscscan,
+        true
+      );
+      if (!res) continue;
+      Object.assign(symbol, res, {
+        base: res.id,
+      });
+      let tokenPool = await getTokenWithPool(
+        this.apolloClient,
+        this.baseTokenAddress,
+        symbol.base
+      );
+      if (tokenPool && tokenPool.whitelistPools.length) {
+        let fitPool = tokenPool.whitelistPools.find(
+          (w) =>
+            w.token0.id === this.baseTokenAddress ||
+            w.token1.id === this.baseTokenAddress
+        );
+        // console.log("fitPool", fitPool);
+        if (fitPool) {
+          Object.assign(symbol, {
+            id: fitPool.id,
+            name:
+              fitPool.token0.id === this.baseTokenAddress
+                ? fitPool.token1.symbol + "/" + fitPool.token0.symbol
+                : fitPool.token0.symbol + "/" + fitPool.token1.symbol,
+            csymbol:
+              fitPool.token0.id === this.baseTokenAddress
+                ? fitPool.token0.symbol
+                : fitPool.token1.symbol,
+            price:
+              fitPool.token0.id === this.baseTokenAddress
+                ? fitPool.token0Price
+                : fitPool.token1Price,
+          });
+          newTokenList.push(symbol);
+        }
+      }
+    }
+    console.log("fetchProducts ok", newTokenList);
+    return { newTokenList };
+  }
   parseTicker(ticker, pairDayData, market = undefined) {
     /* let timestamp = this.safeTimestamp(ticker, 'timestamp');
         if (timestamp === undefined) {
