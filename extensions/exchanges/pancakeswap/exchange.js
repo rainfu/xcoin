@@ -187,8 +187,8 @@ module.exports = function container(conf, so, inOptions) {
           );
           require("fs").writeFileSync(
             newProductTarget,
-            JSON.stringify(newProducts, null, 2),
-            { flag: "a" }
+            JSON.stringify(newProducts, null, 2)
+            /*  { flag: "a" } */
           );
         }
         if (blacklist.length) {
@@ -476,25 +476,15 @@ module.exports = function container(conf, so, inOptions) {
           // {"code":-1013,"msg":"Filter failure: MIN_NOTIONAL"}
           // {"code":-2010,"msg":"Account has insufficient balance for requested action"}
           if (
-            error.name &&
-            error.name.match(
-              new RegExp(/GetBuyTradeError|INSUFFICIENT_FUNDS|BadRequest/)
-            )
+            error
+              .toString()
+              .match(
+                new RegExp(/GetBuyTradeError|INSUFFICIENT_FUNDS|BadRequest/)
+              )
           ) {
             return cb(null, {
               status: "rejected",
               reject_reason: error.name,
-            });
-          }
-          if (
-            error.message &&
-            error.message.match(
-              new RegExp(/INSUFFICIENT_FUNDS|GetBuyTradeError|-2010/)
-            )
-          ) {
-            return cb(null, {
-              status: "rejected",
-              reject_reason: "trade",
             });
           }
           return retry("buy", func_args);
@@ -534,7 +524,7 @@ module.exports = function container(conf, so, inOptions) {
           args
         )
         .then((result) => {
-          // console.log("sell result...", result);
+          //  console.log("sell result...", result);
           if (result && result.message === "Insufficient funds") {
             order = {
               status: "rejected",
@@ -565,11 +555,13 @@ module.exports = function container(conf, so, inOptions) {
           // decide if this error is allowed for a retry:
           // {"code":-1013,"msg":"Filter failure: MIN_NOTIONAL"}
           // {"code":-2010,"msg":"Account has insufficient balance for requested action"}
+          console.log("error", error.toString());
           if (
-            error.name &&
-            error.name.match(
-              new RegExp(/InvalidOrder|InsufficientFunds|BadRequest/)
-            )
+            error
+              .toString()
+              .match(
+                new RegExp(/GetBuyTradeError|INSUFFICIENT_FUNDS|BadRequest/)
+              )
           ) {
             return cb(null, {
               status: "rejected",

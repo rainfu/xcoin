@@ -1,14 +1,183 @@
 {
   "modified": {
-    "profit_win_first_rate": 100,
-    "profit_win_first_percent": 50,
-    "profit_win_second_rate": 200,
-    "profit_win_second_percent": 50,
-    "profit_win_third_rate": 400,
-    "profit_win_max_rate": 500,
-    "profit_win_third_percent": 25,
-    "profit_win_max_percent": 50,
-    "keep_lookback_periods": 50
+    "strategy": {
+      "id": "PSAR",
+      "name": "PSAR",
+      "des": "PSAR",
+      "editable": false,
+      "group": "custom",
+      "order": 30,
+      "strategies": [
+        {
+          "name": "PSAR",
+          "group": "momentum",
+          "input": [
+            {
+              "name": "step",
+              "type": "number",
+              "step": [
+                0.01,
+                1,
+                0.005
+              ],
+              "value": 0.02
+            },
+            {
+              "name": "max",
+              "type": "number",
+              "step": [
+                0.05,
+                1,
+                0.05
+              ],
+              "value": 0.2
+            },
+            {
+              "name": "valType",
+              "type": "array",
+              "list": [
+                "open",
+                "high",
+                "low",
+                "close",
+                "volume"
+              ],
+              "value": [
+                "high",
+                "low"
+              ]
+            }
+          ],
+          "output": [
+            {
+              "name": "PSAR",
+              "report": true,
+              "mark": false,
+              "show": true,
+              "pos": "main",
+              "type": "line",
+              "dot": true
+            },
+            {
+              "name": "trend",
+              "report": true,
+              "mark": true,
+              "show": true,
+              "pos": "sub",
+              "type": "line"
+            },
+            {
+              "name": "signals",
+              "report": false,
+              "show": true,
+              "pos": "main",
+              "type": "marker"
+            }
+          ],
+          "buyPoint": {
+            "connect": "base",
+            "source": "PSAR",
+            "op": "crossDown",
+            "target": "close"
+          },
+          "sellPoint": {
+            "connect": "base",
+            "source": "PSAR",
+            "op": "crossUp",
+            "target": "close"
+          }
+        },
+        {
+          "name": "RSI",
+          "des": "RSI",
+          "editable": false,
+          "group": "oscillators",
+          "input": [
+            {
+              "name": "period",
+              "type": "number",
+              "step": [
+                2,
+                100,
+                1
+              ],
+              "value": 8
+            },
+            {
+              "name": "overBoughtThreshold",
+              "type": "number",
+              "step": [
+                0,
+                100,
+                1
+              ],
+              "value": 75,
+              "show": true,
+              "pos": "bottom",
+              "owner": "RSI",
+              "priceline": true
+            },
+            {
+              "name": "overSoldThreshold",
+              "type": "number",
+              "step": [
+                0,
+                100,
+                1
+              ],
+              "value": 25,
+              "show": true,
+              "pos": "bottom",
+              "owner": "RSI",
+              "priceline": true
+            },
+            {
+              "name": "valType",
+              "type": "array",
+              "list": [
+                "open",
+                "high",
+                "low",
+                "close",
+                "volume"
+              ],
+              "value": [
+                "close"
+              ]
+            }
+          ],
+          "output": [
+            {
+              "name": "RSI",
+              "report": true,
+              "show": true,
+              "pos": "bottom",
+              "type": "line",
+              "mark": true
+            },
+            {
+              "name": "signals",
+              "report": false,
+              "show": true,
+              "pos": "bottom",
+              "type": "marker"
+            }
+          ],
+          "buyPoint": {
+            "connect": "none",
+            "source": "RSI",
+            "op": "crossUp",
+            "target": "overSoldThreshold"
+          },
+          "sellPoint": {
+            "connect": "none",
+            "source": "RSI",
+            "op": "crossDown",
+            "target": "overBoughtThreshold"
+          }
+        }
+      ]
+    }
   },
   "conf": "./data/config/pancakeswap/demo.json",
   "debug": true,
@@ -17,13 +186,92 @@
   "sim_price": false,
   "paper": false,
   "strategy": {
-    "id": "RSI",
-    "name": "RSI",
-    "des": "RSI",
+    "id": "PSAR",
+    "name": "PSAR",
+    "des": "PSAR",
     "editable": false,
     "group": "custom",
-    "order": 10,
+    "order": 30,
     "strategies": [
+      {
+        "name": "PSAR",
+        "group": "momentum",
+        "input": [
+          {
+            "name": "step",
+            "type": "number",
+            "step": [
+              0.01,
+              1,
+              0.005
+            ],
+            "value": 0.02
+          },
+          {
+            "name": "max",
+            "type": "number",
+            "step": [
+              0.05,
+              1,
+              0.05
+            ],
+            "value": 0.2
+          },
+          {
+            "name": "valType",
+            "type": "array",
+            "list": [
+              "open",
+              "high",
+              "low",
+              "close",
+              "volume"
+            ],
+            "value": [
+              "high",
+              "low"
+            ]
+          }
+        ],
+        "output": [
+          {
+            "name": "PSAR",
+            "report": true,
+            "mark": false,
+            "show": true,
+            "pos": "main",
+            "type": "line",
+            "dot": true
+          },
+          {
+            "name": "trend",
+            "report": true,
+            "mark": true,
+            "show": true,
+            "pos": "sub",
+            "type": "line"
+          },
+          {
+            "name": "signals",
+            "report": false,
+            "show": true,
+            "pos": "main",
+            "type": "marker"
+          }
+        ],
+        "buyPoint": {
+          "connect": "base",
+          "source": "PSAR",
+          "op": "crossDown",
+          "target": "close"
+        },
+        "sellPoint": {
+          "connect": "base",
+          "source": "PSAR",
+          "op": "crossUp",
+          "target": "close"
+        }
+      },
       {
         "name": "RSI",
         "des": "RSI",
@@ -101,24 +349,16 @@
           }
         ],
         "buyPoint": {
-          "connect": "base",
+          "connect": "none",
           "source": "RSI",
           "op": "crossUp",
           "target": "overSoldThreshold"
         },
         "sellPoint": {
-          "connect": "base",
+          "connect": "none",
           "source": "RSI",
           "op": "crossDown",
           "target": "overBoughtThreshold"
-        },
-        "inputParams": {
-          "period": 8,
-          "overBoughtThreshold": 75,
-          "overSoldThreshold": 25,
-          "valType": [
-            "close"
-          ]
         }
       }
     ]
@@ -126,7 +366,7 @@
   "period": "1d",
   "poll_scan_time": 10000,
   "min_periods": 32,
-  "watch_symbols": "pancakeswap.GQ-WBNB,pancakeswap.RDNT-WBNB",
+  "watch_symbols": "pancakeswap.RDNT-WBNB,pancakeswap.GQ-WBNB",
   "output": {
     "panacea": {
       "on": true,
@@ -149,7 +389,7 @@
   "max_slippage_pct": 0.5,
   "buy_pct": 5,
   "max_buy_size": 0,
-  "sell_pct": 100,
+  "sell_pct": 10,
   "order_adjust_time": 5000,
   "max_sell_loss_pct": 0,
   "max_buy_loss_pct": 0,
@@ -315,6 +555,50 @@
       "exchange_id": "pancakeswap",
       "product_id": "GGG-WBNB",
       "normalized": "pancakeswap.GGG-WBNB"
+    },
+    {
+      "asset": "0xed376501f61046a3f43dac6d5ab51a700dda46fc",
+      "currency": "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c",
+      "symbol": "CNNC",
+      "csymbol": "WBNB",
+      "id": "0x2dd5b9f31de575d8facb1188dec3cdb3123e3894",
+      "decimals": "18",
+      "exchange_id": "pancakeswap",
+      "product_id": "CNNC-WBNB",
+      "normalized": "pancakeswap.CNNC-WBNB"
+    },
+    {
+      "asset": "0xd069599e718f963bd84502b49ba8f8657faf5b3a",
+      "currency": "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c",
+      "symbol": "PLAY",
+      "csymbol": "WBNB",
+      "id": "0x4a383460dca296476990bd29710b28994121d607",
+      "decimals": "18",
+      "exchange_id": "pancakeswap",
+      "product_id": "PLAY-WBNB",
+      "normalized": "pancakeswap.PLAY-WBNB"
+    },
+    {
+      "asset": "0xcdb96d3aef363a036c6cf6c9b5736d79f0e404e2",
+      "currency": "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c",
+      "symbol": "IPX",
+      "csymbol": "WBNB",
+      "id": "0x9c7a87327f658ebb643bd180835de2e2829f88f8",
+      "decimals": "18",
+      "exchange_id": "pancakeswap",
+      "product_id": "IPX-WBNB",
+      "normalized": "pancakeswap.IPX-WBNB"
+    },
+    {
+      "asset": "0xccd09b80453335aa914f5d9174984b6586c315ec",
+      "currency": "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c",
+      "symbol": "bDXN",
+      "csymbol": "WBNB",
+      "id": "0xe0f166b714726efb679ad48ba58e8b1403e363ea",
+      "decimals": "18",
+      "exchange_id": "pancakeswap",
+      "product_id": "bDXN-WBNB",
+      "normalized": "pancakeswap.bDXN-WBNB"
     }
   ]
 }

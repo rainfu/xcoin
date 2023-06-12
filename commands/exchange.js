@@ -284,6 +284,7 @@ module.exports = function (program, conf) {
         }
         let p = symbols.pop();
         var opts = {
+          price: p.price,
           size: getFullNum((p.size * so.sell_pct) / 100),
           order_type: "taker",
           position_side: p.position_side,
