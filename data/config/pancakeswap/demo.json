@@ -366,7 +366,7 @@
   "period": "1d",
   "poll_scan_time": 10000,
   "min_periods": 32,
-  "watch_symbols": "pancakeswap.RDNT-WBNB,pancakeswap.BUSD-WBNB,pancakeswap.TLOS-WBNB,pancakeswap.MGP-WBNB",
+  "watch_symbols": "pancakeswap.RDNT-WBNB,pancakeswap.BUSD-WBNB,pancakeswap.MGP-WBNB",
   "output": {
     "panacea": {
       "on": true,
