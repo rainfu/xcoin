@@ -151,7 +151,6 @@ module.exports = function (program, conf) {
             let notExitProducts = symbolsIds.filter((symbol) => {
               return products.every((p) => p.normalized !== symbol);
             });
-            logger.info("notExitProducts".cyan, notExitProducts);
             if (notExitProducts.length) {
               setTimeout(() => {
                 logger.info("start init new Products".cyan, notExitProducts);
@@ -220,6 +219,9 @@ module.exports = function (program, conf) {
                             "prev_buy_" +
                             (b.positionSide === "SHORT" ? "short" : "long");
                           let orderTime = new Date().getTime();
+                          if (b.entry_time) {
+                            orderTime = b.entry_time;
+                          }
                           s.symbols[b.product_id].my_trades.push({
                             order_id: crypto.randomBytes(4).toString("hex"),
                             time: orderTime,
@@ -251,6 +253,10 @@ module.exports = function (program, conf) {
                               )
                               .value();
                           }
+                          /* console.log(
+                            "order...",
+                            s.symbols[b.product_id].my_trades
+                          ); */
                           engine.syncBalance(() => {
                             // console.log('xx'.cyan, b, s.symbols[b.product_id])
                           }, b);
@@ -634,6 +640,7 @@ module.exports = function (program, conf) {
                 return {
                   product_id: pair.product_id,
                   lastBuyPrice: pair.lastBuyPrice,
+                  lastTradeTime: pair.lastTradeTime,
                 };
               });
             // console.log("prevSymbols", prevSymbols);
@@ -644,9 +651,12 @@ module.exports = function (program, conf) {
               //    console.log('prevSymbol', symbol, prevSymbol)
               if (prevSymbol && prevSymbol.lastBuyPrice) {
                 symbol.entry_price = prevSymbol.lastBuyPrice;
+                if (prevSymbol && prevSymbol.lastTradeTime) {
+                  symbol.entry_time = prevSymbol.lastTradeTime;
+                }
               }
             });
-            // console.log('buyedSymbols2', buyedSymbols)
+            //  console.log("buyedSymbols2", buyedSymbols);
             if (cb) cb(buyedSymbols);
             return;
           });

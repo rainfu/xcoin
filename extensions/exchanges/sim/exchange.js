@@ -87,6 +87,10 @@ module.exports = function sim(conf, so, s) {
           isolated: s.symbols[symbol.product_id].isolated,
           positionSide: "LONG",
         };
+        /* balance.assets = {
+          ETH: { asset: 1, asset_hold: 0 },
+          BTC: { asset: 0.5, asset_hold: 0 },
+        }; */
         // console.log('getBalance..', balance)
         return cb(null, balance);
       }, latency);
