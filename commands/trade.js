@@ -628,6 +628,10 @@ module.exports = function (program, conf) {
         //get bought symbol init price for prev bot
         if (!so.future) {
           core.getLastBot((bot) => {
+            if (!bot) {
+              if (cb) cb(buyedSymbols);
+              return;
+            }
             let prevSymbols = [];
             prevSymbols = bot.symbols
               .filter((pair) => {
