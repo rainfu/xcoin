@@ -1,7 +1,8 @@
 "use strict";
 
-const ERC20_ABI = require("./abis/ERC20.json");
-const IUniswapV2Router02 = require("./abis/IUniswapV2Router02ABI.json");
+const ERC20_ABI = require("./ERC20.json");
+const IUniswapV2Router02 = require("./IUniswapV2Router02ABI.json");
+const exchangeConfig = require("./Const.json");
 const { MaxUint256 } = require("@ethersproject/constants");
 const { getAddress } = require("@ethersproject/address");
 const { parseUnits } = require("@ethersproject/units");
@@ -23,72 +24,23 @@ const ethers = require("ethers");
 const Web3 = require("web3");
 
 class Swapper {
-  constructor(options) {
-    //  console.log("swapper options", options);
+  constructor(exchange, wallet) {
+    this.options = exchangeConfig[exchange];
+    this.wallet = wallet;
+    console.log("swapper options", exchange, this.options, this.wallet);
     this.gasPrice = 0;
     this.mainChainId =
-      options.chainId === 56 ? ChainId.MAINNET : ChainId.TESTNET;
-    const WBNB = WETH[this.mainChainId];
-    const CAKE = new Token(
-      this.mainChainId,
-      "0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82",
-      18,
-      "CAKE",
-      "PancakeSwap Token"
-    );
-    const DAI = new Token(
-      this.mainChainId,
-      "0x1AF3F329e8BE154074D8769D1FFa4eE058B1DBc3",
-      18,
-      "DAI",
-      "Dai Stablecoin"
-    );
-    const BUSD = new Token(
-      this.mainChainId,
-      "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56",
-      18,
-      "BUSD",
-      "Binance USD"
-    );
-    const BTCB = new Token(
-      this.mainChainId,
-      "0x7130d2A12B9BCbFAe4f2634d864A1Ee1Ce3Ead9c",
-      18,
-      "BTCB",
-      "Binance BTC"
-    );
-    const USDT = new Token(
-      this.mainChainId,
-      "0x55d398326f99059fF775485246999027B3197955",
-      18,
-      "USDT",
-      "Tether USD"
-    );
-    const UST = new Token(
-      this.mainChainId,
-      "0x23396cF899Ca06c4472205fC903bDB4de249D6fC",
-      18,
-      "UST",
-      "Wrapped UST Token"
-    );
-    const ETH = new Token(
-      this.mainChainId,
-      "0x2170Ed0880ac9A755fd29B2688956BD959F933F8",
-      18,
-      "ETH",
-      "Binance-Peg Ethereum Token"
-    );
-    this.BASE_TOKEN = WBNB;
-    this.TRADE_TOKENS = [WBNB, DAI, BUSD, BTCB, USDT, UST, ETH];
-
+      this.options.chainId === ChainId.MAINNET
+        ? ChainId.MAINNET
+        : ChainId.TESTNET;
+    this.BASE_TOKEN = WETH[this.mainChainId];
     this.tradeOptions = {
       maxHops: 3,
       maxNumResults: 1,
     };
-    this.options = options;
-    this.web3 = new Web3(options.provider);
+    this.web3 = new Web3(this.options.provider);
     this.activateAccount = this.web3.eth.accounts.privateKeyToAccount(
-      options.wallet.key
+      this.wallet.key
     );
     this.swapOptions = {
       feeOnTransfer: false,
@@ -99,17 +51,16 @@ class Swapper {
       recipient: this.activateAccount.address, //account address
       ttl: 60 * 2,
     };
-    this.provider = new ethers.providers.JsonRpcProvider(options.provider);
-    //  console.log('this.provider', this.provider)
-    this.wallet = new ethers.Wallet(options.wallet.key, this.provider);
+    this.provider = new ethers.providers.JsonRpcProvider(this.options.provider);
+    this.wallet = new ethers.Wallet(this.wallet.key, this.provider);
     this.accountSwapContract = new ethers.Contract(
-      options.address.router,
+      this.options.address.router,
       IUniswapV2Router02.abi,
       this.provider
     ).connect(this.wallet);
     this.routerContract = new this.web3.eth.Contract(
       IUniswapV2Router02.abi,
-      options.address.router
+      this.options.address.router
     ); //路由合约
   }
   async init(product, isSell = false) {

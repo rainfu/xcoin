@@ -1,18 +1,12 @@
 "use strict";
 
 //  ---------------------------------------------------------------------------
-
+const exchangeConfig = require("./Const.json");
 const ccxt = require("ccxt");
 const Exchange = ccxt.Exchange;
 const ExchangeError = ccxt.ExchangeError;
-const { Swapper } = require("./defi/Swapper");
-const {
-  ApolloClient,
-  InMemoryCache,
-  useQuery,
-  gql,
-  HttpLink,
-} = require("@apollo/client");
+const { Swapper } = require("./PancakeswapSwapper");
+const { ApolloClient, InMemoryCache, HttpLink } = require("@apollo/client");
 const { fetch } = require("cross-fetch");
 const {
   getRecentHotTokens,
@@ -26,9 +20,8 @@ const {
   getPoolWithHour,
   getPoolWithDay,
   getBundle,
-} = require("./defi/PanQuery");
+} = require("./Query");
 const tb = require("timebucket");
-const readline = require("readline");
 module.exports = class pancakeswap extends Exchange {
   describe() {
     return this.deepExtend(super.describe(), {
@@ -56,40 +49,21 @@ module.exports = class pancakeswap extends Exchange {
         fetchTickers: true,
         fetchTrades: true,
       },
-      urls: {
-        logo: "https://user-images.githubusercontent.com/51840849/87182086-1cd4cd00-c2ec-11ea-9ec4-d0cf2a2abf62.jpg",
-        api: {
-          bscscan: "https://api.bscscan.com/api",
-          public: "https://api.pancakeswap.com",
-          files: "https://files.pancakeswap.com",
-          charts: "https://graph.pancakeswap.com",
-        },
-        www: "https://pancakeswap.com",
-        doc: "https://pancakeswap.com/api",
-      },
+      urls: {},
       requiredCredentials: {
         apiKey: false,
         secret: false,
       },
-      api: {
-        files: {
-          get: ["generated/stats/global.json"],
-        },
-        graphs: {
-          get: ["currencies/{name}/"],
-        },
-        public: {
-          get: ["ticker/", "ticker/{id}/", "global/"],
-        },
-      },
+      api: {},
     });
   }
   constructor(userConfig = {}) {
     super(userConfig);
-    this.swapper = new Swapper(this.options);
-    this.baseTokenAddress = this.options.address.wbnb.toLowerCase();
+    this.swapper = new Swapper(this.exchange, this.wallet);
+    this.baseTokenAddress =
+      exchangeConfig[this.exchange].currency.toLowerCase();
     this.apolloClient = new ApolloClient({
-      link: new HttpLink({ uri: this.options.graphql, fetch }),
+      link: new HttpLink({ uri: exchangeConfig[this.exchange].graphql, fetch }),
       cache: new InMemoryCache(),
       shouldBatch: true,
     });
@@ -112,7 +86,7 @@ module.exports = class pancakeswap extends Exchange {
     res = await getToken(
       this.apolloClient,
       opts.token,
-      this.options.api.bscscan,
+      exchangeConfig[this.exchange].scankey,
       true
     );
     console.log("fetchToken ok", res);
@@ -178,7 +152,7 @@ module.exports = class pancakeswap extends Exchange {
         symbol = await getTokenExtraInfo(
           null,
           symbol,
-          this.options.api.bscscan
+          exchangeConfig[this.exchange].scankey
         );
       } catch (e) {
         console.log("getTokenExtraInfo error", e);
@@ -241,7 +215,7 @@ module.exports = class pancakeswap extends Exchange {
       const res = await getTokenByAsset(
         this.apolloClient,
         products[i].asset,
-        this.options.api.bscscan,
+        exchangeConfig[this.exchange].scankey,
         true
       );
       if (!res) continue;
@@ -335,10 +309,13 @@ module.exports = class pancakeswap extends Exchange {
   ) {
     let url;
     if (api === "bscscan") {
-      url = this.urls["api"][api] + "/" + this.implodeParams(path, params);
+      url =
+        exchangeConfig[this.exchange].scan +
+        "/" +
+        this.implodeParams(path, params);
     } else {
       url =
-        this.urls["api"][api] +
+        exchangeConfig[this.exchange].scan +
         "/" +
         this.version +
         "/" +

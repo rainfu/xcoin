@@ -1,21 +1,24 @@
 const path = require("path"),
   // eslint-disable-next-line no-unused-vars
   colors = require("colors"),
-  exchagneId = "pancakeswap",
   moment = require("moment"),
   tb = require("timebucket"),
   HttpsProxyAgent = require("https-proxy-agent"),
-  pancakeswap = require("./pancakeswap"),
+  pancakeswap = require("./lib/pancakeswap"),
   options = {};
 module.exports = function container(conf, so, inOptions) {
   var authed_client;
   var logger = conf.logger;
+  let exchagneId = so.exchange || "ccxt";
+  let ccxt = {
+    pancakeswap,
+  };
+  if (inOptions) {
+    options = Object.assign(options, inOptions);
+  }
   function authedClient() {
     if (!authed_client) {
-      if (
-        !conf.secret.keys[exchagneId] ||
-        !conf.secret.keys[exchagneId].api.bscscan
-      ) {
+      if (!conf.secret.keys[exchagneId]) {
         throw new Error(
           "please configure your " +
             exchagneId +
@@ -23,14 +26,9 @@ module.exports = function container(conf, so, inOptions) {
             path.resolve(__dirname, "conf.js")
         );
       }
-      /* if (conf.in_test) {
-        conf.secret.keys[exchagneId].chainId = 97
-      } */
-      authed_client = new pancakeswap({
-        apiKey: conf.secret.keys[exchagneId].api.bscscan,
-        secret: "",
-        options: conf.secret.keys[exchagneId],
-        enableRateLimit: true,
+      authed_client = new ccxt[exchagneId]({
+        wallet: conf.secret.keys[exchagneId].wallet,
+        exchange: exchagneId,
       });
       setProxy(authed_client);
     }

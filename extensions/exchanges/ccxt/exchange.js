@@ -1,6 +1,7 @@
 const ccxt = require("ccxt"),
   path = require("path"),
   _ = require("lodash"),
+  colors = require("colors"),
   tb = require("timebucket"),
   HttpsProxyAgent = require("https-proxy-agent"),
   filterSymbols = require("../../../lib/filter-symbol");
