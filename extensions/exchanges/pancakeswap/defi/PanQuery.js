@@ -125,6 +125,8 @@ const GET_POOL = gql`
     pool(id: $id) {
       id
       createdAtTimestamp
+      token0Price
+      token1Price
       token0 {
         id
         symbol
@@ -133,8 +135,6 @@ const GET_POOL = gql`
         id
         symbol
       }
-      token0Price
-      token1Price
     }
   }
 `;
@@ -193,6 +193,9 @@ const GET_POOLS = gql`
   query getpools($pools: [Bytes]!) {
     pools(where: { id_in: $pools }) {
       id
+      token0Price
+      token1Price
+      createdAtTimestamp
       token0 {
         id
         symbol
@@ -201,9 +204,6 @@ const GET_POOLS = gql`
         id
         symbol
       }
-      token0Price
-      token1Price
-      createdAtTimestamp
     }
   }
 `;
@@ -270,7 +270,7 @@ const getRecentHotTokens = async (client, since = 0, limit = 1000) => {
   return result.data.tokenDayDatas;
 };
 const getTokens = async (client, tokens) => {
-  // console.log("getPools", pools);
+  // console.log("getTokens", pools);
   let result = await client.query({
     query: GET_TOKENS,
     variables: {
@@ -386,6 +386,7 @@ const getPool = async (client, id, token0, token1) => {
       variables: {
         id,
       },
+      fetchPolicy: "network-only",
     });
     //  console.log("result", result);
     return result.data.pool;
@@ -407,9 +408,13 @@ const getPools = async (client, pools) => {
     variables: {
       pools,
     },
-    fetchPolicy: "cache-first",
+    fetchPolicy: "network-only",
   });
-  //console.log("getPools ok", result);
+  /* console.log(
+    "\ngetPools ok".cyan,
+    result.data.pools[3].token1.symbol,
+    result.data.pools[3].token0Price 
+  );*/
   return result.data.pools;
 };
 
