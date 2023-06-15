@@ -5,7 +5,7 @@ const exchangeConfig = require("./Const.json");
 const ccxt = require("ccxt");
 const Exchange = ccxt.Exchange;
 const ExchangeError = ccxt.ExchangeError;
-const { Swapper } = require("./PancakeswapSwapper");
+const { Swapper } = require("./UniswapSwapper");
 const { ApolloClient, InMemoryCache, HttpLink } = require("@apollo/client");
 const { fetch } = require("cross-fetch");
 const {
@@ -22,11 +22,11 @@ const {
   getBundle,
 } = require("./Query");
 const tb = require("timebucket");
-module.exports = class pancakeswap extends Exchange {
+module.exports = class uniswap extends Exchange {
   describe() {
     return this.deepExtend(super.describe(), {
-      id: "pancakeswap",
-      name: "pancakeswap",
+      id: "uniswap",
+      name: "uniswap",
       defi: true,
       rateLimit: 10000,
       version: "v1",
@@ -102,11 +102,11 @@ module.exports = class pancakeswap extends Exchange {
   async fetchMarkets(opts, params = {}) {
     let products = [];
     try {
-      products = require(`../../../data/exchanges/pancakeswap_products.json`);
+      products = require(`../../../data/exchanges/uniswap_products.json`);
     } catch (e) {}
     let blacklist = [];
     try {
-      blacklist = require(`../../../data/exchanges/pancakeswap_blacklist.json`);
+      blacklist = require(`../../../data/exchanges/uniswap_blacklist.json`);
     } catch (e) {}
     console.log("products", products.length, "blacklist", blacklist.length);
     let newTokenList = [];
@@ -308,7 +308,7 @@ module.exports = class pancakeswap extends Exchange {
     body = undefined
   ) {
     let url;
-    if (api === "bscscan") {
+    if (api === "scan") {
       url =
         exchangeConfig[this.exchange].scan +
         "/" +
@@ -368,7 +368,7 @@ module.exports = class pancakeswap extends Exchange {
     };
     let response = await this.request(
       "",
-      "bscscan",
+      "scan",
       "GET",
       this.extend(request, params)
     );
@@ -385,7 +385,7 @@ module.exports = class pancakeswap extends Exchange {
       };
       response = await this.request(
         "",
-        "bscscan",
+        "scan",
         "GET",
         this.extend(request, params)
       ); */

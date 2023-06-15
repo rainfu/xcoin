@@ -32,10 +32,17 @@ module.exports = function (program, conf) {
           `../extensions/exchanges/${so.exchange}/exchange`
         ))(conf, so);
       } catch (e) {
-        exchange = require(path.resolve(
-          __dirname,
-          `../extensions/exchanges/ccxt/exchange`
-        ))(conf, so);
+        if (so.defi) {
+          exchange = require(path.resolve(
+            __dirname,
+            "../extensions/exchanges/defi/exchange"
+          ))(conf, so);
+        } else {
+          exchange = require(path.resolve(
+            __dirname,
+            "../extensions/exchanges/ccxt/exchange"
+          ))(conf, so);
+        }
       }
       if (!exchange) {
         console.error("exchange not implemented");

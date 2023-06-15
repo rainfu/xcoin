@@ -27,7 +27,17 @@ try {
         s.exchange = require(path.resolve(__dirname, `../extensions/exchanges/${so.exchange}/exchange`))(conf, so)
       }
     } catch (e) {
-      s.exchange = require(path.resolve(__dirname, '../extensions/exchanges/ccxt/exchange'))(conf, so)
+     if (so.defi) {
+          s.exchange = require(path.resolve(
+            __dirname,
+            "../extensions/exchanges/defi/exchange"
+          ))(conf, so);
+        } else {
+          s.exchange = require(path.resolve(
+            __dirname,
+            "../extensions/exchanges/ccxt/exchange"
+          ))(conf, so);
+        }
     }
 ```
 

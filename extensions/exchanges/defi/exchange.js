@@ -5,6 +5,7 @@ const path = require("path"),
   tb = require("timebucket"),
   HttpsProxyAgent = require("https-proxy-agent"),
   pancakeswap = require("./lib/pancakeswap"),
+  uniswap = require("./lib/uniswap"),
   options = {};
 module.exports = function container(conf, so, inOptions) {
   var authed_client;
@@ -12,6 +13,7 @@ module.exports = function container(conf, so, inOptions) {
   let exchagneId = so.exchange || "ccxt";
   let ccxt = {
     pancakeswap,
+    uniswap,
   };
   if (inOptions) {
     options = Object.assign(options, inOptions);
