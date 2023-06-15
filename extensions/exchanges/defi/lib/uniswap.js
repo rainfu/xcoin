@@ -204,9 +204,9 @@ module.exports = class uniswap extends Exchange {
   }
   async fetchProducts(products, params = {}) {
     let newTokenList = [];
-    // console.log("fetchProducts ", products);
+    console.log("fetchProducts ", products);
     let symbols = products.map((s) => s.asset);
-    // console.log("fetchProducts 2", symbols);
+    console.log("fetchProducts 2", symbols);
     for (let i = 0; i < products.length; i++) {
       let symbol = {
         quote: this.baseTokenAddress,

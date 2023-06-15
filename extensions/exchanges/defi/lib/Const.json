@@ -17,14 +17,14 @@
       "chainId": 56
     },
     "uniswap": {
-      "currency":"0x2170ed0880ac9a755fd29b2688956bd959f933f8",
+      "currency":"0xf9ba5210f91d0474bd1e1dcdaec4c58e359aad85",
       "address": {
         "router": "0x10ed43c718714eb63d5aa57b78b54704e256024e",
-        "factory": "0xca143ce32fe78f1f7019d7d551a6402fc5350c73",
+        "factory": "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f",
         "wbnb": "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c",
         "busd": "0xe9e7cea3dedca5984780bafc599bd69add087d56",
         "usdt": "0x55d398326f99059ff775485246999027b3197955",
-        "eth": "0x2170ed0880ac9a755fd29b2688956bd959f933f8"
+        "eth": "0xf9ba5210f91d0474bd1e1dcdaec4c58e359aad85"
       },
       "scan": "https://api.bscscan.com/api",
       "scankey": "V433U58M7ZWPZ38PMPJS1HVS5AF7S5F9WZ",
