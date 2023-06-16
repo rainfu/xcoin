@@ -9,6 +9,7 @@
         "eth": "0x2170ed0880ac9a755fd29b2688956bd959f933f8"
       },
       "scan": "https://api.bscscan.com/api",
+      "scansite": "https://bscscan.com",
       "scankey": "V433U58M7ZWPZ38PMPJS1HVS5AF7S5F9WZ",
       "provider": "https://rpc.ankr.com/bsc",
       "provider_bak":"https://bsc.meowrpc.com",
@@ -24,6 +25,7 @@
         "usdt": "0xdac17f958d2ee523a2206206994597c13d831ec7",
         "eth": "0xf9ba5210f91d0474bd1e1dcdaec4c58e359aad85"
       },
+      "scansite": "https://etherscan.io",
       "scan": "https://api.etherscan.io/api",
       "scankey": "TPHS7AW51H7RY549SB2YEVVB3T1GYUNBB6",
       "provider": "https://rpc.ankr.com/eth",

@@ -153,6 +153,7 @@ module.exports = class pancakeswap extends Exchange {
         symbol = await getTokenExtraInfo(
           null,
           symbol,
+          exchangeConfig[this.exchange].scansite,
           exchangeConfig[this.exchange].scan,
           exchangeConfig[this.exchange].scankey
         );
@@ -217,6 +218,7 @@ module.exports = class pancakeswap extends Exchange {
       const res = await getTokenByAsset(
         this.apolloClient,
         products[i].asset,
+        exchangeConfig[this.exchange].scansite,
         exchangeConfig[this.exchange].scan,
         exchangeConfig[this.exchange].scankey,
         true
@@ -257,7 +259,7 @@ module.exports = class pancakeswap extends Exchange {
         }
       }
     }
-    console.log("fetchProducts ok", newTokenList);
+    // console.log("fetchProducts ok", newTokenList);
     return { newTokenList };
   }
   parseTicker(ticker, pairDayData, market = undefined) {
@@ -328,7 +330,6 @@ module.exports = class pancakeswap extends Exchange {
     if (Object.keys(query).length) {
       url += "?" + this.urlencode(query);
     }
-    console.log("url", url);
     return { url: url, method: method, body: body, headers: headers };
   }
 
@@ -360,8 +361,7 @@ module.exports = class pancakeswap extends Exchange {
     return balance;
   }
   async fetchOrder(id, params = {}) {
-    //  https://api.bscscan.com/api?module=account&action=txlistinternal&txhash=0x651c965d8c9396deccd1128b178ea76f27a4cd8099862a3d941130d9201cf8c0&apikey=V433U58M7ZWPZ38PMPJS1HVS5AF7S5F9WZ
-    // https://api.bscscan.com/api/?txhash=0x651c965d8c9396deccd1128b178ea76f27a4cd8099862a3d941130d9201cf8c0&apiKey=V433U58M7ZWPZ38PMPJS1HVS5AF7S5F9WZ&module=transaction&action=gettxreceiptstatus&req_time=1686466270
+    // txhash=0x651c965d8c9396deccd1128b178ea76f27a4cd8099862a3d941130d9201cf8c0&apiKey=V433U58M7ZWPZ38PMPJS1HVS5AF7S5F9WZ&module=transaction&action=gettxreceiptstatus&req_time=1686466270
     let request = {
       txhash: id,
       apiKey: exchangeConfig[this.exchange].scankey,

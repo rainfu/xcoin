@@ -148,7 +148,7 @@ class Swapper {
   //获取账户的现金余额
   async getBalances(tokens) {
     //get all tokens balance
-    //https://bscscan.com/tokenholdings?a=0x84ef59061F0a8C8f23875B40716c41F875f2422A
+    //tokenholdings?a=0x84ef59061F0a8C8f23875B40716c41F875f2422A
     const walletAddress = await this.wallet.getAddress();
     // console.log("tokens", tokens);
     let balance = {};

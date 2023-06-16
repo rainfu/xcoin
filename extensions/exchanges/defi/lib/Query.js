@@ -229,6 +229,7 @@ const getToken = async (
   client,
   tokenAddress,
   url = "",
+  apiUrl = "",
   apiKey = "",
   withInfo = true
 ) => {
@@ -241,7 +242,7 @@ const getToken = async (
   });
   token = result.data.token;
   if (withInfo) {
-    token = await getTokenExtraInfo(token, null, url, apiKey);
+    token = await getTokenExtraInfo(token, null, url, apiUrl, apiKey);
   }
   //console.log('getToken', token)
   return token;
@@ -251,6 +252,7 @@ const getTokenByAsset = async (
   client,
   asset,
   url = "",
+  apiUrl = "",
   apiKey = "",
   withInfo = true
 ) => {
@@ -265,7 +267,7 @@ const getTokenByAsset = async (
   if (!result.data.tokens.length) return null;
   token = result.data.tokens[0];
   if (withInfo) {
-    token = await getTokenExtraInfo(token, null, url, apiKey);
+    token = await getTokenExtraInfo(token, null, url, apiUrl, apiKey);
   }
   // console.log("getToken", token);
   return token;
@@ -327,10 +329,10 @@ const getTokenWithPool = async (
   return result.data.token;
 };
 
-const getTokenExtraInfo = async (token, symbol, url, apiKey) => {
+const getTokenExtraInfo = async (token, symbol, url, apiUrl, apiKey) => {
   console.log(
     "getTokenExtraInfo",
-    url +
+    apiUrl +
       "?module=contract&action=getsourcecode&address=" +
       (token ? token.id : symbol.base) +
       "&apikey=" +
@@ -339,7 +341,7 @@ const getTokenExtraInfo = async (token, symbol, url, apiKey) => {
   var output = JSON.parse(JSON.stringify(token ? token : symbol));
   var address = token ? token.id : symbol.base;
   const { data } = await axios(
-    url +
+    apiUrl +
       "?module=contract&action=getsourcecode&address=" +
       address +
       "&apikey=" +
@@ -357,8 +359,8 @@ const getTokenExtraInfo = async (token, symbol, url, apiKey) => {
   } catch {}
   // console.log('outputoutputoutputoutput', output);
   try {
-    const url = "https://bscscan.com/token/" + address;
-    const res = await axios(url);
+    const link = url + "/token/" + address;
+    const res = await axios(link);
     const $ = cheerio.load(res.data);
     const symbol = $(".card-body .hash-tag.text-truncate").next().text() || "";
     // console.log('xxxxxx', symbol)

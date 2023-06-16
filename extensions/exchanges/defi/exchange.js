@@ -709,8 +709,7 @@ module.exports = function container(conf, so, inOptions) {
       var func_args = [].slice.call(arguments);
       var client = authedClient();
       var order = orders["~" + opts.order_id] || {};
-      // https://api.bscscan.com/?txhash=0xe9975702518c79caf81d5da65dea689dcac701fcdd063f848d4f03c85392fd00&api_key=V433U58M7ZWPZ38PMPJS1HVS5AF7S5F9WZ&module=transaction&action=gettxreceiptstatus\
-      // https://api.bscscan.com/api?module=transaction&action=gettxreceiptstatus&txhash=0xe9975702518c79caf81d5da65dea689dcac701fcdd063f848d4f03c85392fd00&apikey=YourApiKeyToken
+      // module=transaction&action=gettxreceiptstatus&txhash=0xe9975702518c79caf81d5da65dea689dcac701fcdd063f848d4f03c85392fd00&apikey=YourApiKeyToken
       client.fetchOrder(opts.order_id).then(
         function (body) {
           console.log("getOrder", body);

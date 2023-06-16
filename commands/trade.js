@@ -149,6 +149,7 @@ module.exports = function (program, conf) {
             so.symbols = symbolsIds.map((symbol) => {
               return helpers.objectifySelector(symbol);
             });
+            engine.initSymbols(so.symbols);
             run(0, products);
           }, true);
           return;
