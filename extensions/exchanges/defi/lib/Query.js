@@ -225,7 +225,13 @@ const GET_TOKEN_BY_ASSET = gql`
   }
 `;
 
-const getToken = async (client, tokenAddress, apiKey = "", withInfo = true) => {
+const getToken = async (
+  client,
+  tokenAddress,
+  url = "",
+  apiKey = "",
+  withInfo = true
+) => {
   let result, token;
   result = await client.query({
     query: GET_TOKEN,
@@ -235,13 +241,19 @@ const getToken = async (client, tokenAddress, apiKey = "", withInfo = true) => {
   });
   token = result.data.token;
   if (withInfo) {
-    token = await getTokenExtraInfo(token, null, apiKey);
+    token = await getTokenExtraInfo(token, null, url, apiKey);
   }
   //console.log('getToken', token)
   return token;
 };
 
-const getTokenByAsset = async (client, asset, apiKey = "", withInfo = true) => {
+const getTokenByAsset = async (
+  client,
+  asset,
+  url = "",
+  apiKey = "",
+  withInfo = true
+) => {
   let result, token;
   result = await client.query({
     query: GET_TOKEN_BY_ASSET,
@@ -253,7 +265,7 @@ const getTokenByAsset = async (client, asset, apiKey = "", withInfo = true) => {
   if (!result.data.tokens.length) return null;
   token = result.data.tokens[0];
   if (withInfo) {
-    token = await getTokenExtraInfo(token, null, apiKey);
+    token = await getTokenExtraInfo(token, null, url, apiKey);
   }
   // console.log("getToken", token);
   return token;
@@ -315,18 +327,20 @@ const getTokenWithPool = async (
   return result.data.token;
 };
 
-const getTokenExtraInfo = async (token, symbol, apiKey) => {
-  /* console.log(
+const getTokenExtraInfo = async (token, symbol, url, apiKey) => {
+  console.log(
     "getTokenExtraInfo",
-    "https://api.bscscan.com/api?module=contract&action=getsourcecode&address=" +
+    url +
+      "?module=contract&action=getsourcecode&address=" +
       (token ? token.id : symbol.base) +
       "&apikey=" +
       apiKey
-  ); */
+  );
   var output = JSON.parse(JSON.stringify(token ? token : symbol));
   var address = token ? token.id : symbol.base;
   const { data } = await axios(
-    "https://api.bscscan.com/api?module=contract&action=getsourcecode&address=" +
+    url +
+      "?module=contract&action=getsourcecode&address=" +
       address +
       "&apikey=" +
       apiKey

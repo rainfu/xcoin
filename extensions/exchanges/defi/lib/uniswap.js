@@ -86,6 +86,7 @@ module.exports = class uniswap extends Exchange {
     res = await getToken(
       this.apolloClient,
       opts.token,
+      exchangeConfig[this.exchange].scan,
       exchangeConfig[this.exchange].scankey,
       true
     );
@@ -152,6 +153,7 @@ module.exports = class uniswap extends Exchange {
         symbol = await getTokenExtraInfo(
           null,
           symbol,
+          exchangeConfig[this.exchange].scan,
           exchangeConfig[this.exchange].scankey
         );
       } catch (e) {
@@ -215,6 +217,7 @@ module.exports = class uniswap extends Exchange {
       const res = await getTokenByAsset(
         this.apolloClient,
         products[i].asset,
+        exchangeConfig[this.exchange].scan,
         exchangeConfig[this.exchange].scankey,
         true
       );

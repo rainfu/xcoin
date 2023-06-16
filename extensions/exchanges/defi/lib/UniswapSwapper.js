@@ -27,7 +27,7 @@ class Swapper {
   constructor(exchange, wallet) {
     this.options = exchangeConfig[exchange];
     this.wallet = wallet;
-    console.log("swapper options", exchange, this.options, this.wallet);
+    //  console.log("swapper options", exchange, this.options, this.wallet);
     this.gasPrice = 0;
     this.mainChainId =
       this.options.chainId === ChainId.MAINNET

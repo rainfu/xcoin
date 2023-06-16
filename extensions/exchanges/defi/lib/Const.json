@@ -3,7 +3,6 @@
       "currency":"0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c",
       "address": {
         "router": "0x10ed43c718714eb63d5aa57b78b54704e256024e",
-        "factory": "0xca143ce32fe78f1f7019d7d551a6402fc5350c73",
         "wbnb": "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c",
         "busd": "0xe9e7cea3dedca5984780bafc599bd69add087d56",
         "usdt": "0x55d398326f99059ff775485246999027b3197955",
@@ -12,25 +11,24 @@
       "scan": "https://api.bscscan.com/api",
       "scankey": "V433U58M7ZWPZ38PMPJS1HVS5AF7S5F9WZ",
       "provider": "https://rpc.ankr.com/bsc",
-      "ws": "wss://bsc-ws-node.nariox.org:443",
+      "provider_bak":"https://bsc.meowrpc.com",
       "graphql": "https://api.thegraph.com/subgraphs/name/pancakeswap/exchange-v3-bsc",
       "chainId": 56
     },
     "uniswap": {
       "currency":"0xf9ba5210f91d0474bd1e1dcdaec4c58e359aad85",
       "address": {
-        "router": "0x10ed43c718714eb63d5aa57b78b54704e256024e",
-        "factory": "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f",
-        "wbnb": "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c",
-        "busd": "0xe9e7cea3dedca5984780bafc599bd69add087d56",
-        "usdt": "0x55d398326f99059ff775485246999027b3197955",
+        "router": "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f",
+        "bnb": "0xB8c77482e45F1F44dE1745F52C74426C631bDD52",
+        "busd": "0x4fabb145d64652a948d72533023f6e7a623c7c53",
+        "usdt": "0xdac17f958d2ee523a2206206994597c13d831ec7",
         "eth": "0xf9ba5210f91d0474bd1e1dcdaec4c58e359aad85"
       },
-      "scan": "https://api.bscscan.com/api",
-      "scankey": "V433U58M7ZWPZ38PMPJS1HVS5AF7S5F9WZ",
-      "provider": "https://rpc.ankr.com/bsc",
-      "ws": "wss://bsc-ws-node.nariox.org:443",
-      "graphql": "https://api.thegraph.com/subgraphs/name/pancakeswap/exchange-v3-bsc",
+      "scan": "https://api.etherscan.io/api",
+      "scankey": "TPHS7AW51H7RY549SB2YEVVB3T1GYUNBB6",
+      "provider": "https://rpc.ankr.com/eth",
+      "provider_bak":"https://cloudflare-eth.com/",
+      "graphql": "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3",
       "chainId": 56
     }
   }

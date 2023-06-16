@@ -116,7 +116,7 @@ module.exports = function (program, conf) {
       so.symbols = symbolsIds.map((symbol) => {
         return helpers.objectifySelector(symbol);
       });
-      // console.log('so,', so.symbols)
+      // console.log("so,", so.symbols);
       // return
       var target = require("path").resolve(
         __dirname,
@@ -146,16 +146,19 @@ module.exports = function (program, conf) {
               so.exchange.cyan + " refreshProducts to ".green,
               products.length.toString().yellow
             );
-            run(0);
+            so.symbols = symbolsIds.map((symbol) => {
+              return helpers.objectifySelector(symbol);
+            });
+            run(0, products);
           }, true);
           return;
         }
-        run(0);
+        run(0, products);
       }, false);
       /**
        * start the main bot loop
        */
-      function run(code = 0) {
+      function run(code = 0, products) {
         if (so.defi) {
           so.symbols = s.exchange.updateSymbols(products);
           let notExitProducts = symbolsIds.filter((symbol) => {
@@ -176,7 +179,7 @@ module.exports = function (program, conf) {
             }, 60000);
           }
         }
-        logger.info("\nStart get purchased asset".cyan);
+        logger.info("\nStart get purchased asset".cyan, so.symbols.length);
         engine.initExchange((err, longSymbols, balance) => {
           s.balance.start_capital = balance.currency;
           s.balance.currency = balance.currency;
