@@ -19,7 +19,7 @@ const {
   Trade,
   TradeType,
   Router,
-} = require("@pancakeswap/sdk");
+} = require("@uniswap/sdk");
 const ethers = require("ethers");
 const Web3 = require("web3");
 
@@ -27,12 +27,12 @@ class Swapper {
   constructor(exchange, wallet) {
     this.options = exchangeConfig[exchange];
     this.wallet = wallet;
-    //  console.log("swapper options", exchange, this.options, this.wallet);
     this.gasPrice = 0;
     this.mainChainId =
       this.options.chainId === ChainId.MAINNET
         ? ChainId.MAINNET
-        : ChainId.TESTNET;
+        : ChainId.ROPSTEN;
+    this.options.chainId === ChainId.MAINNET;
     this.BASE_TOKEN = WETH[this.mainChainId];
     this.tradeOptions = {
       maxHops: 3,
@@ -70,7 +70,7 @@ class Swapper {
         product.currency.toLowerCase() === this.BASE_TOKEN.address.toLowerCase()
       ) {
         this.inputToken = this.BASE_TOKEN;
-        console.log("input is wbnb");
+        console.log("input is weth");
       } else {
         this.inputToken = new Token(
           this.mainChainId,
@@ -95,7 +95,7 @@ class Swapper {
         product.currency.toLowerCase() === this.BASE_TOKEN.address.toLowerCase()
       ) {
         this.outputToken = this.BASE_TOKEN;
-        console.log("output is wbnb");
+        console.log("output is weth");
       } else {
         this.outputToken = new Token(
           this.mainChainId,

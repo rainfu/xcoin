@@ -330,14 +330,14 @@ const getTokenWithPool = async (
 };
 
 const getTokenExtraInfo = async (token, symbol, url, apiUrl, apiKey) => {
-  console.log(
+  /* console.log(
     "getTokenExtraInfo",
     apiUrl +
       "?module=contract&action=getsourcecode&address=" +
       (token ? token.id : symbol.base) +
       "&apikey=" +
       apiKey
-  );
+  ); */
   var output = JSON.parse(JSON.stringify(token ? token : symbol));
   var address = token ? token.id : symbol.base;
   const { data } = await axios(
@@ -357,39 +357,78 @@ const getTokenExtraInfo = async (token, symbol, url, apiUrl, apiKey) => {
       console.log("error..", data);
     }
   } catch {}
-  // console.log('outputoutputoutputoutput', output);
   try {
     const link = url + "/token/" + address;
     const res = await axios(link);
     const $ = cheerio.load(res.data);
-    const symbol = $(".card-body .hash-tag.text-truncate").next().text() || "";
-    // console.log('xxxxxx', symbol)
+    if (url.indexOf("etherscan") >= 0) {
+      const symbol = $("#ContentPlaceHolder1_hdnSymbol").attr("value") || "";
+      output["total_supply"] =
+        parseFloat(
+          $(".card-body .hash-tag.text-truncate").text().split(",").join("")
+        ) || "";
+      let holders = $("#ContentPlaceHolder1_tr_tokenHolders")
+        .text()
+        .replace("Holders", "")
+        .replace(/\n/g, "")
+        .replace(/\(.*?\)/g, "")
+        .replace(/,/g, "")
+        .trim();
+      output["holders"] = parseInt(holders) || "";
+      output["symbol"] = symbol;
+      /**
+       * 
+       * <li><a class='dropdown-item text-truncate' href='https://renq.io/' rel='nofollow' target='_blank' style='max-width: 15rem;'><i class='far fa-link fa-fw dropdown-item-icon me-1.5'></i><span title='https://renq.io/' data-bs-toggle='tooltip' data-bs-trigger='hover'>https://renq.io/</span></a></li><li><hr class='dropdown-divider'></li>
+       * <li><a class='dropdown-item' target='_blank' href='https://coinmarketcap.com/currencies/renq-finance/'><img id='cmc_logo' src='/images/cmc_new.svg' class='dark:filter-invert-60 me-1.5' width='14'>CoinMarketCap</a></li><li><a class='dropdown-item' target='_blank' href='https://www.coingecko.com/en/coins/renq-finance/'><img id='coingecko_logo' src='/images/coingecko_new.svg' class='dark:filter-invert-60 me-1.5' width='14'>CoinGecko</a></li><li><hr class='dropdown-divider'></li><li><a class='dropdown-item' href="/cdn-cgi/l/email-protection#d1a2a4a1a1bea3a591a3b4bfa0ffb8be"><i class='far fa-envelope fa-fw dropdown-item-icon me-1.5'></i>E-mail</a></li><li><a class='dropdown-item' rel='nofollow' target='_blank' href='https://medium.com/@renq'><i class='far fa-pen fa-fw dropdown-item-icon me-1.5'></i>Blog</a></li><li><a class='dropdown-item' rel='nofollow' target='_blank' href='https://www.reddit.com/r/renq'><span class='fab fa-reddit-square fa-fw dropdown-item-icon me-1.5'></span>Reddit</a></li><li><a class='dropdown-item' rel='nofollow' target='_blank' href='https://www.facebook.com/renqfinance'><span class='fab fa-facebook-f fa-fw dropdown-item-icon me-1.5'></span>Facebook</a></li><li><a class='dropdown-item' rel='nofollow' target='_blank' href='https://twitter.com/RenQ_Finance'><i class='fab fa-twitter fa-fw dropdown-item-icon me-1.5'></i>Twitter</a></li><li><a class='dropdown-item' rel='nofollow' target='_blank' href='https://github.com/renqfinance'><i class='fab fa-github fa-fw dropdown-item-icon me-1.5'></i>Github</a></li><li><a class='dropdown-item' rel='nofollow' target='_blank' href='https://t.me/renqfinance'><span class='fab fa-telegram fa-fw dropdown-item-icon me-1.5'></span>Telegram</a></li><li><a class='dropdown-item' rel='nofollow' target='_blank' href='https://linkedin.com/company/renqfinance'><span class='fab fa-linkedin fa-fw dropdown-item-icon me-1.5'></span>LinkedIn</a></li><li><a class='dropdown-item' rel='nofollow' target='_blank' href='https://renq.io/whitepaper.pdf'><i class='far fa-pen fa-fw dropdown-item-icon me-1.5'></i>Whitepaper</a></li>
 
-    output["total_supply"] =
-      parseFloat(
-        $(".card-body .hash-tag.text-truncate").text().split(",").join("")
-      ) || "";
-    output["holders"] =
-      parseInt(
-        $("#ContentPlaceHolder1_tr_tokenHolders .mr-3")
-          .text()
-          .split(",")
-          .join("")
-      ) || "";
-    output["symbol"] = symbol;
-    output["site"] = $("#ContentPlaceHolder1_tr_officialsite_1 a").text() || "";
-    output["social"] = {};
-    $(".list-inline-item a.link-hover-secondary").each(function (i, elem) {
-      let ss = $(this).attr("data-original-title").split(": ");
-      if (ss.length) {
-        output["social"][ss[0].trim()] = ss[1].trim();
-      }
-    });
-    //  output["social"] = $(".list-inline-item a.link-hover-secondary").text() | '';
-    //  console.log(output);
+       */
+      try {
+        output["social"] = {};
+        let lis = $("#ContentPlaceHolder1_divSummary .dropdown-menu").first();
+        lis.children().each(function (i, elem) {
+          let liText = $(elem).text().trim();
+          if (i === 0) {
+            output["site"] = liText || "";
+          } else if (liText) {
+            let link = $(elem).children(0).attr("href");
+            output["social"][liText] = link;
+          }
+        });
+      } catch (e) {}
+      //  output["social"] = $(".list-inline-item a.link-hover-secondary").text() | '';
+      // console.log("output etherscan", output);
+    } else {
+      const symbol =
+        $(".card-body .hash-tag.text-truncate").next().text() || "";
+      // console.log("xxxxxx", res.data);
+
+      output["total_supply"] =
+        parseFloat(
+          $(".card-body .hash-tag.text-truncate").text().split(",").join("")
+        ) || "";
+      output["holders"] =
+        parseInt(
+          $("#ContentPlaceHolder1_tr_tokenHolders .mr-3")
+            .text()
+            .split(",")
+            .join("")
+        ) || "";
+      output["symbol"] = symbol;
+      output["site"] =
+        $("#ContentPlaceHolder1_tr_officialsite_1 a").text() || "";
+      output["social"] = {};
+      $(".list-inline-item a.link-hover-secondary").each(function (i, elem) {
+        let ss = $(this).attr("data-original-title").split(": ");
+        if (ss.length) {
+          output["social"][ss[0].trim()] = ss[1].trim();
+        }
+      });
+      //  output["social"] = $(".list-inline-item a.link-hover-secondary").text() | '';
+    }
   } catch (error) {
     console.log("error", error);
   }
+  console.log("getToken".cyan, output.symbol, "ok");
   return output;
 };
 

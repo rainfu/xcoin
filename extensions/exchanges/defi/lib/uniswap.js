@@ -119,6 +119,7 @@ module.exports = class uniswap extends Exchange {
     let minVolumeUSD = opts.minVolumeUSD || 100000;
     let maxVolumeUSD = opts.maxVolumeUSD || 50000000;
     let minTotalTransactions = opts.minTotalTransactions || 1000;
+    let minTotalVolumeUSD = opts.minTotalVolumeUSD || 100000;
     //  console.log('fetchMarkets', baseTokenAddress, since, minHolders, limit, minVolumeUSD, minReserveUSD, minTotalTransactions)
     if (since) {
       const query_start = tb().resize("1d").subtract(since).toMilliseconds();
@@ -195,21 +196,39 @@ module.exports = class uniswap extends Exchange {
                   ? fitPool.token0Price
                   : fitPool.token1Price,
             });
-            newTokenList.push(symbol);
+            let symbolTotalVolumeUSD =
+              (symbol.price &&
+                symbol.total_supply &&
+                2000 *
+                  parseFloat(symbol.total_supply) *
+                  parseFloat(symbol.price)) ||
+              0;
+            /* console.log(
+              "symbolTotalVolumeUSD",
+              symbol.base,
+              symbol.price,
+              symbol.total_supply,
+              symbolTotalVolumeUSD,
+              minTotalVolumeUSD
+            ); */
+            if (symbolTotalVolumeUSD > minTotalVolumeUSD) {
+              newTokenList.push(symbol);
+            } else {
+              blacklist.push(symbol);
+            }
           }
         }
       } else {
         blacklist.push(symbol);
       }
     }
-    console.log("newTokenList ok", newTokenList.length);
     return { newTokenList, blacklist };
   }
   async fetchProducts(products, params = {}) {
     let newTokenList = [];
-    console.log("fetchProducts ", products);
+    // console.log("fetchProducts ", products);
     let symbols = products.map((s) => s.asset);
-    console.log("fetchProducts 2", symbols);
+    //  console.log("fetchProducts 2", symbols);
     for (let i = 0; i < products.length; i++) {
       let symbol = {
         quote: this.baseTokenAddress,

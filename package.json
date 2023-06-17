@@ -28,7 +28,7 @@
     "mexc": "pm2 start ./config/mexc.config.js",
     "xcoin": "pm2 start ./data/pm2/xcoin.config.js",
     "ciiat": "pm2 start ./data/pm2/ciiat.config.js",
-    "defi": "pm2 start ./data/pm2/defi.config.js",
+    "uniswap": "pm2 start ./data/pm2/uniswap.config.js",
     "dev": "yarn trade mexc --conf ./data/config/mexc/30m.json --paper"
   },
   "lint-staged": {
@@ -39,6 +39,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.4.10",
+    "@uniswap/sdk": "^3.0.3",
     "ccxt": "^2.6.36",
     "cheerio": "^1.0.0-rc.10",
     "child_process": "^1.0.2",
