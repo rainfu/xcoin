@@ -1,8 +1,8 @@
 {
-    "version": "1.6.5",
+    "version": "1.7.1",
     "description": {
-        "en": "<ul><li>Add backtest module</li><li>Opti trade</li><li>Bug fix</li></ul>",
-        "cn": "<ul><li>添加回测模块</li><li>交易优化</li><li>Bug修复</li><ul>"
+        "en": "<ul><li>Add defi exchange ,includes uniswap and pancakeswap</li><li>Opti trade</li><li>Bug fix</li></ul>",
+        "cn": "<ul><li>添加DEFI交易所，包括UNISWAP与PANCAKESWAP</li><li>交易优化</li><li>Bug修复</li><ul>"
     },
     "downloadLink": "https://www.ciiat.com/download",
     "enforce":true
