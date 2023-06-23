@@ -831,12 +831,36 @@ module.exports = function container(conf, so, inOptions) {
     },
     updateSymbols: function (symbols) {
       products = this.getProducts();
+      let oldProducts = this.getProducts();
+      let filterProducts = oldProducts.filter(
+        (p) => p.holders < so.defi.maxHolders
+      );
+      filterProducts = filterProducts.filter(
+        (p) => p.volumeUSD && p.volumeUSD < so.defi.maxVolumeUSD
+      );
+
+      var target = require("path").resolve(
+        __dirname,
+        "../../../data/exchanges/" + exchagneId + "_products.json"
+      );
+      require("fs").writeFileSync(
+        target,
+        JSON.stringify(filterProducts, null, 2)
+      );
+      console.log(
+        "filterProducts from".cyan,
+        oldProducts.length,
+        "to".cyan,
+        filterProducts.length
+      );
       return symbols
         .filter((sy) => {
-          return products.find((p) => p.normalized === sy.normalized);
+          return filterProducts.find((p) => p.normalized === sy.normalized);
         })
         .map((sy) => {
-          let product = products.find((p) => p.normalized === sy.normalized);
+          let product = filterProducts.find(
+            (p) => p.normalized === sy.normalized
+          );
           return {
             asset: product.asset,
             currency: product.currency,
