@@ -186,7 +186,7 @@
   "period": "1d",
   "poll_scan_time": 10000,
   "min_periods": 32,
-  "watch_symbols": "pancakeswap.RDNT-WBNB,pancakeswap.MGP-WBNB",
+  "watch_symbols": "pancakeswap.Metis-WBNB,pancakeswap.MGP-WBNB",
   "output": {
     "panacea": {
       "on": true,
@@ -197,7 +197,7 @@
   "server": {
     "ip": "127.0.0.1",
     "port": 17819,
-    "save_pairs": "mexc.ETH-USDT,mexc.LOOP-USDT,mexc.BTC-USDT,mexc.GPT-USDT,mexc.MASK-USDT",
+    "save_pairs": "pancakeswap.ETH-USDT,pancakeswap.LOOP-USDT,pancakeswap.BTC-USDT,pancakeswap.GPT-USDT,pancakeswap.MASK-USDT",
     "db": "tickers"
   },
   "exchange": "pancakeswap",
@@ -277,148 +277,15 @@
   "hasStrategy": true,
   "hasMarket": false,
   "defi": {
+    "currency":"WBNB",
     "since": 1,
-    "limit": 100,
+    "limit": 10,
     "minHolders": 1000,
     "maxHolders": 50000,
     "minVolumeUSD": 50000,
     "maxVolumeUSD": 5000000,
     "minTotalTransactions": 1000,
+    "minTotalVolumeUSD":100000,
     "new_token_scan_time": 600000
-  },
-  "user": "rain",
-  "symbols": [
-    {
-      "asset": "0xf7de7e8a6bd59ed41a4b5fe50278b3b7f31384df",
-      "currency": "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c",
-      "symbol": "RDNT",
-      "csymbol": "WBNB",
-      "id": "0xb55a0b97b7d9ebe4208b08ab00fec0c419cc32a3",
-      "decimals": "18",
-      "exchange_id": "pancakeswap",
-      "product_id": "RDNT-WBNB",
-      "normalized": "pancakeswap.RDNT-WBNB"
-    },
-    {
-      "asset": "0xf700d4c708c2be1463e355f337603183d20e0808",
-      "currency": "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c",
-      "symbol": "GQ",
-      "csymbol": "WBNB",
-      "id": "0xde117589a822d93da74aaf7bd638fbd90e756e4a",
-      "decimals": "18",
-      "exchange_id": "pancakeswap",
-      "product_id": "GQ-WBNB",
-      "normalized": "pancakeswap.GQ-WBNB"
-    },
-    {
-      "asset": "0xf041a35049f1609e77afb02c573739af73efd532",
-      "currency": "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c",
-      "symbol": "SUKIW",
-      "csymbol": "WBNB",
-      "id": "0x6580546363f245eb39d12dc39a6168b76f2cec74",
-      "decimals": "18",
-      "exchange_id": "pancakeswap",
-      "product_id": "SUKIW-WBNB",
-      "normalized": "pancakeswap.SUKIW-WBNB"
-    },
-    {
-      "asset": "0xe552fb52a4f19e44ef5a967632dbc320b0820639",
-      "currency": "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c",
-      "symbol": "Metis",
-      "csymbol": "WBNB",
-      "id": "0x86b0b44723c675660caa09bc47486e55c8599544",
-      "decimals": "18",
-      "exchange_id": "pancakeswap",
-      "product_id": "Metis-WBNB",
-      "normalized": "pancakeswap.Metis-WBNB"
-    },
-    {
-      "asset": "0xe4cc45bb5dbda06db6183e8bf016569f40497aa5",
-      "currency": "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c",
-      "symbol": "GAL",
-      "csymbol": "WBNB",
-      "id": "0x729c9a7e1f642eab4019dfb0d467f4a9838e7cbd",
-      "decimals": "18",
-      "exchange_id": "pancakeswap",
-      "product_id": "GAL-WBNB",
-      "normalized": "pancakeswap.GAL-WBNB"
-    },
-    {
-      "asset": "0xd98438889ae7364c7e2a3540547fad042fb24642",
-      "currency": "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c",
-      "symbol": "CELL",
-      "csymbol": "WBNB",
-      "id": "0xa2c1e0237bf4b58bc9808a579715df57522f41b2",
-      "decimals": "18",
-      "exchange_id": "pancakeswap",
-      "product_id": "CELL-WBNB",
-      "normalized": "pancakeswap.CELL-WBNB"
-    },
-    {
-      "asset": "0xd06716e1ff2e492cc5034c2e81805562dd3b45fa",
-      "currency": "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c",
-      "symbol": "MGP",
-      "csymbol": "WBNB",
-      "id": "0x088464e4e8cc54bf91180cbb8c61c68aecc74166",
-      "decimals": "18",
-      "exchange_id": "pancakeswap",
-      "product_id": "MGP-WBNB",
-      "normalized": "pancakeswap.MGP-WBNB"
-    },
-    {
-      "asset": "0xd8047afecb86e44eff3add991b9f063ed4ca716b",
-      "currency": "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c",
-      "symbol": "GGG",
-      "csymbol": "WBNB",
-      "id": "0x2fa8b5924864198aa159d13700a3f4cb8956fdae",
-      "decimals": "18",
-      "exchange_id": "pancakeswap",
-      "product_id": "GGG-WBNB",
-      "normalized": "pancakeswap.GGG-WBNB"
-    },
-    {
-      "asset": "0xed376501f61046a3f43dac6d5ab51a700dda46fc",
-      "currency": "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c",
-      "symbol": "CNNC",
-      "csymbol": "WBNB",
-      "id": "0x2dd5b9f31de575d8facb1188dec3cdb3123e3894",
-      "decimals": "18",
-      "exchange_id": "pancakeswap",
-      "product_id": "CNNC-WBNB",
-      "normalized": "pancakeswap.CNNC-WBNB"
-    },
-    {
-      "asset": "0xd069599e718f963bd84502b49ba8f8657faf5b3a",
-      "currency": "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c",
-      "symbol": "PLAY",
-      "csymbol": "WBNB",
-      "id": "0x4a383460dca296476990bd29710b28994121d607",
-      "decimals": "18",
-      "exchange_id": "pancakeswap",
-      "product_id": "PLAY-WBNB",
-      "normalized": "pancakeswap.PLAY-WBNB"
-    },
-    {
-      "asset": "0xcdb96d3aef363a036c6cf6c9b5736d79f0e404e2",
-      "currency": "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c",
-      "symbol": "IPX",
-      "csymbol": "WBNB",
-      "id": "0x9c7a87327f658ebb643bd180835de2e2829f88f8",
-      "decimals": "18",
-      "exchange_id": "pancakeswap",
-      "product_id": "IPX-WBNB",
-      "normalized": "pancakeswap.IPX-WBNB"
-    },
-    {
-      "asset": "0xccd09b80453335aa914f5d9174984b6586c315ec",
-      "currency": "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c",
-      "symbol": "bDXN",
-      "csymbol": "WBNB",
-      "id": "0xe0f166b714726efb679ad48ba58e8b1403e363ea",
-      "decimals": "18",
-      "exchange_id": "pancakeswap",
-      "product_id": "bDXN-WBNB",
-      "normalized": "pancakeswap.bDXN-WBNB"
-    }
-  ]
+  }
 }

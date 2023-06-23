@@ -119,6 +119,7 @@ module.exports = class pancakeswap extends Exchange {
     let minVolumeUSD = opts.minVolumeUSD || 100000;
     let maxVolumeUSD = opts.maxVolumeUSD || 50000000;
     let minTotalTransactions = opts.minTotalTransactions || 1000;
+    let minTotalVolumeUSD = opts.minTotalVolumeUSD || 100000;
     //  console.log('fetchMarkets', baseTokenAddress, since, minHolders, limit, minVolumeUSD, minReserveUSD, minTotalTransactions)
     if (since) {
       const query_start = tb().resize("1d").subtract(since).toMilliseconds();
@@ -195,7 +196,24 @@ module.exports = class pancakeswap extends Exchange {
                   ? fitPool.token0Price
                   : fitPool.token1Price,
             });
-            newTokenList.push(symbol);
+            let symbolTotalVolumeUSD =
+              (symbol.price &&
+                symbol.total_supply &&
+                2000 *
+                  parseFloat(symbol.total_supply) *
+                  parseFloat(symbol.price)) ||
+              0;
+            if (symbolTotalVolumeUSD > minTotalVolumeUSD) {
+              newTokenList.push(symbol);
+            } else {
+              blacklist.push(symbol);
+            }
+            if (!symbol.symbol) {
+              symbol.symbol =
+                fitPool.token0.id === baseTokenAddress
+                  ? fitPool.token1.symbol
+                  : fitPool.token0.symbol;
+            }
           }
         }
       } else {
@@ -546,7 +564,32 @@ module.exports = class pancakeswap extends Exchange {
     // console.log("getPoolWithHour", response);
     let pairHourDatas = this.safeValue(response, "poolHourData", {});
     //console.log("pairHourDatas", pairHourDatas[0], pairHourDatas.length);
-    return this.parseOHLCVs(pairHourDatas, undefined, since, limit);
+    return pairHourDatas.map((ohlcv) => {
+      // console.log("response.price", response.token0Price, response.token1Price);
+      // console.log("token1Price", token1Price);
+      if (response.token0.id === this.baseTokenAddress) {
+        let res = [
+          this.safeTimestamp(ohlcv, "periodStartUnix"),
+          this.safeNumber(ohlcv, "open"),
+          this.safeNumber(ohlcv, "high"),
+          this.safeNumber(ohlcv, "low"),
+          this.safeNumber(ohlcv, "close"),
+          this.safeNumber(ohlcv, "volumeUSD"),
+        ];
+        return res;
+      } else {
+        let res = [
+          this.safeTimestamp(ohlcv, "periodStartUnix"),
+          Number(1 / this.safeNumber(ohlcv, "open")),
+          Number(1 / this.safeNumber(ohlcv, "low")),
+          Number(1 / this.safeNumber(ohlcv, "high")),
+          Number(1 / this.safeNumber(ohlcv, "close")),
+          this.safeNumber(ohlcv, "volumeUSD"),
+        ];
+        //  console.log("res", res);
+        return res;
+      }
+    });
   }
   async fetchOHLCV2(opts, params = {}) {
     const defaultLimit = 100;
@@ -564,14 +607,31 @@ module.exports = class pancakeswap extends Exchange {
     let poolDayDatas = this.safeValue(response, "poolDayData", {});
     //console.log("pairHourDatas", pairHourDatas[0], pairHourDatas.length);
     return poolDayDatas.map((ohlcv) => {
-      return [
-        this.safeTimestamp(ohlcv, "date"),
-        this.safeNumber(ohlcv, "open"),
-        this.safeNumber(ohlcv, "high"),
-        this.safeNumber(ohlcv, "low"),
-        this.safeNumber(ohlcv, "close"),
-        this.safeNumber(ohlcv, "volumeUSD"),
-      ];
+      // console.log("response.price", response.token0Price, response.token1Price);
+      let token1Price = 1 / Number(response.token0Price);
+      // console.log("token1Price", token1Price);
+      if (response.token0.id === this.baseTokenAddress) {
+        let res = [
+          this.safeTimestamp(ohlcv, "date"),
+          this.safeNumber(ohlcv, "open"),
+          this.safeNumber(ohlcv, "high"),
+          this.safeNumber(ohlcv, "low"),
+          this.safeNumber(ohlcv, "close"),
+          this.safeNumber(ohlcv, "volumeUSD"),
+        ];
+        return res;
+      } else {
+        let res = [
+          this.safeTimestamp(ohlcv, "date"),
+          Number(1 / this.safeNumber(ohlcv, "open")),
+          Number(1 / this.safeNumber(ohlcv, "low")),
+          Number(1 / this.safeNumber(ohlcv, "high")),
+          Number(1 / this.safeNumber(ohlcv, "close")),
+          this.safeNumber(ohlcv, "volumeUSD"),
+        ];
+        //  console.log("res", res);
+        return res;
+      }
     });
   }
   parseOHLCV(ohlcv) {

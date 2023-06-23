@@ -203,18 +203,16 @@ module.exports = class uniswap extends Exchange {
                   parseFloat(symbol.total_supply) *
                   parseFloat(symbol.price)) ||
               0;
-            /* console.log(
-              "symbolTotalVolumeUSD",
-              symbol.base,
-              symbol.price,
-              symbol.total_supply,
-              symbolTotalVolumeUSD,
-              minTotalVolumeUSD
-            ); */
             if (symbolTotalVolumeUSD > minTotalVolumeUSD) {
               newTokenList.push(symbol);
             } else {
               blacklist.push(symbol);
+            }
+            if (!symbol.symbol) {
+              symbol.symbol =
+                fitPool.token0.id === baseTokenAddress
+                  ? fitPool.token1.symbol
+                  : fitPool.token0.symbol;
             }
           }
         }
@@ -222,13 +220,14 @@ module.exports = class uniswap extends Exchange {
         blacklist.push(symbol);
       }
     }
+    console.log("newTokenList ok", newTokenList.length);
     return { newTokenList, blacklist };
   }
   async fetchProducts(products, params = {}) {
     let newTokenList = [];
     // console.log("fetchProducts ", products);
     let symbols = products.map((s) => s.asset);
-    //  console.log("fetchProducts 2", symbols);
+    // console.log("fetchProducts 2", symbols);
     for (let i = 0; i < products.length; i++) {
       let symbol = {
         quote: this.baseTokenAddress,
@@ -349,7 +348,6 @@ module.exports = class uniswap extends Exchange {
     if (Object.keys(query).length) {
       url += "?" + this.urlencode(query);
     }
-    console.log("url", url);
     return { url: url, method: method, body: body, headers: headers };
   }
 
@@ -381,7 +379,7 @@ module.exports = class uniswap extends Exchange {
     return balance;
   }
   async fetchOrder(id, params = {}) {
-    //txhash=0x651c965d8c9396deccd1128b178ea76f27a4cd8099862a3d941130d9201cf8c0&apiKey=V433U58M7ZWPZ38PMPJS1HVS5AF7S5F9WZ&module=transaction&action=gettxreceiptstatus&req_time=1686466270
+    // txhash=0x651c965d8c9396deccd1128b178ea76f27a4cd8099862a3d941130d9201cf8c0&apiKey=V433U58M7ZWPZ38PMPJS1HVS5AF7S5F9WZ&module=transaction&action=gettxreceiptstatus&req_time=1686466270
     let request = {
       txhash: id,
       apiKey: exchangeConfig[this.exchange].scankey,
@@ -566,7 +564,32 @@ module.exports = class uniswap extends Exchange {
     // console.log("getPoolWithHour", response);
     let pairHourDatas = this.safeValue(response, "poolHourData", {});
     //console.log("pairHourDatas", pairHourDatas[0], pairHourDatas.length);
-    return this.parseOHLCVs(pairHourDatas, undefined, since, limit);
+    return pairHourDatas.map((ohlcv) => {
+      // console.log("response.price", response.token0Price, response.token1Price);
+      // console.log("token1Price", token1Price);
+      if (response.token0.id === this.baseTokenAddress) {
+        let res = [
+          this.safeTimestamp(ohlcv, "periodStartUnix"),
+          this.safeNumber(ohlcv, "open"),
+          this.safeNumber(ohlcv, "high"),
+          this.safeNumber(ohlcv, "low"),
+          this.safeNumber(ohlcv, "close"),
+          this.safeNumber(ohlcv, "volumeUSD"),
+        ];
+        return res;
+      } else {
+        let res = [
+          this.safeTimestamp(ohlcv, "periodStartUnix"),
+          Number(1 / this.safeNumber(ohlcv, "open")),
+          Number(1 / this.safeNumber(ohlcv, "low")),
+          Number(1 / this.safeNumber(ohlcv, "high")),
+          Number(1 / this.safeNumber(ohlcv, "close")),
+          this.safeNumber(ohlcv, "volumeUSD"),
+        ];
+        //  console.log("res", res);
+        return res;
+      }
+    });
   }
   async fetchOHLCV2(opts, params = {}) {
     const defaultLimit = 100;
@@ -584,14 +607,31 @@ module.exports = class uniswap extends Exchange {
     let poolDayDatas = this.safeValue(response, "poolDayData", {});
     //console.log("pairHourDatas", pairHourDatas[0], pairHourDatas.length);
     return poolDayDatas.map((ohlcv) => {
-      return [
-        this.safeTimestamp(ohlcv, "date"),
-        this.safeNumber(ohlcv, "open"),
-        this.safeNumber(ohlcv, "high"),
-        this.safeNumber(ohlcv, "low"),
-        this.safeNumber(ohlcv, "close"),
-        this.safeNumber(ohlcv, "volumeUSD"),
-      ];
+      // console.log("response.price", response.token0Price, response.token1Price);
+      let token1Price = 1 / Number(response.token0Price);
+      // console.log("token1Price", token1Price);
+      if (response.token0.id === this.baseTokenAddress) {
+        let res = [
+          this.safeTimestamp(ohlcv, "date"),
+          this.safeNumber(ohlcv, "open"),
+          this.safeNumber(ohlcv, "high"),
+          this.safeNumber(ohlcv, "low"),
+          this.safeNumber(ohlcv, "close"),
+          this.safeNumber(ohlcv, "volumeUSD"),
+        ];
+        return res;
+      } else {
+        let res = [
+          this.safeTimestamp(ohlcv, "date"),
+          Number(1 / this.safeNumber(ohlcv, "open")),
+          Number(1 / this.safeNumber(ohlcv, "low")),
+          Number(1 / this.safeNumber(ohlcv, "high")),
+          Number(1 / this.safeNumber(ohlcv, "close")),
+          this.safeNumber(ohlcv, "volumeUSD"),
+        ];
+        //  console.log("res", res);
+        return res;
+      }
     });
   }
   parseOHLCV(ohlcv) {

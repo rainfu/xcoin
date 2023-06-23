@@ -143,6 +143,16 @@ const GET_POOL_WITH_HOUR = gql`
   query getPoolWithHour($id: String!, $since: Int!, $limit: Int!, $skip: Int!) {
     pool(id: $id) {
       createdAtTimestamp
+      token0Price
+      token1Price
+      token0 {
+        id
+        symbol
+      }
+      token1 {
+        id
+        symbol
+      }
       poolHourData(
         first: $limit
         sckip: $skip
@@ -168,6 +178,16 @@ const GET_POOL_WITH_DAY = gql`
   query getPoolWithDay($id: String!, $since: Int!, $limit: Int!, $skip: Int!) {
     pool(id: $id) {
       createdAtTimestamp
+      token0Price
+      token1Price
+      token0 {
+        id
+        symbol
+      }
+      token1 {
+        id
+        symbol
+      }
       poolDayData(
         first: $limit
         sckip: $skip
