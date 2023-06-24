@@ -1,0 +1,1 @@
+import{_ as s,c as a,o as n,N as l}from"./chunks/framework.9a843496.js";const q=JSON.parse('{"title":"Strategy","description":"","frontmatter":{},"headers":[],"relativePath":"strategy.md","lastUpdated":1687579715000}'),o={name:"strategy.md"},p=l("",18),t=[p];function e(r,c,F,y,D,i){return n(),a("div",null,t)}const d=s(o,[["render",e]]);export{q as __pageData,d as default};
