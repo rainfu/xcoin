@@ -83,6 +83,8 @@ const options = {
   watch_include_bought: true,
   watch_with_black_list: true,
   black_list: "",
+  watch_with_white_list: false,
+  white_list: "",
   with_server: false,
   poll_broadcast_time: 5000,
   poll_watch_wait: 1000,

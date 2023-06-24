@@ -633,6 +633,17 @@
             "type": "textarea",
             "value": "",
             "placeholder": true
+        },
+        {
+            "name": "watch_with_white_list",
+            "type": "bool",
+            "value": false
+        },
+        {
+            "name": "white_list",
+            "type": "textarea",
+            "value": "",
+            "placeholder": true
         }
     ],
     "paper": [
