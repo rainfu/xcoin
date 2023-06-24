@@ -57,7 +57,7 @@ node ./xcoin strategies
 Get your assets on an exchange
 
 ```bash
-node ./xcoin exchange binance --balance
+node ./xcoin exchange uniswap --balance
 ```
 
 ## Run XCoin
@@ -71,7 +71,7 @@ node ./xcoin trade binance --watch-symbols binance.BTC-USDT,ETH-USDt --paper
 You can also use the yarn command directly, both have the same effect
 
 ```bash
-yarn trade binance --watch-symbols binance.BTC-USDT,ETH-USDt --paper
+yarn trade pancakeswap --watch-symbols binance.BTC-USDT,ETH-USDt --paper
 ```
 
 Use the `--paper` flag to decide whether to trade live or paper.

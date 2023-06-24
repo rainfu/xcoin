@@ -4,7 +4,7 @@ layout: home
 hero:
   name: XCoin
   text: Next Gerneration Trading Bot
-  tagline: A Simple and Powerful Trading Robot Based on Nodejs.
+  tagline: A Simple and Powerful Trading Bot Support Based on Nodejs, CCXT and DEFI.
   image:
     src: /images/screenshot.jpg
     alt: XCoin        
@@ -21,7 +21,7 @@ features:
    - title: Unlimited trading pairs
      details: Support trading multiple trading pairs at the same time, you can trade all pairs at the same time.
    - title: Unlimited exchanges
-     details: Support all exchanges supported by ccxt, easily add custom exchanges.
+     details: Support all exchanges supported by ccxt, support defi exchange like pancakeswap and uniswap,easily extend custom exchange.
    - title: New Strategy Framework
      details: Support all trading strategies supported by technicalindicators, and easily extend new strategies through JSON files.
    - title: Support long and short trading

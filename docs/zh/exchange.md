@@ -10,6 +10,10 @@ XCoin支持 [ccxt](https://github.com/ccxt/ccxt) 支持的所有交易所（超�
 
 支持通过 [ccxt](https://github.com/ccxt/ccxt) 模块获取数据的近百个主流交易所，通过用户提供的api key，交易所可通过匿名，用户认证，websocket认证三种模式获得数据，您可以根据需要便捷地进行调用
 
+### defi
+
+支持主流Defi交易所如  [pancakeswap](https://www.pancakeswap.finance) 和 [uniswap](https://www.uniswap.org)，支持实时自动添加新的活跃代币。 您也可以根据需要便捷地扩展其它defi交易所
+
 ### sim
 
 模拟交易所，用于支持模拟与回测交易

@@ -462,6 +462,17 @@ XCoin通过配置文件初始化机器人，包括以下几类配置文件
       type: "textarea",
       value: '',
       placeholder: true,
+    },
+    {
+      name: "watch_with_white_list",//是否使用白名单
+      type: "bool",
+      value: false
+    },
+    {
+      name: "white_list",//白名单
+      type: "textarea",
+      value: "",
+      placeholder: true
     }
   ],
   paper: [//模拟交易相关

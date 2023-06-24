@@ -12,6 +12,10 @@ We are also considering adding a DEFI type exchange based on pancakswap, so stay
 
 Supports nearly a hundred mainstream exchanges that obtain data through the [ccxt](https://github.com/ccxt/ccxt) module. Through the api key provided by the user, the exchange can pass through three modes: anonymous, user authentication, and websocket authentication Get the data, you can call it conveniently as needed
 
+### Defi
+
+Support Defi exchanges such as [pancakeswap](https://www.pancakeswap.finance) And [uniswap](https://www.uniswap.org). Support real-time automatic addition of new active tokens. You can also easily expand other defi exchanges as needed
+
 ### sim
 
 Simulated exchange, used to support simulated and backtested transactions

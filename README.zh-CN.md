@@ -9,6 +9,8 @@
 > 服务器端: nodejs+mongodb ;  
 >
 > 可选客户端: Android,Ios, Linux, macOS and Windows.
+>
+> 支持交易所: CCXT 如 binance与mexc;DEFI,如uniswap 与 pancakeswap.
 
 ## 屏幕截图
 
@@ -26,6 +28,8 @@
 
 - 支持 [ccxt](https://github.com/ccxt/ccxt) 支持的所有交易所，[Binance](https://www.binance.com),[BinanceUsdm](https://www.binance.com),[Mexc](https://www.mexc.com/)已完整测试.
 
+- 支持 defi 支持交易所，[Pancakeswap](https://www.pancakeswap.finance),[Uniswap](https://www.uniswap.org),可轻松扩展第三方DEFI交易所.
+
 - 支持 [technicalindicators](https://github.com/anandanand84/technicalindicators) 支持的所有交易策略，轻松通过JSON文件扩展新的策略.
 
 - 支持期货交易并可控制是多空双方还是仅交易多方，空方.
@@ -37,6 +41,8 @@
 - 支持在单独线程上获取价格更新，支持同一机器同一交易所部署多个机器人.
 
 - 支持真实交易，虚拟交易及对交易进行回测
+
+- 支持黑名单，白名单，让量化交易与非量化交易有序进行
 
 - 通过 [灵丹](https://github.com) 支持所有移动设备与桌面设备，实时控制机器人的全部状态与操作
 

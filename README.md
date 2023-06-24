@@ -2,13 +2,15 @@
 
 <h1 align="center">XCoin</h1>
 
-<h4 align="center">Next Generation Trading Bot</h4>
+<h4 align="center">Next Generation Trading Bot Based On Nodejs,CCXT,DEFI</h4>
 
 **A simple and powerful trading bot based on nodejs**
 
 > server side: nodejs+mongodb;
 >
 > client side: Android,Ios, Linux, macOS and Windows.
+>
+> support exchagne: CCXT, binance and mexc...;DEFI,uniswap and pancakeswap...
 
 ## Screenshots
 
@@ -26,6 +28,8 @@
 
 - Support all exchanges supported by [ccxt](https://github.com/ccxt/ccxt), [Binance](https://www.binance.com),[BinanceUsdm](https://www.binance.com), [Mexc](https://www.mexc.com/) have been fully tested.
 
+- Support defi exchanges like [Pancakeswap](https://www.pancakeswap.finance),[Uniswap](https://www.uniswap.org),easy to extend your custom defi exchange.
+
 - Support all trading strategies supported by [technicalindicators](https://github.com/anandanand84/technicalindicators), easily extend new strategies through JSON files.
 
 - Supports futures trading and can control whether it is long or short or both trading.
@@ -37,6 +41,8 @@
 - Support getting price updates on a separate thread, and support deploying multiple bots on the same machine on the same exchange.
 
 - Support real transactions, virtual transactions and backtest transactions
+
+- Support blacklist and whitelist, ensure orderly progress of quantitative and non quantitative transactions
 
 - Support all mobile devices and desktop devices through [Panacea](https://github.com/markmind/panacea-api), control all the states and operations of the bot in real time
 

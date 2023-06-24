@@ -4,7 +4,7 @@ layout: home
 hero:
   name: XCoin
   text: 下一代交易机器人
-  tagline: 基于Nodejs，简单而强大的数字资产交易机器人。
+  tagline: 基于Nodejs,CCXT与DEFI，简单而强大的数字资产交易机器人。
   image:
     src: /images/screenshot_cn.jpg
     alt: XCoin        
@@ -21,7 +21,7 @@ features:
   - title: 不限交易对
     details: 支持同时交易多个交易对，只要服务器有足够算力，理论上你可以同时交易所有交易对。
   - title: 不限交易所
-    details: 支持 ccxt 支持的所有交易所,轻松添加自定义交易所。
+    details: 支持 ccxt 支持的所有交易所,支持 pancakewap,uniswap,轻松添加自定义交易所。
   - title: 全新策略框架
     details: 支持 technicalindicators 支持的所有交易策略，轻松通过JSON文件扩展新的策略。
   - title: 支持多空交易

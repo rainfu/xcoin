@@ -12,6 +12,8 @@ You can get more help at [API](api.md)
 
 The exchange extension provides the data source for the bot to trade. By default, the extension provided by ccxt is used. ccxt provides a large number of exchange data interfaces. If you need to develop an exchange-specific interface, you can create it under extensions Own exchange interface.
 
+The defi exchange is the main interface for defi, now including uniswap and pancakeswap.  If you need to develop an exchange-specific interface, you can create it under extensions Own exchange interface.
+
 The sim exchange is the main interface for simulated trading, including paper and sim. The former uses real exchange data for simulated trading, and the latter uses historical data for backtesting transactions.
 
 You can get more help at [exchangse](exchange.md)

@@ -459,7 +459,18 @@ The basic configuration file is located in the /confg directory, and the file na
        type: "textarea",
        value: '',
        placeholder: true,
-     }
+     },
+    {
+      name: "watch_with_white_list",//use whitelist
+      type: "bool",
+      value: false
+    },
+    {
+      name: "white_list",//white list
+      type: "textarea",
+      value: "",
+      placeholder: true
+    }
    ],
    paper: [//Simulated transaction related
      {

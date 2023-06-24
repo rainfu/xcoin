@@ -57,7 +57,7 @@ node ./xcoin strategies
 获得某一交易所您的资产
 
 ```bash
-node ./xcoin exchange binance --balance
+node ./xcoin exchange uniswap --balance
 ```
 
 ## 运行XCoin
@@ -71,7 +71,7 @@ node ./xcoin trade binance --watch-symbols binance.BTC-USDT,ETH-USDt --paper
 您也可以直接使用yarn 命令，两者效果相同
 
 ```bash
-yarn trade binance --watch-symbols binance.BTC-USDT,ETH-USDt --paper
+yarn trade pancakeswap --watch-symbols binance.BTC-USDT,ETH-USDt --paper
 ```
 
 使用 `--paper` 标识来决定是真实交易还是模拟交易.
