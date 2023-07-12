@@ -844,9 +844,13 @@ module.exports = function container(conf, so, inOptions) {
     },
     updateSymbols(symbols) {
       products = this.getProducts();
-      return symbols.filter((sy) => {
-        return products.find((p) => p.normalized === sy.normalized);
-      });
+      if (symbols) {
+        return symbols.filter((sy) => {
+          return products.find((p) => p.normalized === sy.normalized);
+        });
+      } else {
+        return [];
+      }
     },
   };
   so.symbols = exchange.updateSymbols(so.symbols);

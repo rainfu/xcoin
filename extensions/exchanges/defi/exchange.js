@@ -847,32 +847,30 @@ module.exports = function container(conf, so, inOptions) {
         target,
         JSON.stringify(filterProducts, null, 2)
       );
-      console.log(
-        "filterProducts from".cyan,
-        oldProducts.length,
-        "to".cyan,
-        filterProducts.length
-      );
-      return symbols
-        .filter((sy) => {
-          return filterProducts.find((p) => p.normalized === sy.normalized);
-        })
-        .map((sy) => {
-          let product = filterProducts.find(
-            (p) => p.normalized === sy.normalized
-          );
-          return {
-            asset: product.asset,
-            currency: product.currency,
-            symbol: product.symbol,
-            csymbol: product.csymbol,
-            id: product.id,
-            decimals: product.decimals,
-            exchange_id: product.exchagne_id,
-            product_id: product.product_id,
-            normalized: product.normalized,
-          };
-        });
+      if (symbols) {
+        return symbols
+          .filter((sy) => {
+            return filterProducts.find((p) => p.normalized === sy.normalized);
+          })
+          .map((sy) => {
+            let product = filterProducts.find(
+              (p) => p.normalized === sy.normalized
+            );
+            return {
+              asset: product.asset,
+              currency: product.currency,
+              symbol: product.symbol,
+              csymbol: product.csymbol,
+              id: product.id,
+              decimals: product.decimals,
+              exchange_id: product.exchagne_id,
+              product_id: product.product_id,
+              normalized: product.normalized,
+            };
+          });
+      } else {
+        return [];
+      }
     },
   };
   so.symbols = exchange.updateSymbols(so.symbols);
