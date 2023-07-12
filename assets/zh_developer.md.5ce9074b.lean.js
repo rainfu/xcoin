@@ -1,1 +1,0 @@
-import{_ as e,c as t,o as a,N as s}from"./chunks/framework.9a843496.js";const u=JSON.parse('{"title":"开发者","description":"","frontmatter":{},"headers":[],"relativePath":"zh/developer.md","lastUpdated":1687579715000}'),n={name:"zh/developer.md"},i=s("",14),o=[i];function r(p,c,h,l,d,x){return a(),t("div",null,o)}const g=e(n,[["render",r]]);export{u as __pageData,g as default};
