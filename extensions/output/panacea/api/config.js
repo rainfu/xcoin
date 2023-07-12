@@ -17,8 +17,10 @@ const updateConfig = (message, cb, s) => {
   if (message.data.takerFee || message.data.makerFee) {
     s.exchange.initFees();
   }
+
   try {
     let newConfig = _.defaultsDeep({ modified: message.data }, s.options);
+    delete newConfig.symbols;
     //  let filename = s.options.strategy.name + "_" + s.options.period + "_" + (new Date().getTime())
     var target = require("path").resolve(
       __dirname,
